@@ -1,58 +1,23 @@
-using System;
-using System.Drawing;
-using System.Drawing.Printing;
-using System.Windows.Forms;
-
-public class PrintExample : Form
+protected override void OnPaint(PaintEventArgs e)
 {
-    private Button printButton;
-
-    public PrintExample()
+    try
     {
-        printButton = new Button
+        base.OnPaint(e);
+
+        Rectangle rect = this.ClientRectangle;
+
+        if (rect.Width > 0 && rect.Height > 0)
         {
-            Text = "Print 6x4 Page",
-            Dock = DockStyle.Top
-        };
-        printButton.Click += PrintButton_Click;
-
-        Controls.Add(printButton);
-    }
-
-    private void PrintButton_Click(object sender, EventArgs e)
-    {
-        PrintDocument printDocument = new PrintDocument();
-
-        // Set the custom page size to 6x4 inches
-        PaperSize paperSize = new PaperSize("Custom6x4", 600, 400); // 6x4 inches in hundredths of an inch
-        printDocument.DefaultPageSettings.PaperSize = paperSize;
-
-        printDocument.PrintPage += PrintDocument_PrintPage;
-
-        try
-        {
-            printDocument.Print();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"An error occurred while printing: {ex.Message}");
+            using (LinearGradientBrush brush = new LinearGradientBrush(
+                rect, Color.White, Color.Blue, LinearGradientMode.Horizontal))
+            {
+                e.Graphics.FillRectangle(brush, rect);
+            }
         }
     }
-
-    private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
+    catch (Exception ex)
     {
-        // Draw something on the page
-        string textToPrint = "This is a 6x4 inch page!";
-        Font font = new Font("Arial", 16);
-        PointF point = new PointF(50, 50);
-
-        e.Graphics.DrawString(textToPrint, font, Brushes.Black, point);
-    }
-
-    [STAThread]
-    static void Main()
-    {
-        Application.EnableVisualStyles();
-        Application.Run(new PrintExample());
+        Debug.WriteLine($"OnPaint Error: {ex.Message}");
+        // Optionally log the error or display it in a less intrusive way
     }
 }
