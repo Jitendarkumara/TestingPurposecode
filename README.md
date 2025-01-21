@@ -1,50 +1,34 @@
-const array = ["voltage", "power", "speed", null]; // Example array with a null value
+	   const DashErrorElementsFirstRow = document.querySelector('.DS');
+		  const value1 =DashErrorElementsFirstRow.querySelector('td:nth-child(10)').getAttribute('data-value');
 
-array.forEach((value, index) => {
-    const element = document.querySelectorAll('.test')[index]; // Select the corresponding element by index
-    
-    if (value === null) {
-        console.log(`Index ${index}: The value is null, skipping task.`);
-        // If the value is null, maybe set a default color for the element
-        if (element) {
-            element.style.backgroundColor = 'gray'; // Change color to gray when the value is null
-        }
-    } else {
-        // Check for each index and change the background color for each case
-        switch (index) {
-            case 0:
-                console.log(`Index ${index}: Task for ${value}`);
-                // Change color to red for "voltage"
-                if (element) {
-                    element.style.backgroundColor = 'red';
-                }
-                break;
-            case 1:
-                console.log(`Index ${index}: Task for ${value}`);
-                // Change color to green for "power"
-                if (element) {
-                    element.style.backgroundColor = 'green';
-                }
-                break;
-            case 2:
-                console.log(`Index ${index}: Task for ${value}`);
-                // Change color to blue for "speed"
-                if (element) {
-                    element.style.backgroundColor = 'blue';
-                }
-                break;
-            case 3:
-                console.log(`Index ${index}: Task for ${value}`);
-                // For "null" value or other index, set the color to gray or skip task
-                if (element) {
-                    element.style.backgroundColor = 'gray';
-                }
-                break;
-            default:
-                console.log(`Index ${index}: No specific task for ${value}`);
-                if (element) {
-                    element.style.backgroundColor = 'purple'; // Default color
-                }
-        }
-    }
-});
+const errorvalue=value1.split(',').map(item=>item.trim());
+console.log(errorvalue);
+	errorvalue.forEach((value,index)=>{
+		if(value==='')
+		{
+			console.log("Null  value found");
+		}
+		else
+		{
+			if(value[index]!=='' && index===0)
+			{
+				console.log(value[index]);
+				document.querySelector('.power').style.backgroundColor='red';
+			}
+			if(value[index]!=='' && index===2)
+			{
+				console.log(value[index]);
+				document.querySelector('.freq').style.backgroundColor='red';
+			}
+			if(value[index]!=='' && index===3)
+			{
+				console.log(value[index]);
+				document.querySelector('.speed').style.backgroundColor='red';
+			}
+			if(value[index]!=='' && index===1)
+			{
+				console.log(value[index]);
+				document.querySelector('.voltage').style.backgroundColor='red';
+			}
+		}
+	});
