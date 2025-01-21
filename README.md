@@ -1,13 +1,13 @@
   const DashErrorElementsRow = document.querySelectorAll('.DS');
  DashErrorElementsRow.forEach(el => {
 
-const value = $(this).find('td:eq(9)').text().trim();
+const value =$(el).find('td:eq(9)').getAttribute('data-value');
 		
 if (value === 1) {
-	  (this).style.color='red';
+	  el.style.backgroundColor='red';
 				}
 else
 	{
-	   (this).style.color='green';
+	   el.style.backgroundColor='green';
 	}
  });
