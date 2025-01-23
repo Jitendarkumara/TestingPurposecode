@@ -1,19 +1,20 @@
-    var unifiedData = _context.Alarm_Output.OrderByDescending(u => u.Timestamp).Select(millData => new
+var tableName = "M03";
+var unifiedData = _context.Alarm_Output
+    .Where(u => u.Mill != null && u.Mill.Equals(tableName, StringComparison.OrdinalIgnoreCase))
+    .OrderByDescending(u => u.Timestamp)
+    .Select(millData => new
     {
-        
-     millData.Timestamp,
-       millData.Voltage,
-       millData.Currents,
+        millData.Timestamp,
+        millData.Voltage,
+        millData.Currents,
         millData.Power,
         millData.Frequency,
         millData.Speed,
         millData.OD,
-        // Thickness = millData?.Thickness,
         millData.Grade,
-        //   Customer = millData?.Customer,
         millData.Mill,
-       millData.alarm,
+        millData.alarm,
         millData.Erroneous_Parameter
-
-        // };
-    }).Where(u=>u.Mill==tableName).Take(1000).ToList();
+    })
+    .Take(1000)
+    .ToList();
