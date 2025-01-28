@@ -1,98 +1,69 @@
-using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Windows.Forms;
+       private void LoadPdiRptGridSearch(DateTime selectedDate, string shift)
+       {
+           try
+           {
+               Db.DatabaseConnect();
+           //   string connectionString = "your_connection_string"; // Replace with your database connection string
+           string query = @"SELECT t_col_cot_pdi_l3.tc_coil_number, t_col_cot_pdi_l3.TC_WEIGHT,TC_ID_MESSAGE
+                    FROM t_col_cot_pdi_l3
+                    WHERE REGEXP_LIKE(t_col_cot_pdi_l3.tc_id_message, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$')
+                    AND TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN
+                    TO_TIMESTAMP(:StartShift, 'YYYY-MM-DD HH24:MI:SS')
+                    AND TO_TIMESTAMP(:EndShift, 'YYYY-MM-DD HH24:MI:SS')
+                    AND t_col_cot_pdi_l3.tc_coil_number NOT IN ('D1000', 'D2000')";
+                   //AND 
+                   //    TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN :StartShift AND :EndShift 
+                  
+                   //;";
 
-namespace ShiftFilterApp
-{
-    public partial class MainForm : Form
-    {
-        public MainForm()
-        {
-            InitializeComponent();
-        }
+           // Dynamically compute the time ranges based on the selected shift and date
+           string startShift, endShift;
+           switch (shift)
+           {
+               case "A":
+                   startShift = (selectedDate.AddHours(6)).ToString("yyyy-MM-dd HH:mm:ss");  // 06:00:00
+                   endShift = (selectedDate.AddHours(14)).ToString("yyyy-MM-dd HH:mm:ss");  // 14:00:00
+                    
+                   break;
+               case "B":
+                   startShift = (selectedDate.AddHours(14)).ToString("yyyy-MM-dd HH:mm:ss"); // 14:00:00
+                   endShift = (selectedDate.AddHours(22)).ToString("yyyy-MM-dd HH:mm:ss");  // 22:00:00
+                   break;
+               case "C":
+                   startShift = (selectedDate.AddHours(22)).ToString("yyyy-MM-dd HH:mm:ss");        // 22:00:00
+                   endShift = (selectedDate.AddDays(1).AddHours(6)).ToString("yyyy-MM-dd HH:mm:ss"); // Next day 06:00:00
+                   break;
+               case "ALL":
+                       DateTime startDate = selectedDate.Date;                   // Start time: 10 Sep 2024 12:00 AM
+                   DateTime endDate = startDate.AddDays(1).AddSeconds(-1); // End time: 10 Sep 2024 11:59:59 PM
 
-        private void FetchData(DateTime selectedDate, string shift)
-        {
-            string connectionString = "your_connection_string"; // Replace with your database connection string
-            string query = @"
-                SELECT 
-                    tc_coil_number, 
-                    TC_WEIGHT, 
-                    TC_ID_MESSAGE
-                FROM 
-                    t_col_cot_pdi_l3
-                WHERE 
-                    REGEXP_LIKE(TC_ID_MESSAGE, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$')
-                    AND TC_COIL_NUMBER NOT IN ('D1000', 'D2000')
-                    AND (
-                        -- Shift A: 06:00 to 14:00
-                        (CAST(TC_ID_MESSAGE AS DATETIME) BETWEEN @StartShift AND @EndShift AND @SelectedShift = 'A')
-                        -- Shift B: 14:00 to 22:00
-                        OR (CAST(TC_ID_MESSAGE AS DATETIME) BETWEEN @StartShift AND @EndShift AND @SelectedShift = 'B')
-                        -- Shift C: 22:00 to 06:00 (next day)
-                        OR ((CAST(TC_ID_MESSAGE AS DATETIME) >= @StartShift 
-                            OR CAST(TC_ID_MESSAGE AS DATETIME) < @EndShift) AND @SelectedShift = 'C')
-                    );";
-
-            // Dynamically compute the time ranges based on the selected shift and date
-            DateTime startShift, endShift;
-            switch (shift)
-            {
-                case "A":
-                    startShift = selectedDate.AddHours(6);  // 06:00:00
-                    endShift = selectedDate.AddHours(14);  // 14:00:00
+                   // Format the dates as strings in 'YYYY-MM-DD HH24:MI:SS' format
+                   startShift = startDate.ToString("yyyy-MM-dd HH:mm:ss");
+                   endShift = endDate.ToString("yyyy-MM-dd HH:mm:ss");
                     break;
-                case "B":
-                    startShift = selectedDate.AddHours(14); // 14:00:00
-                    endShift = selectedDate.AddHours(22);  // 22:00:00
-                    break;
-                case "C":
-                    startShift = selectedDate.AddHours(22);        // 22:00:00
-                    endShift = selectedDate.AddDays(1).AddHours(6); // Next day 06:00:00
-                    break;
-                default:
-                    MessageBox.Show("Invalid shift!");
-                    return;
-            }
+                   //return;
+           }
 
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@StartShift", startShift);
-                    command.Parameters.AddWithValue("@EndShift", endShift);
-                    command.Parameters.AddWithValue("@SelectedShift", shift);
+          
+               // using (SqlConnection connection = new SqlConnection(Db.Con))
+               OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
 
-                    SqlDataAdapter adapter = new SqlDataAdapter(command);
-                    DataTable dataTable = new DataTable();
-                    adapter.Fill(dataTable);
+               // Pass the formatted dates as strings to the query
+               da.SelectCommand.Parameters.Add(new OracleParameter(":StartShift", startShift));
+               da.SelectCommand.Parameters.Add(new OracleParameter(":EndShift", endShift));
+              // da.SelectCommand.Parameters.Add(new OracleParameter(":SelectedShift", shift));
 
-                    // Display the results in a DataGridView
-                    dataGridView1.DataSource = dataTable;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
-        }
+               DtPDI = new DataTable();
+               da.Fill(DtPDI);
+               dataGridViewRptPdi.DataSource = DtPDI;
+               dataGridViewRptPdi.AutoGenerateColumns = true;
 
-        private void btnFetchData_Click(object sender, EventArgs e)
-        {
-            // Get the user-selected date and shift
-            DateTime selectedDate = dateTimePicker1.Value.Date; // Selected date from DateTimePicker
-            string selectedShift = comboBoxShift.SelectedItem?.ToString(); // Selected shift from ComboBox
+              
+               
+           }
+           catch (Exception ex)
+           {
+               MessageBox.Show("Error: " + ex.Message);
+           }
+       }
 
-            if (string.IsNullOrEmpty(selectedShift))
-            {
-                MessageBox.Show("Please select a shift!");
-                return;
-            }
-
-            // Fetch data for the selected date and shift
-            FetchData(selectedDate, selectedShift);
-        }
-    }
-}
