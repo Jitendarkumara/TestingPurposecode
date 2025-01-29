@@ -1,69 +1,47 @@
-       private void LoadPdiRptGridSearch(DateTime selectedDate, string shift)
-       {
-           try
-           {
-               Db.DatabaseConnect();
-           //   string connectionString = "your_connection_string"; // Replace with your database connection string
-           string query = @"SELECT t_col_cot_pdi_l3.tc_coil_number, t_col_cot_pdi_l3.TC_WEIGHT,TC_ID_MESSAGE
-                    FROM t_col_cot_pdi_l3
-                    WHERE REGEXP_LIKE(t_col_cot_pdi_l3.tc_id_message, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$')
-                    AND TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN
-                    TO_TIMESTAMP(:StartShift, 'YYYY-MM-DD HH24:MI:SS')
-                    AND TO_TIMESTAMP(:EndShift, 'YYYY-MM-DD HH24:MI:SS')
-                    AND t_col_cot_pdi_l3.tc_coil_number NOT IN ('D1000', 'D2000')";
-                   //AND 
-                   //    TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN :StartShift AND :EndShift 
-                  
-                   //;";
+@foreach (var item in filteredData)
+{
 
-           // Dynamically compute the time ranges based on the selected shift and date
-           string startShift, endShift;
-           switch (shift)
-           {
-               case "A":
-                   startShift = (selectedDate.AddHours(6)).ToString("yyyy-MM-dd HH:mm:ss");  // 06:00:00
-                   endShift = (selectedDate.AddHours(14)).ToString("yyyy-MM-dd HH:mm:ss");  // 14:00:00
-                    
-                   break;
-               case "B":
-                   startShift = (selectedDate.AddHours(14)).ToString("yyyy-MM-dd HH:mm:ss"); // 14:00:00
-                   endShift = (selectedDate.AddHours(22)).ToString("yyyy-MM-dd HH:mm:ss");  // 22:00:00
-                   break;
-               case "C":
-                   startShift = (selectedDate.AddHours(22)).ToString("yyyy-MM-dd HH:mm:ss");        // 22:00:00
-                   endShift = (selectedDate.AddDays(1).AddHours(6)).ToString("yyyy-MM-dd HH:mm:ss"); // Next day 06:00:00
-                   break;
-               case "ALL":
-                       DateTime startDate = selectedDate.Date;                   // Start time: 10 Sep 2024 12:00 AM
-                   DateTime endDate = startDate.AddDays(1).AddSeconds(-1); // End time: 10 Sep 2024 11:59:59 PM
+				<tr class="DS">
+					<td>@item.Timestamp</td>
+					<td>@Math.Round(@item.Voltage, 2)</td>
+					<td>@Math.Round(@item.Currents, 2)</td>
+					<td>@Math.Round(@item.Power, 2)</td>
+					<td>@Math.Round(@item.Frequency, 2)</td>
+					<td>@Math.Round(@item.Speed, 2)</td>
+					<td>@item.OD</td>
 
-                   // Format the dates as strings in 'YYYY-MM-DD HH24:MI:SS' format
-                   startShift = startDate.ToString("yyyy-MM-dd HH:mm:ss");
-                   endShift = endDate.ToString("yyyy-MM-dd HH:mm:ss");
-                    break;
-                   //return;
-           }
+					<td>@item.Grade</td>
 
-          
-               // using (SqlConnection connection = new SqlConnection(Db.Con))
-               OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
+					<td class="DS-error" data-value="@item.alarm.ToString()">@item.Mill</td>
+					@* <td class="DS-error" data-value="@item.alarm.ToString()">@item.alarm</td> *@
+					<td data-value="@item.Erroneous_Parameter">@item.Erroneous_Parameter</td>
 
-               // Pass the formatted dates as strings to the query
-               da.SelectCommand.Parameters.Add(new OracleParameter(":StartShift", startShift));
-               da.SelectCommand.Parameters.Add(new OracleParameter(":EndShift", endShift));
-              // da.SelectCommand.Parameters.Add(new OracleParameter(":SelectedShift", shift));
+				</tr>
 
-               DtPDI = new DataTable();
-               da.Fill(DtPDI);
-               dataGridViewRptPdi.DataSource = DtPDI;
-               dataGridViewRptPdi.AutoGenerateColumns = true;
+}
+		var filteredData = Model.Alarm.Where(item => item.Mill == selectedMill && item.timestamp==selectedDate).ToList();
 
-              
-               
-           }
-           catch (Exception ex)
-           {
-               MessageBox.Show("Error: " + ex.Message);
-           }
-       }
+					
+			
+document.getElementById('filterButton').addEventListener('click', () => {
+	const selectedDate = document.getElementById('selectedDate').value;
+ const selectedShift = document.getElementById('shiftSelect').value;
+			const selectedMill = document.getElementById('tableSelect').value;
+				const selectedMill = document.getElementById('shiftSelect').value;
+	if (!selectedDate) {
+		alert('Please select a date');
+		return;
+	}
+	//---here is coding to recieve data after filtering date and mill 
+	var filteredData = Model.Alarm.Where(item => item.Mill == selectedMill && item.timestamp==selectedDate).ToList();
 
+	
+	//const filteredData = filterDataByDay(selectedDate);
+
+	if (filteredData.timestamps.length === 0) {
+		alert('No data available for the selected date');
+		return;
+	}
+	
+});
+			
