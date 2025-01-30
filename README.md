@@ -1,31 +1,35 @@
-<form asp-action="SaveTubeInput" method="post">
-    <div class="d-flex flex-wrap gap-2">
-        <div class="form-group">
-            <label for="inputDateTime">Date and Time:</label>
-            <input type="datetime-local" id="inputDateTime" name="CreatedOn" required class="form-control" />
-        </div>
-        <div class="form-group">
-            <label for="od">OD:</label>
-            <input type="text" id="od" name="OD" placeholder="OD" required class="form-control" />
-        </div>
-        <div class="form-group">
-            <label for="thickness">Thickness:</label>
-            <input type="text" id="thickness" name="Thickness" placeholder="Thickness" required class="form-control" />
-        </div>
-        <div class="form-group">
-            <label for="grade">Grade:</label>
-            <input type="text" id="grade" name="Grade" placeholder="Grade" required class="form-control" />
-        </div>
-        <div class="form-group">
-            <label for="customer">Customer:</label>
-            <input type="text" id="customer" name="Customer" placeholder="Customer" required class="form-control" />
-        </div>
-        <div class="form-group">
-            <label for="MillNo">MillNo:</label>
-            <input type="text" id="MillNo" name="MillNo" placeholder="MillNo" required class="form-control" />
-        </div>
-    </div>
-    <div class="mt-3">
-        <button type="submit" id="submitButton" class="btn btn-primary">Submit</button>
-    </div>
-</form>
+  fetch(`/Dashboard/GetFilteredData?selectedDate=${selectedDate}&selectedShift=${selectedShift}&selectedMill=${selectedMill}`)
+.then(response => response.json())
+.then(data => {
+	if (data.length === 0) {
+		alert('No data available for the selected criteria');
+		return;
+	}
+
+	// Update table content
+	let tableBody = document.getElementById('dataTableBody');
+
+	tableBody.innerHTML = ""; // Clear previous data
+
+	data.forEach(item => {
+		let row = `<tr class="DS">
+					<td>${(item.timestamp)}</td>
+					<td>${Math.round(item.voltage, 2)}</td>
+					<td>${Math.round(item.currents, 2)}</td>
+					<td>${Math.round(item.power, 2)}</td>
+					<td>${Math.round(item.frequency, 2)}</td>
+					<td>${Math.round(item.speed, 2)}</td>
+					<td>${item.od}</td>
+					<td>${item.grade}</td>
+					<td class="DS-error" data-value="${item.alarm}">${item.mill}</td>
+					<td data-value="${item.erroneous_Parameter}">${item.erroneous_Parameter}</td>
+				</tr>`;
+		tableBody.innerHTML += row;
+	});
+	
+	ErrorIndicator();
+})
+.catch(error => console.error('Error fetching data:', error));
+
+		
+										};
