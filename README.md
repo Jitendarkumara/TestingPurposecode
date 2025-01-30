@@ -1,25 +1,13 @@
-data.forEach(item => {
-    let dateObj = new Date(item.timestamp);
+<div id="progressBar" class="progress" style="display: none; height: 20px;">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+         role="progressbar" 
+         style="width: 100%">
+         Loading...
+    </div>
+</div>
 
-    // ✅ Convert to DD-MM-YYYY HH:mm:ss format
-    let formattedTimestamp = String(dateObj.getDate()).padStart(2, '0') + "-" +
-                             String(dateObj.getMonth() + 1).padStart(2, '0') + "-" +
-                             dateObj.getFullYear() + " " +
-                             String(dateObj.getHours()).padStart(2, '0') + ":" +
-                             String(dateObj.getMinutes()).padStart(2, '0') + ":" +
-                             String(dateObj.getSeconds()).padStart(2, '0');
+<!-- Container for Loaded Data -->
+<div id="dataContainer"></div>
 
-    let row = `<tr class="DS">
-                <td>${formattedTimestamp}</td>
-                <td>${Math.round(item.voltage * 100) / 100}</td>
-                <td>${Math.round(item.currents * 100) / 100}</td>
-                <td>${Math.round(item.power * 100) / 100}</td>
-                <td>${Math.round(item.frequency * 100) / 100}</td>
-                <td>${Math.round(item.speed * 100) / 100}</td>
-                <td>${item.od}</td>
-                <td>${item.grade}</td>
-                <td class="DS-error" data-value="${item.alarm}">${item.mill}</td>
-                <td data-value="${item.erroneous_Parameter}">${item.erroneous_Parameter}</td>
-              </tr>`;
-    tableBody.innerHTML += row;
-});
+<!-- Button to Trigger Data Load -->
+<button id="loadDataBtn" class="btn btn-primary">Load Data</button>
