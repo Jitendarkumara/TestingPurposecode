@@ -1,19 +1,42 @@
-The issue you're facing is due to the default ISO 8601 format of JavaScript's Date objects when they are serialized as JSON from C#. The format typically looks like this:
-
-2025-01-29T09:02:00.217Z
-
-The "T" is automatically added between the date and time.
-
-
----
-
-✅ Solution: Format Timestamp Properly in JavaScript
-
-Modify the JavaScript to convert the Timestamp into a human-readable format before displaying it:
-
 fetch(`/Dashboard/GetFilteredData?selectedDate=${selectedDate}&selectedShift=${selectedShift}&selectedMill=${selectedMill}`)
 .then(response => response.json())
 .then(data => {
+    if (data.length === 0) {
+        alert('No data available for the selected criteria');
+        return;
+    }
+
+    let tableBody = document.getElementById('dataTableBody');
+    tableBody.innerHTML = ""; // Clear previous data
+
+    data.forEach(item => {
+        // Convert timestamp to a proper 24-hour format (YYYY-MM-DD HH:mm:ss)
+        let dateObj = new Date(item.timestamp);
+        let formattedTimestamp = dateObj.getFullYear() + "-" +
+                                 String(dateObj.getMonth() + 1).padStart(2, '0') + "-" +
+                                 String(dateObj.getDate()).padStart(2, '0') + " " +
+                                 String(dateObj.getHours()).padStart(2, '0') + ":" +
+                                 String(dateObj.getMinutes()).padStart(2, '0') + ":" +
+                                 String(dateObj.getSeconds()).padStart(2, '0');
+
+        let row = `<tr class="DS">
+                    <td>${formattedTimestamp}</td>
+                    <td>${Math.round(item.voltage * 100) / 100}</td>
+                    <td>${Math.round(item.currents * 100) / 100}</td>
+                    <td>${Math.round(item.power * 100) / 100}</td>
+                    <td>${Math.round(item.frequency * 100) / 100}</td>
+                    <td>${Math.round(item.speed * 100) / 100}</td>
+                    <td>${item.od}</td>
+                    <td>${item.grade}</td>
+                    <td class="DS-error" data-value="${item.alarm}">${item.mill}</td>
+                    <td data-value="${item.erroneous_Parameter}">${item.erroneous_Parameter}</td>
+                </tr>`;
+        tableBody.innerHTML += row;
+    });
+
+    ErrorIndicator();
+})
+.catch(error => console.error('Error fetching data:', error)); => {
     if (data.length === 0) {
         alert('No data available for the selected criteria');
         return;
