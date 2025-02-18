@@ -1,36 +1,41 @@
-@model List<YourNamespace.Models.MachineSection>
+   @model List<TSMKhopoliTubeMillDashboard.Models.MachineSection>
 
+@{
+    ViewData["Title"] = "EmsDashboard";
+}
+
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Machine Data Table</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
     <style>
-        .green-circle { color: green; font-size: 1.5rem; }
-        .red-circle { color: red; font-size: 1.5rem; }
+        .green-circle { color: green; font-size: 2.5rem; }
+        .red-circle { color: red; font-size: 2.5rem; }
     </style>
 </head>
 <body>
     <div class="container mt-4">
-        <h2 class="text-center">Machine Data Table</h2>
+        <h5 class="text-center">Machine Data Table</h5>
 
-        @foreach (var section in Model)
+        @foreach (var section1 in Model)
         {
-            <h3 class="mt-4">@section.SectionName</h3>
-            <table class="table table-bordered text-center">
-                <thead class="table-dark">
+            <h5 style="color:black">@section1.SectionName</h5>
+            <table>
+                <thead >
                     <tr>
-                        <th>Parameter</th>
-                        @foreach (var machine in section.Machines)
+                        <th style="color:black">Parameter</th>
+                        @foreach (var machine in section1.Machines)
                         {
-                            <th>@machine</th>
+                            <th style="color:black">@machine</th>
                         }
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var param in section.Parameters)
+                    @foreach (var param in section1.Parameters)
                     {
                         <tr>
                             <td><strong>@param.ParameterName</strong></td>
