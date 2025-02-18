@@ -29,18 +29,24 @@
 
         th, td {
             border: 1px solid #000;
-            padding: 5px;
+            padding: 1px 3px; /* Minimal padding */
             text-align: center;
-            font-size: 14px;
+            font-size: 11px; /* Compact font size */
+            height: 18px; /* Set exact height similar to Excel */
+            line-height: 18px; /* Prevents extra spacing */
+            white-space: nowrap; /* Ensures no text wrapping */
         }
 
         th {
             background-color: #f2f2f2;
+            font-size: 11px;
         }
 
         /* Green and Red Circles */
-        .green-circle { color: green; font-size: 1.2rem; }
-        .red-circle { color: red; font-size: 1.2rem; }
+        .green-circle, .red-circle {
+            font-size: 10px;
+            vertical-align: middle; /* Aligns circles properly */
+        }
     </style>
 </head>
 <body>
