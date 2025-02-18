@@ -1,23 +1,25 @@
-@model List<YourNamespace.Models.MachineData>
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using YourNamespace.Models;
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Machine Data Table</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>
-        .status-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: inline-block;
+namespace YourNamespace.Controllers
+{
+    public class HomeController : Controller
+    {
+        public IActionResult Index()
+        {
+            var machines = new List<MachineData>
+            {
+                new MachineData { MachineName = "LDP Mill1", IsRunning = true, Speed = "1200 RPM", Size = "Large", Thickness = "5mm", Grade = "A", CustomerName = "Pims", Alert = "Low", KW = "500", KWh = "1000", KVAh = "1200" },
+                new MachineData { MachineName = "LDP Mill2", IsRunning = false, Speed = "1100 RPM", Size = "Medium", Thickness = "4mm", Grade = "B", CustomerName = "ABC Corp", Alert = "High", KW = "450", KWh = "900", KVAh = "1100" },
+                new MachineData { MachineName = "WCRM Mill-1", IsRunning = true, Speed = "1300 RPM", Size = "Small", Thickness = "3mm", Grade = "C", CustomerName = "XYZ Ltd", Alert = "Low", KW = "600", KWh = "1100", KVAh = "1300" },
+                new MachineData { MachineName = "Power Plant", IsRunning = false, Speed = "1000 RPM", Size = "Large", Thickness = "6mm", Grade = "D", CustomerName = "PQR Industries", Alert = "High", KW = "400", KWh = "800", KVAh = "1000" },
+            };
+
+            return View(machines);
         }
-        .green { background-color: green; }
-        .red { background-color: red; }
-    </style>
-</head>
+    }
+}
 <body>
     <div class="container mt-4">
         <h2 class="text-center">Machine Data Table</h2>
