@@ -1,14 +1,12 @@
-public class ProductionUnit
+public IActionResult EmsDashboard()
 {
-  
-    public int ?Id { get; set; }
-    public string ?Name { get; set; }
-    public bool IsRunning { get; set; } // True = Running, False = Stopped
-    public bool IsHigh { get; set; } // True = High, False = Low
-}
+    var productionUnits = new List<ProductionUnit>
+    {
+        new ProductionUnit { Id = 1, Name = "LDP Mill 1", IsRunning = true, IsHigh = false },
+        new ProductionUnit { Id = 2, Name = "LDP Mill 2", IsRunning = false, IsHigh = true },
+        new ProductionUnit { Id = 3, Name = "WCRM Mill 1", IsRunning = true, IsHigh = true },
+        new ProductionUnit { Id = 4, Name = "Power Plant", IsRunning = false, IsHigh = false }
+    };
 
- public IActionResult EmsDashboard()
- {
-    // var productionUnits = _context.ProductionUnits.ToList();
-     return View(productionUnits);
- }
+    return View(productionUnits);
+}
