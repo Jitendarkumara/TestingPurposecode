@@ -1,14 +1,14 @@
-SELECT 
-    p.timestampSourceLT, 
-    'Mill 1' AS [64], p.[64],
-    'Mill 2' AS [65], p.[65],
-    'Mill 3' AS [68], p.[68],
-    'Mill 4' AS [70], p.[70],
-    'Mill 5' AS [75], p.[75]
+SELECT *
 FROM (
     SELECT 
         [timestampSourceLT],
-        [SourceID],
+        CASE 
+            WHEN [SourceID] = 64 THEN 'Mill 1'
+            WHEN [SourceID] = 65 THEN 'Mill 2'
+            WHEN [SourceID] = 68 THEN 'Mill 3'
+            WHEN [SourceID] = 70 THEN 'Mill 4'
+            WHEN [SourceID] = 75 THEN 'Mill 5'
+        END AS MillName,
         [Value]
     FROM [ION_Data].[dbo].[View_DataLog2]
     WHERE SourceID IN (64, 65, 68, 70, 75) 
@@ -16,6 +16,6 @@ FROM (
 ) AS SourceData
 PIVOT (
     MAX(Value) 
-    FOR SourceID IN ([64], [65], [68], [70], [75])
-) AS p
-ORDER BY p.[timestampSourceLT] DESC;
+    FOR MillName IN ([Mill 1], [Mill 2], [Mill 3], [Mill 4], [Mill 5])
+) AS PivotTable
+ORDER BY [timestampSourceLT] DESC;
