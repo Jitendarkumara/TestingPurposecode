@@ -1,113 +1,118 @@
-@model List<EmsApplication.Models.MachineSection>
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
-@{
-    ViewData["Title"] = "EmsDashboard";
-}
+public class MachineSectionDAL
+{
+    private readonly string _connectionString;
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Machine Data Table</title>
+    public MachineSectionDAL(IConfiguration configuration)
+    {
+        _connectionString = configuration.GetConnectionString("DefaultConnection");
+    }
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
+    public List<MachineSection> GetMachineSections()
+    {
+        var sections = new List<MachineSection>();
 
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #000;
-        }
-
-        tr td {
-            border: 1px solid #000;
-            padding: 5px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        /* Green and Red Circles */
-        .green-circle { color: green; font-size: 16px; }
-        .red-circle { color: red; font-size: 16px; }
-    </style>
-</head>
-<body>
-
-    <div>
-        <h4 class="text-center">Machine Data Table</h4>
-
-        <div>
-            @foreach (var section in Model)
+        using (SqlConnection conn = new SqlConnection(_connectionString))
+        {
+            conn.Open();
+            using (SqlCommand cmd = new SqlCommand("GetMachineSections", conn)) // Stored Procedure
             {
-                <h5>@section.SectionName</h5>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Parameter</th>
-                            @foreach (var machine in section.Machines)
-                            {
-                                <th>@machine</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var param in section.Parameters)
+                cmd.CommandType = CommandType.StoredProcedure;
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var section = new MachineSection
                         {
-                            <tr>
-                                <td><strong>@param.ParameterName</strong></td>
-
-                                @if (param.Values.Any()) // Prevent empty list error
-                                {
-                                    @foreach (var value in param.Values)
-                                    {
-                                        <td>
-                                            @if (param.ParameterName == "Mill Run/Stop" || param.ParameterName == "Alert")
-                                            {
-                                                <!-- Show circles only for Mill Run/Stop and Alert -->
-                                                @if (value == 1)
-                                                {
-                                                    <span class="green-circle">●</span>
-                                                }
-                                                else if (value == 0)
-                                                {
-                                                    <span class="red-circle">●</span>
-                                                }
-                                                else
-                                                {
-                                                    @value
-                                                }
-                                            }
-                                            else
-                                            {
-                                                <!-- Show actual values for other parameters -->
-                                                @value
-                                            }
-                                        </td>
-                                    }
-                                }
-                                else
-                                {
-                                    <td colspan="@section.Machines.Count">No Data</td>
-                                }
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                            Id = Convert.ToInt32(reader["Id"]),
+                            SectionName = reader["SectionName"].ToString(),
+                            Machines = new List<string>(), // Populate this separately
+                            Parameters = new List<MachineParameter>() // Populate separately
+                        };
+                        sections.Add(section);
+                    }
+                }
             }
-        </div>
-    </div>
 
-</body>
-</html>
+            // Fetch Machines for each section
+            foreach (var section in sections)
+            {
+                section.Machines = GetMachinesBySectionId(conn, section.Id);
+                section.Parameters = GetParametersBySectionId(conn, section.Id);
+            }
+        }
+        return sections;
+    }
+
+    private List<string> GetMachinesBySectionId(SqlConnection conn, int sectionId)
+    {
+        var machines = new List<string>();
+        using (SqlCommand cmd = new SqlCommand("GetMachinesBySectionId", conn))
+        {
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@SectionId", sectionId);
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    machines.Add(reader["MachineName"].ToString());
+                }
+            }
+        }
+        return machines;
+    }
+
+    private List<MachineParameter> GetParametersBySectionId(SqlConnection conn, int sectionId)
+    {
+        var parameters = new List<MachineParameter>();
+        using (SqlCommand cmd = new SqlCommand("GetParametersBySectionId", conn))
+        {
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@SectionId", sectionId);
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var parameter = new MachineParameter
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        ParameterName = reader["ParameterName"].ToString(),
+                        Values = new List<double>() // Populate separately
+                    };
+                    parameters.Add(parameter);
+                }
+            }
+        }
+
+        // Fetch values for each parameter
+        foreach (var param in parameters)
+        {
+            param.Values = GetParameterValues(conn, param.Id);
+        }
+
+        return parameters;
+    }
+
+    private List<double> GetParameterValues(SqlConnection conn, int parameterId)
+    {
+        var values = new List<double>();
+        using (SqlCommand cmd = new SqlCommand("GetParameterValues", conn))
+        {
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@ParameterId", parameterId);
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    values.Add(Convert.ToDouble(reader["Value"]));
+                }
+            }
+        }
+        return values;
+    }
+}
