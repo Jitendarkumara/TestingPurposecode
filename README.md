@@ -1,21 +1,118 @@
-SELECT *
-FROM (
-    SELECT 
-        [timestampSourceLT],
-        CASE 
-            WHEN [SourceID] = 64 THEN 'Mill 1'
-            WHEN [SourceID] = 65 THEN 'Mill 2'
-            WHEN [SourceID] = 68 THEN 'Mill 3'
-            WHEN [SourceID] = 70 THEN 'Mill 4'
-            WHEN [SourceID] = 75 THEN 'Mill 5'
-        END AS MillName,
-        [Value]
-    FROM [ION_Data].[dbo].[View_DataLog2]
-    WHERE SourceID IN (64, 65, 68, 70, 75) 
-      AND QuantityID = 182
-) AS SourceData
-PIVOT (
-    MAX(Value) 
-    FOR MillName IN ([Mill 1], [Mill 2], [Mill 3], [Mill 4], [Mill 5])
-) AS PivotTable
-ORDER BY [timestampSourceLT] DESC;
+@model List<EmsApplication.Models.MachineSection>
+
+@{
+    ViewData["Title"] = "EmsDashboard";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Data Table</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+            table-layout:fixed;
+        }
+
+        tr td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+            font-size: 14px;
+            width:10%;
+            word-wrap:break-word;
+        }
+
+        th {
+            border: 1px solid #000;
+            background-color: #f2f2f2;
+        }
+
+        /* Green and Red Circles */
+        .green-circle { color: green; font-size: 25px; }
+        .red-circle { color: red; font-size: 25px; }
+    </style>
+</head>
+<body>
+
+    <div>
+   
+
+        <div>
+            @foreach (var section1 in Model)
+            {
+                <h5>@section1.SectionName</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th >Parameter</th>
+                            @foreach (var machine in section1.Machines)
+                            {
+                                <th>@machine</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var param in section1.Parameters)
+                        {
+                            <tr>
+                                <td ><strong>@param.ParameterName</strong></td>
+
+                                @if (param.Values.Count>0) // Prevent empty list error
+                                {
+                                    @foreach (var value in param.Values)
+                                    {
+                                        <td>
+                                            @if (param.ParameterName == "Mill Run/Stop" || param.ParameterName == "Alert")
+                                            {
+                                                <!-- Show circles only for Mill Run/Stop and Alert -->
+                                                @if (value >= 18)
+                                                {
+                                                    <span class="red-circle">●</span>
+                                                }
+                                                else 
+                                                {
+                                                    <span class="green-circle">●</span>
+                                                 
+                                                }
+                                               @*  else
+                                                {
+                                                    @value
+                                                } *@
+                                            }
+                                            else
+                                            {
+                                                <!-- Show actual values for other parameters -->
+                                                @value
+                                            }
+                                        </td>
+                                    }
+                                }
+                                else
+                                {
+                                    <td colspan="@section1.Machines.Count">No Data</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+</body>
+</html>
