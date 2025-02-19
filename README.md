@@ -1,12 +1,21 @@
-timestampSourceLT	SourceID	QuantityID	Value
-2025-02-19 16:15:00.0000000	64	182	22.5411014556885
-2025-02-19 16:15:00.0000000	65	182	25.9256763458252
-2025-02-19 16:15:00.0000000	68	182	41.953426361084
-2025-02-19 16:15:00.0000000	70	182	11.7557096481323
-2025-02-19 16:15:00.0000000	75	182	12.3474092483521
-
-SELECT TOP (5) [timestampSourceLT]
-      
-      ,[SourceID]
-      ,[QuantityID]
-      ,[Value] FROM [ION_Data].[dbo].[View_DataLog2] where SourceID in (64,65,68,70,75) and QuantityID in(182) order by [timestampSourceLT] desc
+SELECT 
+    p.timestampSourceLT, 
+    'Mill 1' AS [64], p.[64],
+    'Mill 2' AS [65], p.[65],
+    'Mill 3' AS [68], p.[68],
+    'Mill 4' AS [70], p.[70],
+    'Mill 5' AS [75], p.[75]
+FROM (
+    SELECT 
+        [timestampSourceLT],
+        [SourceID],
+        [Value]
+    FROM [ION_Data].[dbo].[View_DataLog2]
+    WHERE SourceID IN (64, 65, 68, 70, 75) 
+      AND QuantityID = 182
+) AS SourceData
+PIVOT (
+    MAX(Value) 
+    FOR SourceID IN ([64], [65], [68], [70], [75])
+) AS p
+ORDER BY p.[timestampSourceLT] DESC;
