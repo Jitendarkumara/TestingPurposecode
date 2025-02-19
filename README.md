@@ -1,4 +1,4 @@
-@model List<TSMKhopoliTubeMillDashboard.Models.MachineSection>
+@model List<EmsApplication.Models.MachineSection>
 
 @{
     ViewData["Title"] = "EmsDashboard";
@@ -12,64 +12,64 @@
     <title>Machine Data Table</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
+               body {
+                   font-family: Arial, sans-serif;
+               }
 
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
+               .table-container {
+                   width: 100%;
+                   overflow-x: auto;
+               }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #000;
-        }
+               table {
+                   width: 100%;
+                   border-collapse: collapse;
+                   border: 1px solid #000;
+               }
 
-        th, td {
-            border: 1px solid #000;
-            padding: 1px 3px; /* Minimal padding */
-            text-align: center;
-            font-size: 11px; /* Compact font size */
-            height: 18px; /* Set exact height similar to Excel */
-            line-height: 18px; /* Prevents extra spacing */
-            white-space: nowrap; /* Ensures no text wrapping */
-        }
+           tr td {
+                   border: 1px solid #000;
+                   padding: -50px;
+                   text-align: center;
+                   font-size: 14px;
+                   height:5px;
+               }
+               tr{
+                   height:12px;
+               }
 
-        th {
-            background-color: #f2f2f2;
-            font-size: 11px;
-        }
+               th {
+                   background-color: #f2f2f2;
+               }
 
-        /* Green and Red Circles */
-        .green-circle, .red-circle {
-            font-size: 10px;
-            vertical-align: middle; /* Aligns circles properly */
-        }
+        /*        Green and Red Circles */
+               .green-circle { color: green; font-size: 16px; }
+               .red-circle { color: red; font-size: 16px; }
+
+       
     </style>
 </head>
 <body>
 
-    <div class="container mt-4">
+    <div>
         <h4 class="text-center">Machine Data Table</h4>
 
-        <div class="table-container">
-            @foreach (var section in Model)
+        <div>
+            @foreach (var section1 in Model)
             {
-                <h5>@section.SectionName</h5>
+                <h5>@section1.SectionName</h5>
                 <table>
                     <thead>
-                        <tr>
+                        <tr >
                             <th>Parameter</th>
-                            @foreach (var machine in section.Machines)
+                            @foreach (var machine in section1.Machines)
                             {
                                 <th>@machine</th>
                             }
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var param in section.Parameters)
+                        @foreach (var param in section1.Parameters)
                         {
                             <tr>
                                 <td><strong>@param.ParameterName</strong></td>
@@ -78,6 +78,9 @@
                                     <td>
                                         <span class="@(value ? "green-circle" : "red-circle")">●</span>
                                     </td>
+
+                                    
+                                    
                                 }
                             </tr>
                         }
@@ -89,79 +92,47 @@
 
 </body>
 </html>
-
-public IActionResult EmsDashboard()
-{
-    var sections = new List<MachineSection>
-    {
-        new MachineSection
+        public IActionResult Index()
         {
-            SectionName = "Section1",
-            Machines = new List<string> { "LDP Mill1", "LDP Mill2", "LDP Finishing 1", "LDP Finishing 2", "LDP External Coating", "LDP Internal Coating" },
-            Parameters = new List<MachineParameter>
+            var sections = new List<MachineSection>
             {
-                new MachineParameter { ParameterName = "Mill Run/Stop", Values = new List<bool> { true, true, true, true, true, true } },
-                new MachineParameter { ParameterName = "Speed", Values = new List<bool> { false, false, false, false, false, false } },
-                new MachineParameter { ParameterName = "Size", Values = new List<bool> { true, true, true, true, true, true } },
-                new MachineParameter { ParameterName = "Thickness", Values = new List<bool> { true, true, true, true, true, true } },
-                new MachineParameter { ParameterName = "Grade", Values = new List<bool> { false, false, false, false, false, false } },
-                new MachineParameter { ParameterName = "Customer Name", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "Alert", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "KW", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "KWh", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "KVAh", Values = new List<bool> { false, true, true, true, false, false } }
-            }
-        },
-        new MachineSection
-        {
-            SectionName = "Section2",
-            Machines = new List<string> { "Tube", "GP-1", "GP-2", "CCL", "NCRM", "Skin Pass" },
-            Parameters = new List<MachineParameter>
-            {
-                new MachineParameter { ParameterName = "Mill Run/Stop", Values = new List<bool> { true, true, true, true, true, true } },
-                new MachineParameter { ParameterName = "Speed", Values = new List<bool> { false, false, false, false, false, false } },
-                new MachineParameter { ParameterName = "Size", Values = new List<bool> { true, true, true, true, true, true } },
-                new MachineParameter { ParameterName = "Thickness", Values = new List<bool> { true, true, true, true, true, true } },
-                new MachineParameter { ParameterName = "Grade", Values = new List<bool> { false, false, false, false, false, false } },
-                new MachineParameter { ParameterName = "Customer Name", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "Alert", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "KW", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "KWh", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "KVAh", Values = new List<bool> { false, true, true, true, false, false } }
-            }
-        },
-        new MachineSection
-        {
-            SectionName = "Section3",
-            Machines = new List<string> { "WCRM Mill-1", "WCRM Mill-2", "GP-2", "Utility", "Power Plant", "Service Center" },
-            Parameters = new List<MachineParameter>
-            {
-                new MachineParameter { ParameterName = "Mill Run/Stop", Values = new List<bool> { true, true, true, true, true, true } },
-                new MachineParameter { ParameterName = "Speed", Values = new List<bool> { false, false, false, false, false, false } },
-                new MachineParameter { ParameterName = "Size", Values = new List<bool> { true, true, true, true, true, true } },
-                new MachineParameter { ParameterName = "Thickness", Values = new List<bool> { true, true, true, true, true, true } },
-                new MachineParameter { ParameterName = "Grade", Values = new List<bool> { false, false, false, false, false, false } },
-                new MachineParameter { ParameterName = "Customer Name", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "Alert", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "KW", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "KWh", Values = new List<bool> { false, true, true, true, false, false } },
-                new MachineParameter { ParameterName = "KVAh", Values = new List<bool> { false, true, true, true, false, false } }
-            }
+                new MachineSection
+                {
+                    SectionName = "Section1",
+                    Machines = new List<string> { "LDP Mill1", "LDP Mill2", "LDP Finishing 1", "LDP Finishing 2", "LDP External Coating", "LDP Internal Coating","Tube", "GP-1", "GP-2" },
+                    Parameters = new List<MachineParameter>
+                    {
+                        new MachineParameter { ParameterName = "Mill Run/Stop", Values = new List<double> { 1, 1, 1, 1, 1, 1,0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Speed", Values = new List<double> {1,5,4,8,2,3,6,9,2 } },
+                        new MachineParameter { ParameterName = "Size", Values = new List<double> {  } },
+                        new MachineParameter { ParameterName = "Thickness", Values = new List<double> { 1, 1, 1, 1, 1, 1, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Grade", Values = new List<double> { 0, 0, 0, 0, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Customer Name", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Alert", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "KW", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "KWh", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "KVAh", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } }
+                    }
+                },
+                new MachineSection
+                {
+                    SectionName = "Section2",
+                    Machines = new List<string> {  "CCL", "NCRM", "Skin Pass","WCRM Mill-1", "WCRM Mill-2", "GP-2", "Utility", "Power Plant", "Service Center"  },
+                    Parameters = new List<MachineParameter>
+                    {
+                        new MachineParameter { ParameterName = "Mill Run/Stop", Values = new List<double> { 1, 1, 1, 1, 1, 1, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Speed", Values = new List<double> { 0, 0, 0, 0, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Size", Values = new List<double> { 1, 1, 1, 1, 1, 1, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Thickness", Values = new List<double> { 1, 1, 1, 1, 1, 1, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Grade", Values = new List<double> { 0, 0, 0, 0, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Customer Name", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "Alert", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "KW", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "KWh", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } },
+                        new MachineParameter { ParameterName = "KVAh", Values = new List<double> { 0, 1, 1, 1, 0, 0, 0, 1, 0 } }
+                    }
+                },
+               
+            };
+            return View(sections);
         }
-    };
-    return View(sections);
-}
-
-
-    public class MachineSection
-    {
-        public string SectionName { get; set; } // Example: "LDP Mill", "Tube Section", etc.
-        public List<string> Machines { get; set; } // List of machine names as columns
-        public List<MachineParameter> Parameters { get; set; } // List of parameters with TRUE/FALSE values
-    }
-
-    public class MachineParameter
-    {
-        public string ParameterName { get; set; } // Example: Mill Run/Stop, Speed, Size, etc.
-        public List<bool> Values { get; set; } // Corresponding values for each machine in the section
-    }
