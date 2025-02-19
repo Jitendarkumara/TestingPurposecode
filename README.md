@@ -1,1 +1,2 @@
-Using Ems Application, we can analysis the electricity consuming by all plant  It will help to save electricity, and we can display alert when it cross the our seted parameter . 
+Purpose of EMS Application _-----------------------------------------_
+Using the EMS application, we can analyze electricity consumption across all plants. It helps save electricity and can display alerts when consumption exceeds the set parameters.
