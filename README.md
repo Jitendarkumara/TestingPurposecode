@@ -3,19 +3,35 @@
 <head>
     <title>KWH Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Set the size of the chart container */
+        #chart-container {
+            width: 600px;  /* Adjust width as needed */
+            height: 400px; /* Adjust height as needed */
+            margin: auto;  /* Center the chart */
+        }
+
+        /* Ensure the canvas does not stretch beyond its container */
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="kwhChart"></canvas>
+    <div id="chart-container">
+        <canvas id="kwhChart"></canvas>
+    </div>
 
     <script>
         async function loadChartData() {
-            // Fetch KWH data from API
-            const response = await fetch("/api/Chart/GetKWHData");
+            // Fetch KWH data from the controller action
+            const response = await fetch("/Home/GetKWHData");
             const kwhData = await response.json();
 
             // Fixed LSL and USL values
-            const lslData = [9.64, 5, 8.16, 5, 31.04];  // Your fixed values
-            const uslData = [42.71, 25, 50.31, 40, 180.20]; // Your fixed values
+            const lslData = [9.64, 5, 8.16, 5, 31.04];  
+            const uslData = [42.71, 25, 50.31, 40, 180.20]; 
 
             // X-axis labels
             const labels = ["1", "2", "3", "4", "5"];
@@ -49,6 +65,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false, /* Prevent auto-resizing */
                     scales: {
                         y: { beginAtZero: true }
                     }
