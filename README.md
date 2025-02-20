@@ -21,3 +21,22 @@ FROM
 PIVOT 
     (MAX(Value) FOR MillName IN ([Finishing1], [Mill1], [Mill2], [Finishing2], [Extcoating])) AS PivotTable 
 ORDER BY [timestampSourceLT] DESC;
+mill (60
+61
+62
+63
+65)
+Finishing-1  (66
+64)
+Mill2 (
+69
+68
+71
+72
+73)
+Finishing-2 (70)
+
+Ext-coating -(74
+75
+76
+77)
