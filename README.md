@@ -1,2 +1,5 @@
-Purpose of EMS Application _-----------------------------------------_
-Using the EMS application, we can analyze electricity consumption across all plants. It helps save electricity and can display alerts when consumption exceeds the set parameters.
+SELECT top 1 * FROM (SELECT  [timestampSourceLT],CASE  WHEN [SourceID] = 64 THEN 'Finishing1'" +
+                " WHEN [SourceID] = 65 THEN 'Mill1' WHEN [SourceID] = 68 THEN 'Mill2' WHEN [SourceID] = 70 THEN 'Finishing2' " +
+                "WHEN [SourceID] = 75 THEN 'Extcoating' END AS MillName,[Value] FROM [ION_Data].[dbo].[View_DataLog2] WHERE" +
+                " SourceID IN (64, 65, 68, 70, 75) AND QuantityID = 182) AS SourceData PIVOT ( MAX(Value)  FOR MillName IN ([Finishing1]," +
+                " [Mill1], [Mill2], [Finishing2], [Extcoating])) AS PivotTable ORDER BY [timestampSourceLT] DESC;
