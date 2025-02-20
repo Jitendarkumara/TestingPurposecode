@@ -1,17 +1,3 @@
-SELECT 
-    [timestampSourceLT], 
-    CASE  
-        WHEN [SourceID] = 64 THEN 'Finishing1'
-        WHEN [SourceID] = 65 THEN 'Mill1' 
-        WHEN [SourceID] = 68 THEN 'Mill2' 
-        WHEN [SourceID] = 70 THEN 'Finishing2'
-        WHEN [SourceID] = 75 THEN 'Extcoating' 
-    END AS MillName, 
-    ROUND([Value], 2) AS Value
-FROM [ION_Data].[dbo].[View_DataLog2] 
-WHERE SourceID IN (64, 65, 68, 70, 75) 
-    AND QuantityID = 182
-ORDER BY [timestampSourceLT] DESC, MillName;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,9 +5,13 @@ ORDER BY [timestampSourceLT] DESC, MillName;
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         #chart-container {
-            width: 600px;
-            height: 400px;
+            width: 800px; /* Adjust size */
+            height: 500px; /* Adjust size */
             margin: auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         canvas {
@@ -37,44 +27,45 @@ ORDER BY [timestampSourceLT] DESC, MillName;
 
     <script>
         async function loadChartData() {
-            // Fetch KWH data and mill names from the controller
+            // Fetch data from controller
             const response = await fetch("/Home/GetKWHData");
             const data = await response.json();
-            console.log(data);
-            // Extract values from JSON response
-            const millNames = data.map(item => item.Millname);
+            console.log(data); // Check if data is coming
+
+            // Extract Mill Names & KWH values
+            const millNames = data.map(item => item.MillName); // Ensure correct property name
             const kwhData = data.map(item => item.KWH);
 
-            // Fixed LSL and USL values
-            const lslData = [9.64, 5, 8.16, 5, 31.04];
-            const uslData = [42.71, 25, 50.31, 40, 180.20];
+            // Fixed LSL & USL values
+            const lslData = new Array(millNames.length).fill(10); // Example LSL
+            const uslData = new Array(millNames.length).fill(50); // Example USL
 
-            // X-axis labels (Mill Names)
-            const labels = millNames;
-
-            // Chart.js configuration
             var ctx = document.getElementById("kwhChart").getContext("2d");
+
             new Chart(ctx, {
                 type: "line",
                 data: {
-                    labels: labels,
+                    labels: millNames,
                     datasets: [
                         {
                             label: "KWH",
                             data: kwhData,
                             borderColor: "blue",
-                            fill: false
+                            backgroundColor: "rgba(0, 123, 255, 0.3)",
+                            fill: true
                         },
                         {
                             label: "LSL",
                             data: lslData,
                             borderColor: "orange",
+                            borderDash: [5, 5],
                             fill: false
                         },
                         {
                             label: "USL",
                             data: uslData,
                             borderColor: "gray",
+                            borderDash: [5, 5],
                             fill: false
                         }
                     ]
@@ -82,42 +73,36 @@ ORDER BY [timestampSourceLT] DESC, MillName;
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true }
-                    },
+                    aspectRatio: 2, // Adjust aspect ratio for better display
                     plugins: {
                         tooltip: {
                             callbacks: {
                                 label: function (tooltipItem) {
                                     let datasetLabel = tooltipItem.dataset.label || "";
                                     let value = tooltipItem.raw;
-                                    let millName = labels[tooltipItem.dataIndex]; // Fetch mill name dynamically
+                                    let millName = millNames[tooltipItem.dataIndex];
                                     return `${millName} - ${datasetLabel}: ${value}`;
                                 }
                             }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "#ddd" },
+                            title: { display: true, text: "KWH Value" }
+                        },
+                        x: {
+                            grid: { color: "#eee" },
+                            title: { display: true, text: "Mill Names" }
                         }
                     }
                 }
             });
         }
 
-        // Load chart data when page loads
+        // Load chart when page loads
         loadChartData();
     </script>
 </body>
 </html>
-public IActionResult GetKWHData()
-{ MachineSectionDal M = new MachineSectionDal();
-  
-    List<Chartdata>  Data = new List<Chartdata>();
-    DataTable dt = new DataTable();
-    dt = M.getChartdata();
-    for (int i = 0; i < dt.Rows.Count; i++)
-    {
-        Chartdata chartdata = new Chartdata();
-        chartdata.Millname=(dt.Rows[i][1].ToString());
-        chartdata.KWH = (Convert.ToDouble(dt.Rows[i][2]));
-        Data.Add(chartdata);
-    }
-    return Json(Data);
-}
