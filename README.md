@@ -4,14 +4,11 @@
     <title>KWH Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Set the size of the chart container */
         #chart-container {
-            width: 600px;  /* Adjust width as needed */
-            height: 400px; /* Adjust height as needed */
-            margin: auto;  /* Center the chart */
+            width: 600px;
+            height: 400px;
+            margin: auto;
         }
-
-        /* Ensure the canvas does not stretch beyond its container */
         canvas {
             width: 100% !important;
             height: 100% !important;
@@ -25,16 +22,20 @@
 
     <script>
         async function loadChartData() {
-            // Fetch KWH data from the controller action
+            // Fetch KWH data and mill names from the controller
             const response = await fetch("/Home/GetKWHData");
-            const kwhData = await response.json();
+            const data = await response.json();
+
+            // Extract values from JSON response
+            const millNames = data.map(item => item.MillName);
+            const kwhData = data.map(item => item.KWH);
 
             // Fixed LSL and USL values
             const lslData = [9.64, 5, 8.16, 5, 31.04];  
             const uslData = [42.71, 25, 50.31, 40, 180.20]; 
 
-            // X-axis labels
-            const labels = ["1", "2", "3", "4", "5"];
+            // X-axis labels (Mill Names)
+            const labels = millNames;
 
             // Chart.js configuration
             var ctx = document.getElementById("kwhChart").getContext("2d");
@@ -65,9 +66,21 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, /* Prevent auto-resizing */
+                    maintainAspectRatio: false,
                     scales: {
                         y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    let datasetLabel = tooltipItem.dataset.label || "";
+                                    let value = tooltipItem.raw;
+                                    let millName = labels[tooltipItem.dataIndex]; // Fetch mill name dynamically
+                                    return `${millName} - ${datasetLabel}: ${value}`;
+                                }
+                            }
+                        }
                     }
                 }
             });
