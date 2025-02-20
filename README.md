@@ -26,27 +26,27 @@
     </div>
 
     <script>
-              async function loadChartData() {
+        async function loadChartData() {
             const response = await fetch("/Home/GetKWHData");
             const data = await response.json();
 
-            console.log("Fetched Data:", data); // ✅ Check if data is correct
+            console.log("Fetched Data:", data); // ✅ Debugging log
 
             if (!data || data.length === 0) {
                 alert("No data available!"); // ✅ Alert if no data is returned
                 return;
             }
 
-            // Fix property names (case-sensitive)
-            const millNames = data.map(item => item.millname.trim()); // ✅ Use "millname" (lowercase)
-            const kwhData = data.map(item => parseFloat(item.kwh)); // ✅ Use "kwh" (lowercase)
+            // Extracting Mill Names & KWH data
+            const millNames = data.map(item => item.millname.trim()); // ✅ Ensure correct key
+            const kwhData = data.map(item => parseFloat(item.kwh)); // ✅ Ensure numerical values
 
             console.log("Mill Names:", millNames);
             console.log("KWH Data:", kwhData);
 
-            // Fixed LSL & USL values (use correct length)
-            const lslData = {9.647673215,5,8.169394883,5,31.04546611 }; // Example LSL
-            const uslData = {42.71899345,25,50.31060512,8,180.2045339 }; // Example USL
+            // ✅ Correct LSL & USL Arrays
+            const lslData = [9.647673215, 5, 8.169394883, 5, 31.04546611]; 
+            const uslData = [42.71899345, 25, 50.31060512, 40, 180.2045339];
 
             // Create chart
             var ctx = document.getElementById("kwhChart").getContext("2d");
@@ -105,8 +105,6 @@
 
         // Load chart on page load
         loadChartData();
-        // Load chart when page loads
-   
     </script>
 </body>
 </html>
