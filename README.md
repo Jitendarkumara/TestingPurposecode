@@ -1,7 +1,6 @@
-DECLARE @SelectedGroup NVARCHAR(50) = 'Mill'; -- Change to 'Mill', 'Mill2', 'Finishing1', 'Finishing2', or 'Extcoating'
+DECLARE @SelectedGroup NVARCHAR(50) = 'Mill'; -- Change this to filter by a specific group
 
 SELECT  
-    [timestampSourceLT], 
     CASE  
         WHEN [SourceID] IN (64) THEN 'Finishing1'
         WHEN [SourceID] IN (60, 61, 62, 63, 65, 66) THEN 'Mill' 
@@ -9,7 +8,7 @@ SELECT
         WHEN [SourceID] = 70 THEN 'Finishing2'
         WHEN [SourceID] IN (74, 75, 76, 77) THEN 'Extcoating' 
     END AS GroupName, 
-    [Value] 
+    SUM([Value]) AS TotalValue -- Sum of values for the selected group
 FROM [ION_Data].[dbo].[View_DataLog2] 
 WHERE QuantityID = 182  
     AND (
@@ -19,4 +18,12 @@ WHERE QuantityID = 182
         OR (@SelectedGroup = 'Finishing2' AND SourceID = 70)
         OR (@SelectedGroup = 'Extcoating' AND SourceID IN (74, 75, 76, 77))
     )
-ORDER BY [timestampSourceLT] DESC;
+GROUP BY 
+    CASE  
+        WHEN [SourceID] IN (64) THEN 'Finishing1'
+        WHEN [SourceID] IN (60, 61, 62, 63, 65, 66) THEN 'Mill' 
+        WHEN [SourceID] IN (69, 68, 71, 72, 73) THEN 'Mill2' 
+        WHEN [SourceID] = 70 THEN 'Finishing2'
+        WHEN [SourceID] IN (74, 75, 76, 77) THEN 'Extcoating' 
+    END
+ORDER BY GroupName;
