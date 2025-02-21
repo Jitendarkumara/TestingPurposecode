@@ -1,19 +1,5 @@
-DECLARE @MillID INT = 65; -- Change this value to select a specific mill (64, 65, 68, 70, or 75)
-DECLARE @StartDate DATETIME = DATEADD(MONTH, -1, GETDATE()); -- 1 month ago
-DECLARE @EndDate DATETIME = GETDATE(); -- Current date
-
-SELECT TOP 5 
-    [timestampSourceLT], 
-    CASE 
-        WHEN [SourceID] = 64 THEN 'Finishing1'
-        WHEN [SourceID] = 65 THEN 'Mill1' 
-        WHEN [SourceID] = 68 THEN 'Mill2'  
-        WHEN [SourceID] = 70 THEN 'Finishing2'
-        WHEN [SourceID] = 75 THEN 'Extcoating' 
-    END AS MillName,
-    ROUND([Value], 2) AS Valuev
-FROM [ION_Data].[dbo].[View_DataLog2] 
-WHERE SourceID = @MillID  -- Fetch data only for the selected mill
-    AND QuantityID = 182 
-    AND [timestampSourceLT] BETWEEN @StartDate AND @EndDate -- Filter for last 1 month
-ORDER BY [timestampSourceLT] DESC;
+1	Visted CCL plant to analysis the issue in CCL application in advance module PDO was not generating properly.
+2	In EMS application created a HMI to display electricity consumtion data also displayed running status
+3	Worked on coding part for EMS application to fetch data from sql database using ado.net .
+4	Created graph to display chart for machine data in EMS application
+5	Added code to export excel of Machine data from Table which is displayed in screen.
