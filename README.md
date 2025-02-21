@@ -1,4 +1,6 @@
 DECLARE @SelectedGroup NVARCHAR(50) = 'Mill'; -- Change this to filter by a specific group
+DECLARE @StartDate DATETIME = DATEADD(MONTH, -1, GETDATE()); -- 1 month ago
+DECLARE @EndDate DATETIME = GETDATE(); -- Current date
 
 SELECT  
     CASE  
@@ -11,6 +13,7 @@ SELECT
     SUM([Value]) AS TotalValue -- Sum of values for the selected group
 FROM [ION_Data].[dbo].[View_DataLog2] 
 WHERE QuantityID = 182  
+    AND [timestampSourceLT] BETWEEN @StartDate AND @EndDate -- Fetch data from the last 1 month
     AND (
         (@SelectedGroup = 'Finishing1' AND SourceID IN (64)) 
         OR (@SelectedGroup = 'Mill' AND SourceID IN (60, 61, 62, 63, 65, 66)) 
