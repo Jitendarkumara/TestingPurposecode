@@ -1,27 +1,13 @@
- public IActionResult GetKWHData()
- { MachineSectionDal M = new MachineSectionDal();
-   
-     List<Chartdata>  Data = new List<Chartdata>();
-     DataTable dt = new DataTable();
-     dt = M.getChartdata();
-     for (int i = 0; i < dt.Rows.Count; i++)
-     {
-         Chartdata chartdata = new Chartdata();
-         chartdata.TimeStamp = Convert.ToDateTime(dt.Rows[i][0].ToString());
-         chartdata.Millname=(dt.Rows[i][1].ToString());
-         chartdata.KWH = (Convert.ToDouble(dt.Rows[i][2]));
-         Data.Add(chartdata);
-     }
-     return Json(Data);
- }
-
- @model List<EmsApplication.Models.Chartdata>
+@model List<EmsApplication.Models.Chartdata>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>KWH Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,11 +22,6 @@
             background-color: #f4f4f4;
             border-radius: 10px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        canvas {
-            width: 100% !important;
-            height: 100% !important;
         }
 
         select {
@@ -92,7 +73,7 @@
                 }
 
                 // Extract timestamps and KWH values
-                const timestamps = filteredData.map(item => new Date(item.timestampLT).toLocaleString()); // Convert to readable format
+                const timestamps = filteredData.map(item => new Date(item.timeStamp)); 
                 const kwhData = filteredData.map(item => parseFloat(item.kwh));
 
                 console.log("Timestamps:", timestamps);
@@ -114,7 +95,7 @@
                     kwhChart = new Chart(ctx, {
                         type: "line",
                         data: {
-                            labels: timestamps, // Use timestamps on X-axis
+                            labels: timestamps,
                             datasets: [
                                 {
                                     label: "KWH",
@@ -142,32 +123,32 @@
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            aspectRatio: 2,
                             plugins: {
                                 tooltip: {
                                     callbacks: {
                                         label: function (tooltipItem) {
                                             let datasetLabel = tooltipItem.dataset.label || "";
                                             let value = tooltipItem.raw;
-                                            let timestamp = timestamps[tooltipItem.dataIndex];
+                                            let timestamp = new Date(timestamps[tooltipItem.dataIndex]).toLocaleString();
                                             return `${timestamp} - ${datasetLabel}: ${value}`;
                                         }
                                     }
                                 }
                             },
                             scales: {
+                                x: {
+                                    type: "time",
+                                    time: {
+                                        unit: "day",
+                                        displayFormats: { day: "MMM d, yyyy HH:mm" }
+                                    },
+                                    grid: { color: "#eee" },
+                                    title: { display: true, text: "Timestamp" }
+                                },
                                 y: {
                                     beginAtZero: true,
                                     grid: { color: "#ddd" },
                                     title: { display: true, text: "KWH Value" }
-                                },
-                                x: {
-                                    grid: { color: "#eee" },
-                                    title: { display: true, text: "Timestamp" },
-                                    ticks: {
-                                        autoSkip: true,
-                                        maxTicksLimit: 10 // Avoid cluttering the x-axis
-                                    }
                                 }
                             }
                         }
@@ -182,7 +163,6 @@
         // Load chart on page load
         loadChartData();
 
-        // Update chart on dropdown change
         document.getElementById("millSelect").addEventListener("change", function () {
             let selectedMill = this.value || null;
             loadChartData(selectedMill);
