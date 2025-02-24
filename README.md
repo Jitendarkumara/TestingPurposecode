@@ -97,3 +97,7 @@ document.getElementById("millSelect").addEventListener("change", function () {
     let selectedMill = this.value || null;
     loadChartData(selectedMill);
 });
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
