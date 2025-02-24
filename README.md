@@ -1,109 +1,119 @@
-     async function loadChartData(selectedMill ) {
-         try {
-                let url = "/Home/GetKWHData/selectedMill"; // API endpoint
+async function loadChartData(selectedMill) {
+    try {
+        let url = "/Home/GetKWHData"; // Base API endpoint
 
-             const response = await fetch(url);
-             const data = await response.json();
+        // Append the selected mill as a query parameter
+        if (selectedMill) {
+            url += `?millName=${encodeURIComponent(selectedMill)}`;
+        }
 
-             console.log("Fetched Data:", data);
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-             if (!data || data.length === 0) {
-                 alert("No data available!");
-                 return;
-             }
+        const data = await response.json();
 
-             // Filter data if a specific mill is selected
-             let filteredData = selectedMill ? data.filter(item => item.millname.trim() === selectedMill) : data;
+        console.log("Fetched Data:", data);
 
-             if (filteredData.length === 0) {
-                 alert("No data found for the selected mill!");
-                 return;
-             }
+        if (!data || data.length === 0) {
+            alert("No data available!");
+            return;
+        }
 
-             // Extract timestamps and KWH values
-             const timestamps = filteredData.map(item => new Date(item.timeStamp));
-             const kwhData = filteredData.map(item => parseFloat(item.kwh));
+        // Filter data based on selected mill
+        let filteredData = selectedMill ? data.filter(item => item.millname.trim() === selectedMill) : data;
 
-             console.log("Timestamps:", timestamps);
-             console.log("KWH Data:", kwhData);
+        if (filteredData.length === 0) {
+            alert("No data found for the selected mill!");
+            return;
+        }
 
-             // Define LSL & USL values
-             const lslData = new Array(timestamps.length).fill(10); // Example LSL
-             const uslData = new Array(timestamps.length).fill(50); // Example USL
+        // Extract timestamps and KWH values
+        const timestamps = filteredData.map(item => new Date(item.timeStamp));
+        const kwhData = filteredData.map(item => parseFloat(item.kwh));
 
-             let ctx = document.getElementById("kwhChart").getContext("2d");
+        console.log("Timestamps:", timestamps);
+        console.log("KWH Data:", kwhData);
 
-             // If chart already exists, update it
-             if (kwhChart) {
-                 kwhChart.data.labels = timestamps;
-                 kwhChart.data.datasets[0].data = kwhData;
-                 kwhChart.update();
-             } else {
-                 // Create a new chart
-                 kwhChart = new Chart(ctx, {
-                     type: "line",
-                     data: {
-                         labels: timestamps,
-                         datasets: [
-                             {
-                                 label: "KWH",
-                                 data: kwhData,
-                                 borderColor: "blue",
-                                 backgroundColor: "rgba(0, 123, 255, 0.3)",
-                                 fill: true
-                             },
-                             {
-                                 label: "LSL",
-                                 data: lslData,
-                                 borderColor: "orange",
-                                 borderDash: [5, 5],
-                                 fill: false
-                             },
-                             {
-                                 label: "USL",
-                                 data: uslData,
-                                 borderColor: "gray",
-                                 borderDash: [5, 5],
-                                 fill: false
-                             }
-                         ]
-                     },
-                     options: {
-                         responsive: true,
-                         maintainAspectRatio: false,
-                         plugins: {
-                             tooltip: {
-                                 callbacks: {
-                                     label: function (tooltipItem) {
-                                         let datasetLabel = tooltipItem.dataset.label || "";
-                                         let value = tooltipItem.raw;
-                                         let timestamp = new Date(timestamps[tooltipItem.dataIndex]).toLocaleString();
-                                         return `${timestamp} - ${datasetLabel}: ${value}`;
-                                     }
-                                 }
-                             }
-                         },
-                         scales: {
-                             x: {
-                                 type: "time",
-                                 time: {
-                                     unit: "day",
-                                     displayFormats: { day: "MMM d, yyyy HH:mm" }
-                                 },
-                                 grid: { color: "#eee" },
-                                 title: { display: true, text: "Timestamp" }
-                             },
-                             y: {
-                                 beginAtZero: true,
-                                 grid: { color: "#ddd" },
-                                 title: { display: true, text: "KWH Value" }
-                             }
-                         }
-                     }
-                 });
-             }
-         } catch (error) {
-             console.error("Error loading chart data:", error);
-             alert("Failed to load data.");
-         }
-     }
+        // Define LSL & USL values
+        const lslData = new Array(timestamps.length).fill(10); // Example LSL
+        const uslData = new Array(timestamps.length).fill(50); // Example USL
+
+        let ctx = document.getElementById("kwhChart").getContext("2d");
+
+        // If chart already exists, update it
+        if (kwhChart) {
+            kwhChart.data.labels = timestamps;
+            kwhChart.data.datasets[0].data = kwhData;
+            kwhChart.update();
+        } else {
+            // Create a new chart
+            kwhChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: timestamps,
+                    datasets: [
+                        {
+                            label: "KWH",
+                            data: kwhData,
+                            borderColor: "blue",
+                            backgroundColor: "rgba(0, 123, 255, 0.3)",
+                            fill: true
+                        },
+                        {
+                            label: "LSL",
+                            data: lslData,
+                            borderColor: "orange",
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: "USL",
+                            data: uslData,
+                            borderColor: "gray",
+                            borderDash: [5, 5],
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    let datasetLabel = tooltipItem.dataset.label || "";
+                                    let value = tooltipItem.raw;
+                                    let timestamp = new Date(timestamps[tooltipItem.dataIndex]).toLocaleString();
+                                    return `${timestamp} - ${datasetLabel}: ${value}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: "time",
+                            time: {
+                                unit: "day",
+                                displayFormats: { day: "MMM d, yyyy HH:mm" }
+                            },
+                            grid: { color: "#eee" },
+                            title: { display: true, text: "Timestamp" }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "#ddd" },
+                            title: { display: true, text: "KWH Value" }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Error loading chart data:", error);
+        alert(`Failed to load data. ${error.message}`);
+    }
+}
