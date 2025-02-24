@@ -1,4 +1,12 @@
-foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters)
-{
-    Console.WriteLine(printer);
-}
+SELECT TOP (1000) [Timestamp]
+      ,[Mill_Id]
+      ,[Parameter]
+      ,[Act_value]
+      ,[Running_Status]
+      ,[Alert]
+      ,[Threshold]
+      ,[Speed]
+      ,[Thickness]
+      ,[Grade]
+      ,[CustName]
+  FROM [PIMS_KHOPOLI].[dbo].[Ems_Model_output]
