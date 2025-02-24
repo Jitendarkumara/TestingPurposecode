@@ -3,30 +3,16 @@ let kwhChart; // Store the chart instance
 async function loadChartData(selectedMill = null) {
     try {
         let url = "/Home/GetKWHData"; // API endpoint
-        const response = await fetch(url);
-        const result = await response.json();
 
-        const data = result.chartData; // Extract chart data
-        const distinctMills = result.mills; // Extract unique mills
+        const response = await fetch(url);
+        const data = await response.json();
 
         console.log("Fetched Data:", data);
-        console.log("Distinct Mills:", distinctMills);
 
         if (!data || data.length === 0) {
             alert("No data available!");
             return;
         }
-
-        // Populate the mill dropdown with distinct values (only once)
-        let dropdown = document.getElementById("millSelect");
-        dropdown.innerHTML = '<option value="">All Mills</option>'; // Default option
-
-        distinctMills.forEach(mill => {
-            let option = document.createElement("option");
-            option.value = mill;
-            option.textContent = mill;
-            dropdown.appendChild(option);
-        });
 
         // Filter data if a specific mill is selected
         let filteredData = selectedMill ? data.filter(item => item.millname.trim() === selectedMill) : data;
@@ -36,13 +22,16 @@ async function loadChartData(selectedMill = null) {
             return;
         }
 
-        // Convert timestamps to Date objects
-        const timestamps = filteredData.map(item => new Date(item.timeStamp)); // Ensure Date format
+        // Ensure timestamps are properly formatted as JavaScript Date objects
+        const timestamps = filteredData.map(item => new Date(item.timeStamp)); // Convert to Date object
         const kwhData = filteredData.map(item => parseFloat(item.kwh));
+
+        console.log("Parsed Timestamps:", timestamps);
+        console.log("KWH Data:", kwhData);
 
         let ctx = document.getElementById("kwhChart").getContext("2d");
 
-        // Destroy existing chart to prevent duplication
+        // Destroy existing chart instance to prevent duplication
         if (kwhChart) {
             kwhChart.destroy();
         }
@@ -52,13 +41,15 @@ async function loadChartData(selectedMill = null) {
             type: "line",
             data: {
                 labels: timestamps, // X-axis values
-                datasets: [{
-                    label: "KWH",
-                    data: kwhData,
-                    borderColor: "blue",
-                    backgroundColor: "rgba(0, 123, 255, 0.3)",
-                    fill: true
-                }]
+                datasets: [
+                    {
+                        label: "KWH",
+                        data: kwhData,
+                        borderColor: "blue",
+                        backgroundColor: "rgba(0, 123, 255, 0.3)",
+                        fill: true
+                    }
+                ]
             },
             options: {
                 responsive: true,
@@ -73,12 +64,21 @@ async function loadChartData(selectedMill = null) {
                                 hour: "MMM d, HH:mm" // Format for x-axis labels
                             }
                         },
-                        title: { display: true, text: "Timestamp" },
-                        ticks: { autoSkip: true, maxTicksLimit: 10 }
+                        title: {
+                            display: true,
+                            text: "Timestamp"
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 10 // Avoids cluttering x-axis
+                        }
                     },
                     y: {
                         beginAtZero: true,
-                        title: { display: true, text: "KWH Value" }
+                        title: {
+                            display: true,
+                            text: "KWH Value"
+                        }
                     }
                 }
             }
@@ -89,7 +89,7 @@ async function loadChartData(selectedMill = null) {
     }
 }
 
-// Load chart and dropdown on page load
+// Load chart on page load
 loadChartData();
 
 // Update chart when dropdown changes
