@@ -1,15 +1,18 @@
- public DataTable getChartdata()
- {
-     string mill = "Mill1";
-    
-     SqlCommand cmd = new SqlCommand("Proc_GetMonthlyEms_Model_data", Pimscn);
-     cmd.CommandType = CommandType.StoredProcedure;
-     cmd.Parameters.Add("@mill",SqlDbType.VarChar).Value=mill;
-     SqlDataAdapter da = new SqlDataAdapter(cmd);
+ public IActionResult GetKWHData()
+ { MachineSectionDal M = new MachineSectionDal();
+   
+     List<Chartdata>  Data = new List<Chartdata>();
      DataTable dt = new DataTable();
-     da.Fill(dt);
-
-     return dt;
+     dt = M.getChartdata();
+     for (int i = 0; i < dt.Rows.Count; i++)
+     {
+         Chartdata chartdata = new Chartdata();
+         chartdata.TimeStamp = Convert.ToDateTime(dt.Rows[i][0].ToString());
+         chartdata.Millname=(dt.Rows[i][1].ToString());
+         chartdata.KWH = (Convert.ToDouble(dt.Rows[i][2]));
+         Data.Add(chartdata);
+     }
+     return Json(Data);
  }
 
  @model List<EmsApplication.Models.Chartdata>
