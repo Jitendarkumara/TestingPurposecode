@@ -1,39 +1,45 @@
- 
-alter PROCEDURE Proc_GetGraphDataMonthlyWise
-@SelectedGroup NVARCHAR(50)
- 
+ALTER PROCEDURE Proc_GetGraphDataMonthlyWise
+    @SelectedGroup NVARCHAR(50)
 AS
 BEGIN
---DECLARE @SelectedGroup NVARCHAR(50) = 'Mill1'; -- Change this to filter by a specific group
-DECLARE @StartDate DATETIME = DATEADD(MONTH, -1, GETDATE()); -- 1 month ago
-DECLARE @EndDate DATETIME = GETDATE(); -- Current date
+    SET NOCOUNT ON; -- Prevents extra messages, improving performance
 
-WITH GroupedData AS (
+    DECLARE @StartDate DATETIME = DATEADD(MONTH, -1, GETDATE()); -- 1 month ago
+    DECLARE @EndDate DATETIME = GETDATE(); -- Current date
+
+    -- Use a temporary table to optimize performance
+    IF OBJECT_ID('tempdb..#TempData') IS NOT NULL
+        DROP TABLE #TempData;
+
+    -- Step 1: Filter necessary data before processing
     SELECT  
-        [timestampSourceLT], -- Keep original timestamps
-        CASE  
-            WHEN [SourceID] = 64 THEN 'Finishing1'
-            WHEN [SourceID] IN (60, 61, 62, 63, 65, 66) THEN 'Mill1' 
-            WHEN [SourceID] IN (69, 68, 71, 72, 73) THEN 'Mill2' 
-            WHEN [SourceID] = 70 THEN 'Finishing2'
-            WHEN [SourceID] IN (74, 75, 76, 77) THEN 'Extcoating' 
-        END AS GroupName, 
-        SUM([Value]) AS GroupTotal -- Sum of all SourceIDs in the same group per timestamp
-    FROM [ION_Data].[dbo].[View_DataLog2] 
+        timestampSourceLT, 
+        SourceID, 
+        Value
+    INTO #TempData
+    FROM [ION_Data].[dbo].[View_DataLog2] WITH (NOLOCK) -- Avoid locking issues
     WHERE QuantityID = 182  
-        AND [timestampSourceLT] BETWEEN @StartDate AND @EndDate -- Get only the last 1 month of data
-    GROUP BY  
-        [timestampSourceLT], -- Keep all timestamps
-        CASE  
-            WHEN [SourceID] = 64 THEN 'Finishing1'
-            WHEN [SourceID] IN (60, 61, 62, 63, 65, 66) THEN 'Mill1' 
-            WHEN [SourceID] IN (69, 68, 71, 72, 73) THEN 'Mill2' 
-            WHEN [SourceID] = 70 THEN 'Finishing2'
-            WHEN [SourceID] IN (74, 75, 76, 77) THEN 'Extcoating' 
-        END
-)
-SELECT * FROM GroupedData
-WHERE GroupName = @SelectedGroup -- Filter by selected machine
-ORDER BY timestampSourceLT desc;
+        AND timestampSourceLT BETWEEN @StartDate AND @EndDate; -- Filter data first
+
+    -- Step 2: Aggregate data using optimized grouping
+    SELECT  
+        t.timestampSourceLT, 
+        g.GroupName, 
+        SUM(t.Value) AS GroupTotal 
+    FROM #TempData t
+    JOIN (
+        VALUES
+            (64, 'Finishing1'),
+            (60, 'Mill1'), (61, 'Mill1'), (62, 'Mill1'), (63, 'Mill1'), (65, 'Mill1'), (66, 'Mill1'),
+            (69, 'Mill2'), (68, 'Mill2'), (71, 'Mill2'), (72, 'Mill2'), (73, 'Mill2'),
+            (70, 'Finishing2'),
+            (74, 'Extcoating'), (75, 'Extcoating'), (76, 'Extcoating'), (77, 'Extcoating')
+    ) g(SourceID, GroupName) ON t.SourceID = g.SourceID
+    WHERE g.GroupName = @SelectedGroup -- Select only the required machine
+    GROUP BY t.timestampSourceLT, g.GroupName
+    ORDER BY t.timestampSourceLT DESC;
+
+    -- Drop temp table to free memory
+    DROP TABLE #TempData;
 END
 GO
