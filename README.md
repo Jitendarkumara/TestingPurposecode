@@ -22,69 +22,67 @@ async function loadChartData(selectedMill = null) {
             return;
         }
 
-        // Ensure timestamps are converted to JavaScript Date objects
-        const timestamps = filteredData.map(item => new Date(item.timeStamp)); 
+        // Ensure timestamps are properly formatted as JavaScript Date objects
+        const timestamps = filteredData.map(item => new Date(item.timeStamp)); // Convert to Date object
         const kwhData = filteredData.map(item => parseFloat(item.kwh));
 
-        console.log("Timestamps:", timestamps);
+        console.log("Parsed Timestamps:", timestamps);
         console.log("KWH Data:", kwhData);
 
         let ctx = document.getElementById("kwhChart").getContext("2d");
 
-        // If chart already exists, update it
+        // Destroy existing chart instance to prevent duplication
         if (kwhChart) {
-            kwhChart.data.labels = timestamps;
-            kwhChart.data.datasets[0].data = kwhData;
-            kwhChart.update();
-        } else {
-            // Create a new chart
-            kwhChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: timestamps, // X-axis values
-                    datasets: [
-                        {
-                            label: "KWH",
-                            data: kwhData,
-                            borderColor: "blue",
-                            backgroundColor: "rgba(0, 123, 255, 0.3)",
-                            fill: true
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            type: "time", // Important: Treats x-axis as time
-                            time: {
-                                unit: "hour", // Can be 'day', 'minute', 'month', etc.
-                                tooltipFormat: "MMM d, yyyy HH:mm", // Format for tooltips
-                                displayFormats: {
-                                    hour: "MMM d, HH:mm" // Format for x-axis labels
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: "Timestamp"
-                            },
-                            ticks: {
-                                autoSkip: true,
-                                maxTicksLimit: 10 // Avoids cluttering x-axis
+            kwhChart.destroy();
+        }
+
+        // Create a new chart
+        kwhChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: timestamps, // X-axis values
+                datasets: [
+                    {
+                        label: "KWH",
+                        data: kwhData,
+                        borderColor: "blue",
+                        backgroundColor: "rgba(0, 123, 255, 0.3)",
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: "time", // Set x-axis as time-based
+                        time: {
+                            unit: "hour", // Change to 'day', 'minute', etc., if needed
+                            tooltipFormat: "MMM d, yyyy HH:mm", // Format for tooltips
+                            displayFormats: {
+                                hour: "MMM d, HH:mm" // Format for x-axis labels
                             }
                         },
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: "KWH Value"
-                            }
+                        title: {
+                            display: true,
+                            text: "Timestamp"
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 10 // Avoids cluttering x-axis
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "KWH Value"
                         }
                     }
                 }
-            });
-        }
+            }
+        });
     } catch (error) {
         console.error("Error loading chart data:", error);
         alert("Failed to load data.");
