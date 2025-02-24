@@ -28,6 +28,16 @@ async function loadMillname() {
         alert("Failed to load Mill Name.");
     }
 }
+Array(3)
+0
+: 
+{allMillName: 'Finishing1'}
+1
+: 
+{allMillName: 'Mill1'}
+2
+: 
+{allMillName: 'Mill2'}
 
 // Call the function to populate the dropdown when the page loads
 loadMillname();
