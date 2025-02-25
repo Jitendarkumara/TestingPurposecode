@@ -1,19 +1,2 @@
-using System;
-using System.Drawing.Printing;
-
-class Program
-{
-    static void Main()
-    {
-        // Get the default printer name
-        PrinterSettings settings = new PrinterSettings();
-        Console.WriteLine("Default Printer: " + settings.PrinterName);
-
-        // Get all installed printers
-        Console.WriteLine("All Available Printers:");
-        foreach (string printer in PrinterSettings.InstalledPrinters)
-        {
-            Console.WriteLine(printer);
-        }
-    }
-}
+	(SELECT TOP (100) Timestamp,Mill_Id as TotalActvalue
+ FROM [PIMS_KHOPOLI].[dbo].[Ems_Model_output]  group by [Timestamp],Mill_Id  order by [Timestamp] desc)
