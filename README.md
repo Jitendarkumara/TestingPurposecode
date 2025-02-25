@@ -1,21 +1,20 @@
 scales: {
     x: {
-        type: "time",
+        type: "linear", // Change to linear because kWh values are numerical
+        title: { display: true, text: "KWH Consumption" }, // X-axis label
+        grid: { color: "#eee" }
+    },
+    y: {
+        type: "time", // Use time scale for timestamps
         time: {
-            unit: "minute", // Adjust based on your data (minute, hour, day)
-            tooltipFormat: "MMM d, yyyy HH:mm", // Format for tooltip
+            unit: "minute", // Adjust as needed (minute, hour, day)
             displayFormats: {
                 minute: "MMM d, yyyy HH:mm",
                 hour: "MMM d, yyyy HH:mm",
                 day: "MMM d, yyyy HH:mm"
             }
         },
-        grid: { color: "#eee" },
-        title: { display: true, text: "Timestamp" }
-    },
-    y: {
-        beginAtZero: true,
-        grid: { color: "#ddd" },
-        title: { display: true, text: "KWH Value" }
+        title: { display: true, text: "Timestamp" }, // Y-axis label
+        grid: { color: "#ddd" }
     }
 }
