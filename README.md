@@ -1,13 +1,17 @@
-ticks: {
-    autoSkip: false, // Ensure no automatic skipping
-    callback: function(value, index, values) {
-        let kwhValue = kwhChart.data.datasets[0].data[index];
-
-        // Show time only if KWH value exists
-        if (kwhValue && kwhValue > 0) {
-            return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        } else {
-            return ""; // Hide time for missing or zero KWH values
+x: {
+    type: "time",
+    time: {
+        unit: "minute",
+        displayFormats: { minute: "hh:mm a" }
+    },
+    grid: { color: "#eee" },
+    title: { display: true, text: "Timestamp" },
+    ticks: {
+        source: "data", // Show only real data points
+        autoSkip: false,
+        callback: function(value, index, values) {
+            let kwhValue = kwhChart.data.datasets[0].data[index];
+            return kwhValue > 0 ? new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : "";
         }
     }
 }
