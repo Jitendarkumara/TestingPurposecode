@@ -228,3 +228,9 @@
     </script>
 </body>
 </html>
+
+DashBoard:203 Fetched Data: Array(5)
+  WebSocket connection to 'wss://localhost:44324/EmsApplication/' failed: 
+(anonymous) @ aspnetcore-browser-refresh.js:268
+DashBoard:85 Fetched Data: Array(7)
+DashBoard:104 Timestamps: Array(7)
