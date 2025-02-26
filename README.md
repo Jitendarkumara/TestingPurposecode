@@ -7,13 +7,14 @@ x: {
     grid: { color: "#eee" },
     title: { display: true, text: "Timestamp" },
     ticks: {
-        autoSkip: false, 
+        source: 'data',  // <-- Use only actual data points
+        autoSkip: false,
         callback: function(value, index, values) {
-            let actualDataTimes = timestamps.map(t => +t); // Convert to timestamps
-            if (actualDataTimes.includes(+value)) {
+            let actualDataTimes = timestamps.map(t => new Date(t).getTime()); // Convert to milliseconds
+            if (actualDataTimes.includes(value)) {
                 return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
             } else {
-                return ""; // Hide all other labels
+                return ""; // Hide non-data ticks
             }
         }
     }
