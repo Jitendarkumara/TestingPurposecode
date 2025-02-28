@@ -32,7 +32,42 @@ In Mill → Line Scheduling
 
 
 
+---Here is the text as written in the image:
+
+
 ---
+
+Select plant & stage type
+
+Confirm scheduling & display
+
+Search & select Coil & check So & Save
+
+
+Confirm Scheduling
+
+
+---
+
+Discuss
+
+1. What will happen if you do not select POR
+
+
+
+User problem
+
+Before cutting the Coil, PDO is generating & displaying a sticker
+
+So, how are we displaying weight in the sticker?
+
+
+
+---
+
+Let me know if you need any formatting changes!
+
+
 
 Let me know if you need any formatting changes!
 
