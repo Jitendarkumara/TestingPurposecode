@@ -1,4 +1,38 @@
-Worked on EMS application to display graph in page according to Mill data and created table in to Pims database  to recieve data from EMS database . also added in EMS applicattion dropdownlist to select data according to mill .
-Worked on EMS application to display Current(KWH) Consume by MILL in graph added timeStamp as X axis in graph . 
-Worked on EMS application to display chart responsive and time in X-axis wrote new code to fetch data from Pims tabale and work on designing of chart.
-Changed code to show date and time in X -axis only below of KWH data shown in chart 
+Here is the text as written in the image:
+
+
+---
+
+Process of Scheduling the Coil
+
+MIS Report → Coil History
+
+Enter Coil ID & find IFO (Details of Coil)
+
+Copy Coil & read SoNo (IFO)
+
+
+Go to planning & scheduling in MES
+
+Select Level 2 Scheduling
+a) Select plant (UPSC 0784 GP)
+b) Stage (UP2-GI)
+
+[Display]
+
+
+Paste Coil ID & verify SoNo (IFO)
+
+Select checkbox & Save data
+
+
+Mill Operation
+
+In Mill → Line Scheduling
+
+
+
+---
+
+Let me know if you need any formatting changes!
+
