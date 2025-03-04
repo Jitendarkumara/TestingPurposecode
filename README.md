@@ -1,13 +1,26 @@
+Here’s a grammatically corrected version of your questions:
 
-1.we have 4 value mentioned below ,which option should we take to display KWH value and 
-for alert .
-1. QID-KWH	
-2. Average Voltage Line-to-Line	Current Phase Average	
-3. Active Power	
-4. Power Factor Signed
+1. We have four values mentioned below. Which option should we use to display the KWH value and for generating alerts?
 
-2. Describe USL and LSL will it for sum of all feeder or particular for separate 
-   feeder .
+QID-KWH
 
-3. In the chart KWH data will be displayed for sum of all parameter or by particular parameter .
-4 . on page load how many days of data should be display in chart .
+Average Voltage Line-to-Line, Current Phase Average
+
+Active Power
+
+Power Factor Signed
+
+
+
+2. Should USL (Upper Specification Limit) and LSL (Lower Specification Limit) be applied to the sum of all feeders or separately for each feeder?
+
+
+3. In the chart, should the KWH data be displayed as the sum of all parameters or for a specific parameter?
+
+
+4. On page load, how many days of data should be displayed in the chart?
+
+
+
+Let me know if you'd like any further refinements!
+
