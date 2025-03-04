@@ -1,2 +1,1 @@
-In the EMS application, a graph has been created to display machine KWH data based on mill selection.
-
+In EMS application Added code to export excel sheet  of Machine data which is displayed in screen alert and running status include.
