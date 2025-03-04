@@ -1,1 +1,2 @@
-In EMS application Added code to export excel sheet  of Machine data which is displayed in screen alert and running status include.
+In the EMS application, code has been added to export an Excel sheet of machine data displayed on the screen, including alerts and running status.
+
