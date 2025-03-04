@@ -1,1 +1,2 @@
-In Ems application Created graph to display chart for machine data KWH according to mill selection. 
+In the EMS application, a graph has been created to display machine KWH data based on mill selection.
+
