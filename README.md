@@ -1,2 +1,1 @@
-In the EMS application, code has been added to export an Excel sheet of machine data displayed on the screen, including alerts and running status.
-
+Worked on EMS application to display graph in page according to Mill data and created table in to Pims database  to recieve data from EMS database . also added in EMS applicattion dropdownlist to select data according to mill .
