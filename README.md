@@ -1,30 +1,41 @@
-public class DBhelper
+using Oracle.ManagedDataAccess.Client;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace PDO
 {
-
-    public OracleConnection Con;
-    public string ConnectioString = System.Configuration.ConfigurationManager.ConnectionStrings["ServiceURL"].ToString();
-    public void DatabaseConnect()
+    public class DBhelper
     {
-        try
+
+        public OracleConnection Con;
+        public string ConnectioString = System.Configuration.ConfigurationManager.ConnectionStrings["ServiceURL"].ToString();
+        public void DatabaseConnect()
         {
-            Con = new OracleConnection(ConnectioString);
-            Con.Open();
+            try
+            {
+                Con = new OracleConnection(ConnectioString);
+                Con.Open();
 
 
+            }
+            catch (Exception ex)
+            {
+               // MessageBox.Show(ex.Message);
+            }
         }
-        catch (Exception ex)
-        {
-           // MessageBox.Show(ex.Message);
-        }
-    }
 
-    
-    public void ConClose()
-    {
-        if (Con != null)
+        
+        public void ConClose()
         {
-            Con.Close();
-            Con.Dispose();
+            if (Con != null)
+            {
+                Con.Close();
+                Con.Dispose();
+            }
         }
     }
 }
