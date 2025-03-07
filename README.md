@@ -1,8 +1,23 @@
-1.Added DropdownList to display data in chart according to Mill based
-2.Changed code according to Pims table previously data was coming from EMS table (new designing found in 3.new table so code is modified according to this table)
-4.In CCl application modified code to handle error during dysconnectivity issue with server
-5.In GP application we got new coil which having 5 zero we handled this changing the procedure
-6.we are facing many difficulty due to signal missing in CCL application so we are working to create a 
- new HMI so that user can set or modify according to current coil. 
-7.In tube mill application Added symbol as indication so that user can understand properly that PLC is 
-  running or not(PLC status) 
+Here’s your corrected version with improved grammar and clarity:
+
+1. Added a dropdown list to display data in the chart based on the selected mill.
+
+
+2. Modified the code to fetch data from the PIMS table instead of the EMS table, as per the new design in the updated table.
+
+
+3. In the CCL application, modified the code to handle errors caused by server disconnection issues.
+
+
+4. In the GP application, we received a new coil with five zeros, so we updated the procedure to handle this change.
+
+
+5. We are facing multiple difficulties due to signal loss in the CCL application. To resolve this, we are working on creating a new HMI that will allow users to set or modify data according to the current coil.
+
+
+6. In the Tube Mill application, added a symbol as an indication to help users easily understand whether the PLC is running or not (PLC status).
+
+
+
+Let me know if you need further refinements!
+
