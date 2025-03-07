@@ -1,9 +1,14 @@
+async function loadChartData(selectedMill = "Mill1", selectedFeeder = "All") {
+    try {
+        let url = `/Home/GetKWHData?millName=${encodeURIComponent(selectedMill)}&feederName=${encodeURIComponent(selectedFeeder)}`;
 
-               async function loadChartData(selectedMill="Mill1",selectedFeeder="All") {
-            try {
-                let url = "/Home/GetKWHData"; // Base API endpoint
+        // Fetch data from the API
+        let response = await fetch(url);
+        let data = await response.json();
 
-                // Append the selected mill as a query parameter
-                if (selectedMill) {
-                    url += `?millName=${encodeURIComponent(selectedMill)}`;
-                }
+        // Handle the received data (e.g., update the chart)
+        console.log(data);
+    } catch (error) {
+        console.error("Error loading chart data:", error);
+    }
+}
