@@ -1,59 +1,53 @@
- 
-ALTER PROCEDURE [dbo].[Proc_GetMonthlyEms_Model_data]
-    @mill NVARCHAR(20),
-    @feeder NVARCHAR(20)
-AS
-BEGIN
-    SET NOCOUNT ON;
+Timestamp	Mill_Id	Total_Act_Value	Running_Status	Alert	Thickness	Grade	CustName	Total_KWAH
+2025-03-01 01:30:00.000	Ext-coating	81.4191558612511	1	1	0	NULL		0
+2025-03-01 01:30:00.000	Finishing-1	46.3312245891429	1	0	0	NULL		0
+2025-03-01 01:15:00.000	Finishing-2	8.68492327560671	1	1	0	NULL		0
+2025-03-01 01:30:00.000	Mill1	37.3225406818092	0	1	0	NULL		0
+2025-03-01 01:30:00.000	Mill2	17.2740543333348	0	1	0	NULL		0
 
-    IF (@feeder = 'All')
-    BEGIN
-        SELECT TOP (100) 
-            [Timestamp], 
-            Mill_Id, 
-            SUM(Act_value) AS TotalActValue
-        FROM [PIMS_KHOPOLI].[dbo].[Ems_Model_output]
-        WHERE Mill_Id = @mill
-        GROUP BY [Timestamp], Mill_Id
-        ORDER BY [Timestamp] DESC;
-    END
-    ELSE
-    BEGIN
-        SELECT TOP (100) 
-            [Timestamp], 
-            Mill_Id, 
-            [Parameter], 
-            SUM(Act_value) AS TotalActValue
-        FROM [PIMS_KHOPOLI].[dbo].[Ems_Model_output]
-        WHERE Mill_Id = @mill AND [Parameter] = @feeder
-        GROUP BY [Timestamp], Mill_Id, [Parameter]
-        ORDER BY [Timestamp] DESC;
-    END
-END;
-below line is working fine when i am running it directing 
- SELECT TOP (100) 
-            [Timestamp], 
-            Mill_Id, 
-            [Parameter], 
-            SUM(Act_value) AS TotalActValue
-        FROM [PIMS_KHOPOLI].[dbo].[Ems_Model_output]
-        WHERE Mill_Id = 'Ext-coating' AND [Parameter] = 'API_COATING.TRF-3_AIRBLOW_HEATER_PREHEATING_UNIT_EXTRUDER12_SHOTBLAST_UTILITY_EXTRNALCOAT'
-        GROUP BY [Timestamp], Mill_Id, [Parameter]
-        ORDER BY [Timestamp] DESC;
+WITH LatestTimestamp AS (
+    SELECT 
+        Mill_Id, 
+        MAX(Timestamp) AS Latest_Timestamp
+    FROM dbo.Ems_Model_output
+    WHERE DATEPART(MINUTE, Timestamp) % 15 = 0
+    GROUP BY Mill_Id
+)
+SELECT 
+    e.Timestamp, 
+    e.Mill_Id, 
+    SUM(e.Act_value) AS Total_Act_Value, 
+    MAX(e.Running_Status) AS Running_Status, 
+    MAX(e.Alert) AS Alert, 
+    MAX(e.Thickness) AS Thickness, 
+    MAX(e.Grade) AS Grade, 
+    MAX(e.CustName) AS CustName, 
+    SUM(e.KWAH) AS Total_KWAH
+FROM dbo.Ems_Model_output e
+JOIN LatestTimestamp lt ON e.Mill_Id = lt.Mill_Id AND e.Timestamp = lt.Latest_Timestamp
+GROUP BY e.Timestamp, e.Mill_Id
+order by Mill_Id;
 
-but when I am calling this procedure using below code it is not working 
-        public DataTable getChartdata(string Mill,string Feeder)
-        {
-            //string mill = "Mill1";
-           
-            SqlCommand cmd = new SqlCommand("Proc_GetMonthlyEms_Model_data", Pimscn);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.Add("@mill",SqlDbType.VarChar).Value= Mill;
-            cmd.Parameters.Add("@feeder", SqlDbType.VarChar).Value = Feeder;
-            SqlDataAdapter da = new SqlDataAdapter(cmd);
-            DataTable dt = new DataTable();
-            da.Fill(dt);
+  MachineSectionDal M = new MachineSectionDal();
+  DataTable dt = new DataTable();
+  dt = M.getEmsMachineRunningData(); // Fetch data
 
-            return dt;
-        }
-        see i am passing this exec Proc_GetMonthlyEms_Model_data 'Ext-coating','API_COATING.TRF-3_AIRBLOW_HEATER_PREHEATING_UNIT_EXTRUDER12_SHOTBLAST_UTILITY_EXTRNALCOAT'
+  // Ensure DataTable has enough rows before accessing specific indexes
+  if (dt.Rows.Count < 5)
+  {
+      return BadRequest("Insufficient data in DataTable.");
+  }
+
+  // Extracting machine running status values
+  double mill1 = Convert.ToDouble(dt.Rows[4]["Running_Status"]),
+         mill2 = Convert.ToDouble(dt.Rows[2]["Running_Status"]),
+         finishing1 = Convert.ToDouble(dt.Rows[3]["Running_Status"]),
+         finishing2 = Convert.ToDouble(dt.Rows[1]["Running_Status"]),
+         extcoating = Convert.ToDouble(dt.Rows[0]["Running_Status"]);
+
+  // Extracting alert values
+  double sumMill1 = Convert.ToDouble(dt.Rows[4]["Alert"]),
+         sumMill2 = Convert.ToDouble(dt.Rows[2]["Alert"]),
+         sumFinishing1 = Convert.ToDouble(dt.Rows[3]["Alert"]),
+         sumFinishing2 = Convert.ToDouble(dt.Rows[1]["Alert"]),
+         sumExtcoating = Convert.ToDouble(dt.Rows[0]["Alert"]);
