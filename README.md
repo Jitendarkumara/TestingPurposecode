@@ -1,53 +1,36 @@
-Timestamp	Mill_Id	Total_Act_Value	Running_Status	Alert	Thickness	Grade	CustName	Total_KWAH
-2025-03-01 01:30:00.000	Ext-coating	81.4191558612511	1	1	0	NULL		0
-2025-03-01 01:30:00.000	Finishing-1	46.3312245891429	1	0	0	NULL		0
-2025-03-01 01:15:00.000	Finishing-2	8.68492327560671	1	1	0	NULL		0
-2025-03-01 01:30:00.000	Mill1	37.3225406818092	0	1	0	NULL		0
-2025-03-01 01:30:00.000	Mill2	17.2740543333348	0	1	0	NULL		0
+MachineSectionDal M = new MachineSectionDal();
+DataTable dt = M.getEmsMachineRunningData(); // Fetch data
 
-WITH LatestTimestamp AS (
-    SELECT 
-        Mill_Id, 
-        MAX(Timestamp) AS Latest_Timestamp
-    FROM dbo.Ems_Model_output
-    WHERE DATEPART(MINUTE, Timestamp) % 15 = 0
-    GROUP BY Mill_Id
-)
-SELECT 
-    e.Timestamp, 
-    e.Mill_Id, 
-    SUM(e.Act_value) AS Total_Act_Value, 
-    MAX(e.Running_Status) AS Running_Status, 
-    MAX(e.Alert) AS Alert, 
-    MAX(e.Thickness) AS Thickness, 
-    MAX(e.Grade) AS Grade, 
-    MAX(e.CustName) AS CustName, 
-    SUM(e.KWAH) AS Total_KWAH
-FROM dbo.Ems_Model_output e
-JOIN LatestTimestamp lt ON e.Mill_Id = lt.Mill_Id AND e.Timestamp = lt.Latest_Timestamp
-GROUP BY e.Timestamp, e.Mill_Id
-order by Mill_Id;
+// Check if DataTable has rows
+if (dt.Rows.Count == 0)
+{
+    return BadRequest("No data available.");
+}
 
-  MachineSectionDal M = new MachineSectionDal();
-  DataTable dt = new DataTable();
-  dt = M.getEmsMachineRunningData(); // Fetch data
+// Create dictionaries to map Running_Status and Alert by Mill_Id
+Dictionary<string, double> runningStatusMap = new Dictionary<string, double>();
+Dictionary<string, double> alertMap = new Dictionary<string, double>();
 
-  // Ensure DataTable has enough rows before accessing specific indexes
-  if (dt.Rows.Count < 5)
-  {
-      return BadRequest("Insufficient data in DataTable.");
-  }
+foreach (DataRow row in dt.Rows)
+{
+    string millId = row["Mill_Id"].ToString();
+    
+    if (!string.IsNullOrEmpty(millId))
+    {
+        runningStatusMap[millId] = Convert.ToDouble(row["Running_Status"]);
+        alertMap[millId] = Convert.ToDouble(row["Alert"]);
+    }
+}
 
-  // Extracting machine running status values
-  double mill1 = Convert.ToDouble(dt.Rows[4]["Running_Status"]),
-         mill2 = Convert.ToDouble(dt.Rows[2]["Running_Status"]),
-         finishing1 = Convert.ToDouble(dt.Rows[3]["Running_Status"]),
-         finishing2 = Convert.ToDouble(dt.Rows[1]["Running_Status"]),
-         extcoating = Convert.ToDouble(dt.Rows[0]["Running_Status"]);
+// Assign values using safe dictionary lookups
+double mill1 = runningStatusMap.ContainsKey("Mill1") ? runningStatusMap["Mill1"] : 0;
+double mill2 = runningStatusMap.ContainsKey("Mill2") ? runningStatusMap["Mill2"] : 0;
+double finishing1 = runningStatusMap.ContainsKey("Finishing-1") ? runningStatusMap["Finishing-1"] : 0;
+double finishing2 = runningStatusMap.ContainsKey("Finishing-2") ? runningStatusMap["Finishing-2"] : 0;
+double extcoating = runningStatusMap.ContainsKey("Ext-coating") ? runningStatusMap["Ext-coating"] : 0;
 
-  // Extracting alert values
-  double sumMill1 = Convert.ToDouble(dt.Rows[4]["Alert"]),
-         sumMill2 = Convert.ToDouble(dt.Rows[2]["Alert"]),
-         sumFinishing1 = Convert.ToDouble(dt.Rows[3]["Alert"]),
-         sumFinishing2 = Convert.ToDouble(dt.Rows[1]["Alert"]),
-         sumExtcoating = Convert.ToDouble(dt.Rows[0]["Alert"]);
+double sumMill1 = alertMap.ContainsKey("Mill1") ? alertMap["Mill1"] : 0;
+double sumMill2 = alertMap.ContainsKey("Mill2") ? alertMap["Mill2"] : 0;
+double sumFinishing1 = alertMap.ContainsKey("Finishing-1") ? alertMap["Finishing-1"] : 0;
+double sumFinishing2 = alertMap.ContainsKey("Finishing-2") ? alertMap["Finishing-2"] : 0;
+double sumExtcoating = alertMap.ContainsKey("Ext-coating") ? alertMap["Ext-coating"] : 0;
