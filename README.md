@@ -1,27 +1,43 @@
 public IActionResult GetKWHData(string MillName, string feederName)
 {
-    MachineSectionDal M = new MachineSectionDal();
     List<Chartdata> Data = new List<Chartdata>();
-    DataTable dt = M.getChartdata(MillName, feederName);
-
-    for (int i = 0; i < dt.Rows.Count; i++)
+    try
     {
-        Chartdata chartdata = new Chartdata();
+        MachineSectionDal M = new MachineSectionDal();
+        DataTable dt = M.getChartdata(MillName, feederName);
 
-        // Handle NULL values safely
-        chartdata.TimeStamp = dt.Rows[i]["TimeStamp"] != DBNull.Value 
-            ? Convert.ToDateTime(dt.Rows[i]["TimeStamp"]) 
-            : DateTime.MinValue;
+        for (int i = 0; i < dt.Rows.Count; i++)
+        {
+            Chartdata chartdata = new Chartdata();
 
-        chartdata.Millname = dt.Rows[i]["Mill_Id"] != DBNull.Value 
-            ? dt.Rows[i]["Mill_Id"].ToString() 
-            : string.Empty;
+            try
+            {
+                chartdata.TimeStamp = dt.Rows[i]["TimeStamp"] != DBNull.Value 
+                    ? Convert.ToDateTime(dt.Rows[i]["TimeStamp"]) 
+                    : DateTime.MinValue;
 
-        chartdata.KWH = dt.Rows[i]["TotalActValue"] != DBNull.Value 
-            ? Convert.ToDouble(dt.Rows[i]["TotalActValue"]) 
-            : 0.0; // Default value if NULL
+                chartdata.Millname = dt.Rows[i]["Mill_Id"] != DBNull.Value 
+                    ? dt.Rows[i]["Mill_Id"].ToString() 
+                    : string.Empty;
 
-        Data.Add(chartdata);
+                chartdata.KWH = dt.Rows[i]["TotalActValue"] != DBNull.Value 
+                    ? Convert.ToDouble(dt.Rows[i]["TotalActValue"]) 
+                    : 0.0; // Default value if NULL
+
+                Data.Add(chartdata);
+            }
+            catch (Exception ex)
+            {
+                // Log individual row conversion error (optional)
+                Console.WriteLine($"Error processing row {i}: {ex.Message}");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        // Log the error and return an error response
+        Console.WriteLine($"Error in GetKWHData: {ex.Message}");
+        return StatusCode(500, new { message = "An error occurred while fetching data.", error = ex.Message });
     }
 
     return Json(Data);
