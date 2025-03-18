@@ -1,34 +1,36 @@
-ALTER PROCEDURE [dbo].[Proc_GetMonthlyEms_Model_data]
-    @mill NVARCHAR(50),
-    @feeder NVARCHAR(200)
-AS
-BEGIN
-    SET NOCOUNT ON;
+public IActionResult GetKWHData(string MillName, string feederName)
+{
+ 
 
-    IF (@feeder = 'All')
-    BEGIN
-        SELECT  
-            [Timestamp], 
-            Mill_Id, 
-            SUM(Act_value) AS TotalActValue
-        FROM [PIMS_KHOPOLI].[dbo].[Ems_Model_output]
-        WHERE Mill_Id = @mill
-        AND [Timestamp] >= DATEADD(MONTH, -1, GETDATE())  -- Last 1 month data
-        GROUP BY [Timestamp], Mill_Id
-        ORDER BY [Timestamp] DESC;
-    END
-    ELSE
-    BEGIN
-        SELECT  
-            [Timestamp], 
-            Mill_Id, 
-            [Parameter], 
-            SUM(ISNULL(Act_value, 0)) AS TotalActValue
-        FROM [PIMS_KHOPOLI].[dbo].[Ems_Model_output]
-        WHERE Mill_Id = @mill 
-        AND [Parameter] = @feeder
-        AND [Timestamp] >= DATEADD(MONTH, -1, GETDATE())  -- Last 1 month data
-        GROUP BY [Timestamp], Mill_Id, [Parameter]
-        ORDER BY [Timestamp] DESC;
-    END
-END;
+        MachineSectionDal M = new MachineSectionDal();
+
+        List<Chartdata> Data = new List<Chartdata>();
+        DataTable dt = new DataTable();
+        dt = M.getChartdata(MillName, feederName);
+
+        for (int i = 0; i < dt.Rows.Count; i++)
+        {
+            Chartdata chartdata = new Chartdata();
+            chartdata.TimeStamp = Convert.ToDateTime(dt.Rows[i]["TimeStamp"].ToString());
+
+            chartdata.Millname = (dt.Rows[i]["Mill_Id"].ToString());
+
+            chartdata.KWH = (Convert.ToDouble(dt.Rows[i]["TotalActvalue"]));
+            Data.Add(chartdata);
+        }
+        return Json(Data);
+    
+   
+}
+
+System.InvalidCastException
+  HResult=0x80004002
+  Message=Object cannot be cast from DBNull to other types.
+  Source=System.Private.CoreLib
+  StackTrace:
+   at System.DBNull.System.IConvertible.ToDouble(IFormatProvider provider)
+   at EmsApplication.Controllers.HomeController.GetKWHData(String MillName, String feederName) in D:\Jitu\EMS-Khopoli_Backup_17_03_25\EmsApplication\EmsApplication\Controllers\HomeController.cs:line 451
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
