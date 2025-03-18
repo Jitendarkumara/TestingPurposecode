@@ -1,2 +1,1 @@
-My system is shutting down automatically. It has been formatted twice, but the issue persists. Every time I have to reinstall all the necessary software, which is affecting my development. This may also lead to data loss. Please resolve this issue as soon as possible.
-
+I need access for this Ip 132.145.132.10 its asset Id is TSWKC09335 .kindly provide access .
