@@ -1,27 +1,47 @@
-Here’s a more polished version of your email with improved clarity and professionalism:
+ <div class="filter-container" style="margin-top:5px">
+     <div class="row">
+         <div class="col-2">
+             <label for="millSelect">Select Mill:</label>
+             <select id="millSelect" class="form-select"></select>
+         </div>
+         <div class="col-2">
+             <label for="FeederSelect">Select Feeder:</label>
+             <select id="FeederSelect" class="form-select"></select>
+         </div>
+         <!-- Date Filter -->
+         <div class="col-2">
+             <label for="dateFilter">Select Date:</label>
+             <input type="date" id="dateFilter" class="form-control">
+         </div>
 
+         <!-- Shift Selection -->
+         <div class="col-2">
+             <label for="shiftSelect">Select Shift:</label>
+             <select id="shiftSelect" class="form-select">
+                 <option selected disabled>Select Shift</option>
+                 <option value="D">All</option>
+                 <option value="A">Shift A</option>
+                 <option value="B">Shift B</option>
+                 <option value="C">Shift C</option>
+      
+             </select>
+         </div>
 
----
+         <!-- Status Selection -->
+         <div class="col-md-2">
+             <label for="statusSelect">Select Status:</label>
+             <select id="statusSelect" class="form-select">
+                 <option selected disabled>Select Status</option>
+                 <option value="2">All</option>
+                 <option value="1">Running</option>
+                 <option value="0">Stop</option>
+             
+             </select>
+         </div>
 
-Subject: Follow-up on Message Structure Discussion
-
-Dear Akith,
-
-I hope you’re doing well.
-
-As per our discussion in yesterday’s meeting regarding the message structure, I would like to schedule a follow-up discussion to finalize the screen layout. Please let me know a suitable time when we can sit together.
-
-I can come to your location, or you are welcome to meet me at the admin office—whichever is more convenient for you.
-
-Looking forward to your response.
-
-Best regards,
-[Your Name]
-[Your Position]
-[Your Contact Information]
-
-
----
-
-This version ensures clarity, maintains a polite tone, and improves readability. Let me know if you need any further refinements!
-
+         <!-- Home Button -->
+         <div class="col-md-2">
+             <button class="btn btn-custom" onclick="HomeLoad()">Home</button>
+         </div>
+     </div>
+ </div>
