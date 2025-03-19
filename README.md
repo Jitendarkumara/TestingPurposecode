@@ -1,44 +1,18 @@
-public IActionResult GetKWHData(string MillName, string feederName)
-{
-    List<Chartdata> Data = new List<Chartdata>();
-    try
-    {
-        MachineSectionDal M = new MachineSectionDal();
-        DataTable dt = M.getChartdata(MillName, feederName);
+ public void DatabaseConnect()
+ {
+     try
+     {
+         Con = new OracleConnection(ConnectioString);
+         Con.Open();
+     }
+     catch (Exception ex)
+     {
+         if(ex.Message== "Connection request timed out")
+         {
 
-        for (int i = 0; i < dt.Rows.Count; i++)
-        {
-            Chartdata chartdata = new Chartdata();
+         }
 
-            try
-            {
-                chartdata.TimeStamp = dt.Rows[i]["TimeStamp"] != DBNull.Value 
-                    ? Convert.ToDateTime(dt.Rows[i]["TimeStamp"]) 
-                    : DateTime.MinValue;
-
-                chartdata.Millname = dt.Rows[i]["Mill_Id"] != DBNull.Value 
-                    ? dt.Rows[i]["Mill_Id"].ToString() 
-                    : string.Empty;
-
-                chartdata.KWH = dt.Rows[i]["TotalActValue"] != DBNull.Value 
-                    ? Convert.ToDouble(dt.Rows[i]["TotalActValue"]) 
-                    : 0.0; // Default value if NULL
-
-                Data.Add(chartdata);
-            }
-            catch (Exception ex)
-            {
-                // Log individual row conversion error (optional)
-                Console.WriteLine($"Error processing row {i}: {ex.Message}");
-            }
-        }
-    }
-    catch (Exception ex)
-    {
-        // Log the error and return an error response
-        Console.WriteLine($"Error in GetKWHData: {ex.Message}");
-        return StatusCode(500, new { message = "An error occurred while fetching data.", error = ex.Message });
-    }
-
-    return Json(Data);
-}
+         // Trigger the event instead of showing a message box
+        // OnDatabaseError?.Invoke(ex.Message);
+     }
+ }
