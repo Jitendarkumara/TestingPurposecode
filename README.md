@@ -1,39 +1,59 @@
-using System;
-using System.Data;
-using System.Data.OracleClient;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-public class DBhelper
+public partial class Form1 : Form
 {
-    public OracleConnection Con;
-    public string ConnectioString = System.Configuration.ConfigurationManager.ConnectionStrings["ServiceURL"].ToString();
-    public event Action<string> OnDatabaseError; // Event to notify forms about errors
+    private DBhelper Db;
 
-    private System.Windows.Forms.Timer _timer; // Reference to the timer
-
-    // Constructor to pass the timer instance from the form
-    public DBhelper(System.Windows.Forms.Timer timer)
+    public Form1()
     {
-        _timer = timer;
+        InitializeComponent();
+        
+        // Pass the timer instance to DBhelper
+        Db = new DBhelper(timer2);
     }
 
-    public async Task DatabaseConnectAsync()
+    private async void timer2_Tick(object sender, EventArgs e)
+    {
+        await LoadPdoGridviewAsync();
+    }
+
+    private async Task LoadPdoGridviewAsync()
     {
         try
         {
-            Con = new OracleConnection(ConnectioString);
-            await Task.Run(() => Con.Open()); // Run Open() in a background thread
+            await Db.DatabaseConnectAsync(); // Wait for database connection
+
+            string query = "SELECT TCIP_PRODUCT_COIL, TCIP_CIL_END_TIME FROM T_COL_COIL_INFO_PDO ORDER BY TCIP_CIL_END_TIME DESC";
+            OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
+            DataTable DtPDO = new DataTable();
+            da.Fill(DtPDO);
+
+            dgvPDO.DataSource = DtPDO;
+            dgvPDO.AutoGenerateColumns = false;
+
+            if (Lbl_coil.Text == "Coil")
+            {
+                Lbl_coil.Text = DtPDO.Rows[0][0].ToString();
+            }
+            else
+            {
+                if (Lbl_coil.Text != DtPDO.Rows[0][0].ToString())
+                {
+                    Lbl_coil.Text = DtPDO.Rows[0][0].ToString();
+                    printSticker();
+                }
+            }
+
+            dgvPDO.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
+            dgvPDO.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
         }
         catch (Exception ex)
         {
-            if (ex.Message.Contains("Connection request timed out"))
-            {
-                _timer.Stop(); // Stop the timer if timeout occurs
-                MessageBox.Show("Database connection timed out. Timer stopped.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            OnDatabaseError?.Invoke(ex.Message); // Notify any subscribed forms
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    private void btnRestartTimer_Click(object sender, EventArgs e)
+    {
+        timer2.Start(); // Restart the timer manually
+        MessageBox.Show("Timer restarted.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 }
