@@ -1,70 +1,39 @@
-   private void timer2_Tick(object sender, EventArgs e)
-   {
-       LoadPdoGridview();
-   }
-    private void LoadPdoGridview()
- {
-     try
-     {
-         
-         Db.DatabaseConnect();
-         string s = "SELECT TCIP_PRODUCT_COIL,TCIP_CIL_END_TIME  FROM T_COL_COIL_INFO_PDO   order by  TCIP_CIL_END_TIME desc";
-         OracleDataAdapter da = new OracleDataAdapter(s, Db.Con);
-         DtPDO = new DataTable();
-         da.Fill(DtPDO);
-       
-         dgvPDO.DataSource = DtPDO;
-         dgvPDO.AutoGenerateColumns = false;
-         // here we are checking new coil if new coil generate then sticker will Auto dissplay
-         if (Lbl_coil.Text == "Coil")
-         {
-             Lbl_coil.Text = DtPDO.Rows[0][0].ToString();
-             //printSticker();
-         }
-         else
-         {
-             if (Lbl_coil.Text != DtPDO.Rows[0][0].ToString())
-             {
-                 Lbl_coil.Text = DtPDO.Rows[0][0].ToString();
-                 printSticker();
-               
-             }
-            
-         }
+using System;
+using System.Data;
+using System.Data.OracleClient;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
-         Db.ConClose();
-         //dgvCoilDetails.RowHeadersDefaultCellStyle.SelectionBackColor = Color.Red;
-         dgvPDO.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
-         dgvPDO.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
-     }
-     catch (Exception ex)
-     {
-         MessageBox.Show(ex.Message);
-     }
-     public class DBhelper
+public class DBhelper
 {
     public OracleConnection Con;
     public string ConnectioString = System.Configuration.ConfigurationManager.ConnectionStrings["ServiceURL"].ToString();
-   
-    // Define an event to notify when an error occurs
-    public event Action<string> OnDatabaseError;
-   MasterPage MasterPage1 = new MasterPage();
-    public async void  DatabaseConnect()
+    public event Action<string> OnDatabaseError; // Event to notify forms about errors
+
+    private System.Windows.Forms.Timer _timer; // Reference to the timer
+
+    // Constructor to pass the timer instance from the form
+    public DBhelper(System.Windows.Forms.Timer timer)
+    {
+        _timer = timer;
+    }
+
+    public async Task DatabaseConnectAsync()
     {
         try
         {
             Con = new OracleConnection(ConnectioString);
-            Con.Open();
+            await Task.Run(() => Con.Open()); // Run Open() in a background thread
         }
         catch (Exception ex)
         {
-            if (ex.Message == "Connection request timed out")
+            if (ex.Message.Contains("Connection request timed out"))
             {
-                MasterPage1.AutoPopTimer.Stop();
+                _timer.Stop(); // Stop the timer if timeout occurs
+                MessageBox.Show("Database connection timed out. Timer stopped.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            // Trigger the event instead of showing a message box
-            // OnDatabaseError?.Invoke(ex.Message);
+            OnDatabaseError?.Invoke(ex.Message); // Notify any subscribed forms
         }
     }
-    }
+}
