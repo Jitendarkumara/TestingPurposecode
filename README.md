@@ -1,59 +1,40 @@
-public partial class Form1 : Form
-{
-    private DBhelper Db;
+ public class DBhelper
+ {
+     public OracleConnection Con;
+     public string ConnectioString = System.Configuration.ConfigurationManager.ConnectionStrings["ServiceURL"].ToString();
+     private System.Windows.Forms.Timer _timer;
+     // Define an event to notify when an error occurs
+     public event Action<string> OnDatabaseError;
+    MasterPage MasterPage1 = new MasterPage();
+     
 
-    public Form1()
-    {
-        InitializeComponent();
-        
-        // Pass the timer instance to DBhelper
-        Db = new DBhelper(timer2);
-    }
+     public async Task DatabaseConnect()
+     {
+         try
+         {
+             Con = new OracleConnection(ConnectioString);
+             await Task.Run(() => Con.Open()); // Run Open() in a background thread
+         }
+         catch (Exception ex)
+         {
+             if (ex.Message.Contains("Connection request timed out"))
+             {
+                 MasterPage1.AutoPopTimer.Stop();
+               
+                 MessageBox.Show("Database connection timed out. Timer stopped.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+             }
 
-    private async void timer2_Tick(object sender, EventArgs e)
-    {
-        await LoadPdoGridviewAsync();
-    }
-
-    private async Task LoadPdoGridviewAsync()
-    {
-        try
-        {
-            await Db.DatabaseConnectAsync(); // Wait for database connection
-
-            string query = "SELECT TCIP_PRODUCT_COIL, TCIP_CIL_END_TIME FROM T_COL_COIL_INFO_PDO ORDER BY TCIP_CIL_END_TIME DESC";
-            OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
-            DataTable DtPDO = new DataTable();
-            da.Fill(DtPDO);
-
-            dgvPDO.DataSource = DtPDO;
-            dgvPDO.AutoGenerateColumns = false;
-
-            if (Lbl_coil.Text == "Coil")
-            {
-                Lbl_coil.Text = DtPDO.Rows[0][0].ToString();
-            }
-            else
-            {
-                if (Lbl_coil.Text != DtPDO.Rows[0][0].ToString())
-                {
-                    Lbl_coil.Text = DtPDO.Rows[0][0].ToString();
-                    printSticker();
-                }
-            }
-
-            dgvPDO.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
-            dgvPDO.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
-
-    private void btnRestartTimer_Click(object sender, EventArgs e)
-    {
-        timer2.Start(); // Restart the timer manually
-        MessageBox.Show("Timer restarted.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-    }
-}
+             OnDatabaseError?.Invoke(ex.Message); // Notify any subscribed forms
+         }
+     }
+ 
+   
+     public void ConClose()
+     {
+         if (Con != null)
+         {
+             Con.Close();
+             Con.Dispose();
+         }
+     }
+ }
