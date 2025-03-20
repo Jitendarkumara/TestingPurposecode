@@ -16,3 +16,23 @@
 
               
                 Db.ConClose();
+}
+   dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+   dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+   this.Edit.DefaultCellStyle = dataGridViewCellStyle3;
+   this.Edit.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+   this.Edit.HeaderText = "Action";
+   this.Edit.Name = "Edit";
+   this.Edit.Text = "Update";
+   this.Edit.UseColumnTextForButtonValue = true;
+   // 
+   // Tag
+   // 
+   this.Tag.HeaderText = "Id_Tag";
+   this.Tag.Name = "Tag";
+   // 
+   // Coil_ID
+   // 
+   this.Coil_ID.HeaderText = "Coil_ID";
+   this.Coil_ID.Name = "Coil_ID";
+   // 
