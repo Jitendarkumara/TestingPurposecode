@@ -1,38 +1,48 @@
+private void LoadData()
+{
+    try
+    {
+        Db.DatabaseConnect();
+        string query = "SELECT Id_app_tag_Event, Coil_id FROM T_Event_Tracking";
 
-            try
-            {
-                Db.DatabaseConnect();
-                string s = @"select Id_app_tag_Event,Coil_id from T_Event_Tracking";
+        OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
+        DataTable DtPDI = new DataTable();
+        da.Fill(DtPDI);
 
-                OracleDataAdapter da = new OracleDataAdapter(s, Db.Con);
-            DataTable  DtPDI = new DataTable();
-                da.Fill(DtPDI);
-                dataGridView1.AutoGenerateColumns = false;
-                dataGridView1.Columns.Add("Id_app_tag_Event", "Tag");
-                dataGridView1.Columns.Add("Coil_id", "Coil_id");
-                dataGridView1.DataSource = DtPDI;
-                dataGridView1.Columns["Coil_ID"].HeaderText = "Coil_id"; 
-                dataGridView1.Columns["Tag"].HeaderText = "Id_app_tag_Event";
+        dataGridView1.AutoGenerateColumns = false;
+        dataGridView1.DataSource = DtPDI;
 
-              
-                Db.ConClose();
+        // Clear existing columns to prevent duplication
+        dataGridView1.Columns.Clear();
+
+        // Add columns dynamically with correct mapping
+        DataGridViewTextBoxColumn col1 = new DataGridViewTextBoxColumn();
+        col1.DataPropertyName = "Id_app_tag_Event"; // Must match column name from database
+        col1.HeaderText = "Tag";
+        col1.Name = "Tag";
+        dataGridView1.Columns.Add(col1);
+
+        DataGridViewTextBoxColumn col2 = new DataGridViewTextBoxColumn();
+        col2.DataPropertyName = "Coil_id"; // Must match database column name
+        col2.HeaderText = "Coil ID";
+        col2.Name = "Coil_ID";
+        dataGridView1.Columns.Add(col2);
+
+        // Add the Edit Button Column
+        DataGridViewButtonColumn btnEdit = new DataGridViewButtonColumn();
+        btnEdit.HeaderText = "Action";
+        btnEdit.Text = "Update";
+        btnEdit.Name = "Edit";
+        btnEdit.UseColumnTextForButtonValue = true;
+        btnEdit.DefaultCellStyle.BackColor = Color.FromArgb(192, 0, 0);
+        btnEdit.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        btnEdit.FlatStyle = FlatStyle.Popup;
+        dataGridView1.Columns.Add(btnEdit);
+
+        Db.ConClose();
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("Error loading data: " + ex.Message);
+    }
 }
-   dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-   dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-   this.Edit.DefaultCellStyle = dataGridViewCellStyle3;
-   this.Edit.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-   this.Edit.HeaderText = "Action";
-   this.Edit.Name = "Edit";
-   this.Edit.Text = "Update";
-   this.Edit.UseColumnTextForButtonValue = true;
-   // 
-   // Tag
-   // 
-   this.Tag.HeaderText = "Id_Tag";
-   this.Tag.Name = "Tag";
-   // 
-   // Coil_ID
-   // 
-   this.Coil_ID.HeaderText = "Coil_ID";
-   this.Coil_ID.Name = "Coil_ID";
-   // 
