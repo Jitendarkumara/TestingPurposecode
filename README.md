@@ -1,4 +1,8 @@
-public DataTable getChartdata(string Mill, string Feeder, DateTime selectedDate, string status, string Shift)
+  exec Proc_GetMonthlyEms_Model_data 'Mill1', 'API1.Panelno_5_ENTRY1234_SIDE_TRIMMER_CHOPPER_PINCH','2025-03-18 22:00:00','2025-03-19 22:00:00','All'
+
+  18-03-2025 06:00:00}
+
+  public DataTable getChartdata(string Mill, string Feeder, DateTime selectedDate, string status, string Shift)
 {
     DateTime fromDate, toDate;
 
@@ -41,4 +45,3 @@ public DataTable getChartdata(string Mill, string Feeder, DateTime selectedDate,
     da.Fill(dt);
 
     return dt;
-}
