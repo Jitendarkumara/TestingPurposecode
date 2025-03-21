@@ -1,21 +1,27 @@
-public DateTime ConvertShiftToDateTime(string selectedShift, DateTime referenceDate)
+public DataTable getChartdata(string Mill, string Feeder, DateTime selectedDate,string status,string Shift)
 {
-    TimeSpan shiftStartTime;
+ 
+        DateTime Todate = selectedDate.AddDays(+1); // Get the previous day
 
-    switch (selectedShift.ToUpper())
-    {
-        case "A":
-            shiftStartTime = new TimeSpan(6, 0, 0);  // 6:00 AM
-            break;
-        case "B":
-            shiftStartTime = new TimeSpan(14, 0, 0); // 2:00 PM
-            break;
-        case "C":
-            shiftStartTime = new TimeSpan(22, 0, 0); // 10:00 PM
-            break;
-        default:
-            throw new ArgumentException("Invalid shift. Use A, B, or C.");
-    }
+        SqlCommand cmd = new SqlCommand("Proc_GetMonthlyEms_Model_data", Pimscn);
 
-    return referenceDate.Date.Add(shiftStartTime);
+
+        cmd.CommandType = CommandType.StoredProcedure;
+
+        // Correctly define parameters
+        cmd.Parameters.Add("@mill", SqlDbType.VarChar).Value = Mill;
+        cmd.Parameters.Add("@feeder", SqlDbType.VarChar).Value = Feeder;
+        cmd.Parameters.Add("@selectedDate", SqlDbType.Date).Value = selectedDate;
+        cmd.Parameters.Add("@ToDate", SqlDbType.Date).Value = Todate;
+    cmd.Parameters.Add("@status", SqlDbType.VarChar).Value = status;
+   
+
+        SqlDataAdapter da = new SqlDataAdapter(cmd);
+
+
+            DataTable dt = new DataTable();
+        da.Fill(dt);
+        return dt;
+      
+    
 }
