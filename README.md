@@ -1,11 +1,15 @@
- window.onload=function()
- {
-    document.addEventListener("DOMContentLoaded", function () {
-         let today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-         document.getElementById("dateFilter").value = today; // Set the default value
-     });
- loadChartData();
- loadMillname();
- // let selectedMill=document.getElementById("millSelect").value;
-//  loadFeedername(selectedMill);
- }
+window.onload = function () {
+    // ✅ Set default date to today
+    let today = new Date().toISOString().split('T')[0]; 
+    let dateInput = document.getElementById("dateFilter");
+
+    if (dateInput) {
+        dateInput.value = today; // Set today's date
+    } else {
+        console.warn("Date filter input not found!");
+    }
+
+    // ✅ Load other data
+    loadChartData();
+    loadMillname();
+};
