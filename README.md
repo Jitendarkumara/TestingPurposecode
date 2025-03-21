@@ -1,6 +1,21 @@
-        public void LoadEventTrackGrid()
+using System;
+using System.Data;
+using System.Drawing;
+using System.Windows.Forms;
+using Oracle.ManagedDataAccess.Client; // Ensure you have Oracle.DataAccess installed
+
+namespace DataGridViewExample
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
         {
-        
+            InitializeComponent();
+            LoadEventTrackGrid(); // Load data on form load
+        }
+
+        private void LoadEventTrackGrid()
+        {
             try
             {
                 Db.DatabaseConnect();
@@ -34,15 +49,21 @@
                 // Add Edit/Save Button Column
                 DataGridViewButtonColumn btnEditSave = new DataGridViewButtonColumn();
                 btnEditSave.HeaderText = "Action";
-                btnEditSave.Text = "Edit";
                 btnEditSave.Name = "EditSave";
-                btnEditSave.UseColumnTextForButtonValue = true;
+                btnEditSave.Text = "Edit"; // Initial button text
+                btnEditSave.UseColumnTextForButtonValue = false; // Allow dynamic text change
                 btnEditSave.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 btnEditSave.FlatStyle = FlatStyle.Popup;
                 dataGridView1.Columns.Add(btnEditSave);
 
-                // Attach event handler for row updates
-                dataGridView1.CellClick += dataGridView1_CellClick;
+                // Initialize button text in each row
+                foreach (DataGridViewRow row in dataGridView1.Rows)
+                {
+                    row.Cells["EditSave"].Value = "Edit";
+                }
+
+                // Attach event handler
+                dataGridView1.CellContentClick += dataGridView1_CellContentClick;
 
                 Db.ConClose();
             }
@@ -54,18 +75,6 @@
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
-            // Check if "Save" button is clicked
-            //if (dataGridView1.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
-            //{
-            //    string id =  dataGridView1.Rows[e.RowIndex].Cells["Coil_ID"].Value.ToString();
-            //    string name = dataGridView1.Rows[e.RowIndex].Cells["Tag"].Value.ToString();
-
-
-            //    // Call Update method
-            //    UpdateData(id, name);
-            //}
-
             if (e.RowIndex >= 0 && dataGridView1.Columns[e.ColumnIndex].Name == "EditSave")
             {
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
@@ -75,7 +84,7 @@
                 {
                     // Enable editing
                     row.Cells["Coil_ID"].ReadOnly = false;
-                    btnCell.Value = "Save"; // Change button text to "Save"
+                    btnCell.Value = "Save"; // Change button text
                     dataGridView1.Refresh(); // Refresh UI
                 }
                 else if (btnCell.Value.ToString() == "Save")
@@ -119,3 +128,5 @@
                 }
             }
         }
+    }
+}
