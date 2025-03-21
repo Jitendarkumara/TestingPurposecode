@@ -1,8 +1,4 @@
-  exec Proc_GetMonthlyEms_Model_data 'Mill1', 'API1.Panelno_5_ENTRY1234_SIDE_TRIMMER_CHOPPER_PINCH','2025-03-18 22:00:00','2025-03-19 22:00:00','All'
-
-  18-03-2025 06:00:00}
-
-  public DataTable getChartdata(string Mill, string Feeder, DateTime selectedDate, string status, string Shift)
+public DataTable getChartdata(string Mill, string Feeder, DateTime selectedDate, string status, string Shift)
 {
     DateTime fromDate, toDate;
 
@@ -33,15 +29,23 @@
     SqlCommand cmd = new SqlCommand("Proc_GetMonthlyEms_Model_data", Pimscn);
     cmd.CommandType = CommandType.StoredProcedure;
 
-    // Define parameters (No need to send Shift)
+    // Ensure SQL receives correct date format
     cmd.Parameters.Add("@mill", SqlDbType.VarChar).Value = Mill;
     cmd.Parameters.Add("@feeder", SqlDbType.VarChar).Value = Feeder;
-    cmd.Parameters.Add("@selectedDate", SqlDbType.DateTime).Value = fromDate;
-    cmd.Parameters.Add("@ToDate", SqlDbType.DateTime).Value = toDate;
+    cmd.Parameters.Add("@selectedDate", SqlDbType.VarChar).Value = fromDate.ToString("yyyy-MM-dd HH:mm:ss");
+    cmd.Parameters.Add("@ToDate", SqlDbType.VarChar).Value = toDate.ToString("yyyy-MM-dd HH:mm:ss");
     cmd.Parameters.Add("@status", SqlDbType.VarChar).Value = status;
 
     SqlDataAdapter da = new SqlDataAdapter(cmd);
     DataTable dt = new DataTable();
     da.Fill(dt);
 
+    // Ensure the output format is correct
+    foreach (DataRow row in dt.Rows)
+    {
+        DateTime timeStamp = Convert.ToDateTime(row["TimeStamp"]);
+        row["TimeStamp"] = timeStamp.ToString("yyyy-MM-dd HH:mm:ss");
+    }
+
     return dt;
+}
