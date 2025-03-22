@@ -1,51 +1,15 @@
-public DataTable getChartdata(string Mill, string Feeder, DateTime selectedDate, string status, string Shift)
-{
-    DateTime fromDate, toDate;
+ const response = await fetch(url);
+ if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-    switch (Shift.ToUpper())
-    {
-        case "A": // Shift A: 6 AM - 2 PM
-            fromDate = selectedDate.Date.AddHours(6);
-            toDate = selectedDate.Date.AddHours(14);
-            break;
+ const data = await response.json();
+ console.log("Fetched Data:", data);
 
-        case "B": // Shift B: 2 PM - 10 PM
-            fromDate = selectedDate.Date.AddHours(14);
-            toDate = selectedDate.Date.AddHours(22);
-            break;
+ if (!data || data.length === 0) {
+     console.warn("No data available");
+          
+     return;
+ }
 
-        case "C": // Shift C: 10 PM (previous day) - 6 AM (current day)
-            fromDate = selectedDate.Date.AddDays(-1).AddHours(22);
-            toDate = selectedDate.Date.AddHours(6);
-            break;
-
-        case "ALL": // Full day data: 12 AM - 11:59 PM
-        default:
-            fromDate = selectedDate.Date;          // 12:00 AM
-            toDate = selectedDate.Date.AddDays(1); // 12:00 AM (next day)
-            break;
-    }
-
-    SqlCommand cmd = new SqlCommand("Proc_GetMonthlyEms_Model_data", Pimscn);
-    cmd.CommandType = CommandType.StoredProcedure;
-
-    // Ensure SQL receives correct date format
-    cmd.Parameters.Add("@mill", SqlDbType.VarChar).Value = Mill;
-    cmd.Parameters.Add("@feeder", SqlDbType.VarChar).Value = Feeder;
-    cmd.Parameters.Add("@selectedDate", SqlDbType.VarChar).Value = fromDate.ToString("yyyy-MM-dd HH:mm:ss");
-    cmd.Parameters.Add("@ToDate", SqlDbType.VarChar).Value = toDate.ToString("yyyy-MM-dd HH:mm:ss");
-    cmd.Parameters.Add("@status", SqlDbType.VarChar).Value = status;
-
-    SqlDataAdapter da = new SqlDataAdapter(cmd);
-    DataTable dt = new DataTable();
-    da.Fill(dt);
-
-    // Ensure the output format is correct
-    foreach (DataRow row in dt.Rows)
-    {
-        DateTime timeStamp = Convert.ToDateTime(row["TimeStamp"]);
-        row["TimeStamp"] = timeStamp.ToString("yyyy-MM-dd HH:mm:ss");
-    }
-
-    return dt;
-}
+     <div id="chart-container" style="margin-top:3px">
+        <canvas id="kwhChart"></canvas>
+    </div>
