@@ -19,28 +19,25 @@
 <script>
 // Function to toggle button visibility and store in localStorage
 function toggleButtons(clickedId, otherId, redirectUrl) {
-    // Hide clicked button
-    document.getElementById(clickedId).style.display = "none";
-    // Show the other button
-    document.getElementById(otherId).style.display = "inline-block";
-
-    // Store state in localStorage
+    // Store state in localStorage before redirecting
     localStorage.setItem("hiddenButton", clickedId);
+    localStorage.setItem("visibleButton", otherId);
 
-    // Redirect to target page
+    // Redirect to the target page
     window.location.href = redirectUrl;
 }
 
 // Apply stored button visibility on page load
 document.addEventListener("DOMContentLoaded", function () {
     const hiddenButton = localStorage.getItem("hiddenButton");
+    const visibleButton = localStorage.getItem("visibleButton");
 
-    if (hiddenButton) {
+    if (hiddenButton && visibleButton) {
+        // Hide the stored hidden button
         document.getElementById(hiddenButton).style.display = "none";
 
-        // Find the other button and show it
-        const otherButton = hiddenButton === "homeBtn" ? "dashboardBtn" : "homeBtn";
-        document.getElementById(otherButton).style.display = "inline-block";
+        // Show the stored visible button
+        document.getElementById(visibleButton).style.display = "inline-block";
     }
 });
 </script>
