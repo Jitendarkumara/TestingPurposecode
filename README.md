@@ -1,38 +1,67 @@
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Retrieve stored button states
-        const hiddenButton = localStorage.getItem("hiddenButton");
-        const visibleButton = localStorage.getItem("visibleButton");
+document.addEventListener("DOMContentLoaded", function () {
+    let sidebar = document.querySelector(".sidebar");
+    let closeBtn = document.querySelector("#btn");
+    let searchBtn = document.querySelector(".bx-search");
 
-        console.log("Hidden Button:", hiddenButton);
-        console.log("Visible Button:", visibleButton);
+    // Ensure elements exist before adding event listeners
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("open");
+            menuBtnChange(); // Call function to update menu button icon
+        });
+    } else {
+        console.warn("Sidebar toggle button (#btn) not found.");
+    }
 
-        if (hiddenButton && visibleButton) {
-            const hiddenBtnElement = document.getElementById(hiddenButton);
-            const visibleBtnElement = document.getElementById(visibleButton);
+    if (searchBtn) {
+        searchBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("open");
+            menuBtnChange();
+        });
+    } else {
+        console.warn("Search button (.bx-search) not found.");
+    }
 
-            if (hiddenBtnElement) {
-                hiddenBtnElement.style.display = "none";
+    function menuBtnChange() {
+        if (sidebar && closeBtn) {
+            if (sidebar.classList.contains("open")) {
+                closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");
             } else {
-                console.warn(`Button with ID '${hiddenButton}' not found.`);
-            }
-
-            if (visibleBtnElement) {
-                visibleBtnElement.style.display = "inline-block";
-            } else {
-                console.warn(`Button with ID '${visibleButton}' not found.`);
+                closeBtn.classList.replace("bx-menu-alt-right", "bx-menu");
             }
         }
-    });
-
-    function toggleButtons(clickedId, otherId, redirectUrl) {
-        console.log(`Hiding: ${clickedId}, Showing: ${otherId}, Redirecting to: ${redirectUrl}`);
-
-        // Store button state
-        localStorage.setItem("hiddenButton", clickedId);
-        localStorage.setItem("visibleButton", otherId);
-
-        // Redirect to the target page
-        window.location.href = redirectUrl;
     }
-</script>
+
+    // Restore button states from localStorage
+    const hiddenButton = localStorage.getItem("hiddenButton");
+    const visibleButton = localStorage.getItem("visibleButton");
+
+    console.log("Hidden Button:", hiddenButton);
+    console.log("Visible Button:", visibleButton);
+
+    if (hiddenButton && visibleButton) {
+        const hiddenBtnElement = document.getElementById(hiddenButton);
+        const visibleBtnElement = document.getElementById(visibleButton);
+
+        if (hiddenBtnElement) {
+            hiddenBtnElement.style.display = "none";
+        } else {
+            console.warn(`Button with ID '${hiddenButton}' not found.`);
+        }
+
+        if (visibleBtnElement) {
+            visibleBtnElement.style.display = "inline-block";
+        } else {
+            console.warn(`Button with ID '${visibleButton}' not found.`);
+        }
+    }
+});
+
+function toggleButtons(clickedId, otherId, redirectUrl) {
+    console.log(`Hiding: ${clickedId}, Showing: ${otherId}, Redirecting to: ${redirectUrl}`);
+
+    localStorage.setItem("hiddenButton", clickedId);
+    localStorage.setItem("visibleButton", otherId);
+
+    window.location.href = redirectUrl;
+}
