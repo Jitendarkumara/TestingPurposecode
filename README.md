@@ -17,14 +17,30 @@
 </div>
 
 <script>
+// Function to toggle button visibility and store in localStorage
 function toggleButtons(clickedId, otherId, redirectUrl) {
-    // Hide the clicked button
+    // Hide clicked button
     document.getElementById(clickedId).style.display = "none";
-    
     // Show the other button
     document.getElementById(otherId).style.display = "inline-block";
 
-    // Redirect to the target page
+    // Store state in localStorage
+    localStorage.setItem("hiddenButton", clickedId);
+
+    // Redirect to target page
     window.location.href = redirectUrl;
 }
+
+// Apply stored button visibility on page load
+document.addEventListener("DOMContentLoaded", function () {
+    const hiddenButton = localStorage.getItem("hiddenButton");
+
+    if (hiddenButton) {
+        document.getElementById(hiddenButton).style.display = "none";
+
+        // Find the other button and show it
+        const otherButton = hiddenButton === "homeBtn" ? "dashboardBtn" : "homeBtn";
+        document.getElementById(otherButton).style.display = "inline-block";
+    }
+});
 </script>
