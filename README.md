@@ -1,2 +1,1 @@
-Severity	Code	Description	Project	File	Line	Suppression State
-Error (active)	MSB3821	Couldn't process file Alaram_Module\AlaramDetails.resx due to its being in the Internet or Restricted zone or having the mark of the web on the file. Remove the mark of the web if you want to process these files.	SPM	C:\Program Files\Microsoft Visual Studio\2022\Professional\MSBuild\Current\Bin\amd64\Microsoft.Common.CurrentVersion.targets	3426	
+Create Login ems with PASSWORD ='Ems@1234' check_policy=off;
