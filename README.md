@@ -1,30 +1,34 @@
-private async void timer1_Tick(object sender, EventArgs e)
-{
-    try
-    {
-        await Task.Run(() => FetchDataFromDatabase());
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show("Error: " + ex.Message);
-    }
-}
+using System;
+using System.Net.NetworkInformation;
+using System.Windows.Forms;
 
-private void FetchDataFromDatabase()
+public partial class Form1 : Form
 {
-    try
+    public Form1()
     {
-        using (SqlConnection conn = new SqlConnection("your_connection_string"))
-        {
-            conn.Open();
-            SqlCommand cmd = new SqlCommand("SELECT * FROM your_table", conn);
-            SqlDataReader reader = cmd.ExecuteReader();
-            // Process data...
-        }
+        InitializeComponent();
     }
-    catch (SqlException ex)
+
+    private void btnPing_Click(object sender, EventArgs e)
     {
-        // Log the error and prevent the system from hanging
-        Console.WriteLine("Database error: " + ex.Message);
+        string ipAddress = "8.8.8.8"; // Change to your target IP
+        Ping ping = new Ping();
+        
+        try
+        {
+            PingReply reply = ping.Send(ipAddress);
+            if (reply.Status == IPStatus.Success)
+            {
+                MessageBox.Show($"Ping successful! Time: {reply.RoundtripTime} ms", "Ping Result");
+            }
+            else
+            {
+                MessageBox.Show($"Ping failed: {reply.Status}", "Ping Result");
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error: {ex.Message}", "Ping Error");
+        }
     }
 }
