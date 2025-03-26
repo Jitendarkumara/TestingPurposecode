@@ -7,15 +7,13 @@ private void LogErrorToFile(string errorMessage)
 
         if (!File.Exists(logFilePath))
         {
-            // Create new file and write header with timestamp
+            // Create new file and write header
             string header = $"Database Error Log\nCreated on: {DateTime.Now}\n\n";
-            File.WriteAllText(logFilePath, header + errorMessage);
+            File.WriteAllText(logFilePath, header);
         }
-        else
-        {
-            // Append only the error message if the file already exists
-            File.AppendAllText(logFilePath, errorMessage);
-        }
+
+        // Append the error message to the file
+        File.AppendAllText(logFilePath, errorMessage);
     }
     catch (Exception ex)
     {
