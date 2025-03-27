@@ -1,58 +1,21 @@
-public void LoadEventTrackGrid()
-{
-    try
-    {
-        Db.DatabaseConnect();
-
-        string query = "SELECT Id_app_tag_Event, Coil_id FROM T_Event_Tracking";
-        OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
-        DataTable DtPDI = new DataTable();
-        da.Fill(DtPDI);
-
-        // Ensure columns are cleared before setting DataSource
-        dataGridView1.Columns.Clear();
-        dataGridView1.AutoGenerateColumns = false;
-        dataGridView1.DataSource = DtPDI;
-
-        // Add columns dynamically
-        DataGridViewTextBoxColumn col1 = new DataGridViewTextBoxColumn
-        {
-            DataPropertyName = "Id_app_tag_Event",
-            HeaderText = "Tag",
-            Name = "Tag",
-            ReadOnly = true
-        };
-        dataGridView1.Columns.Add(col1);
-
-        DataGridViewTextBoxColumn col2 = new DataGridViewTextBoxColumn
-        {
-            DataPropertyName = "Coil_id",
-            HeaderText = "Coil ID",
-            Name = "Coil_ID",
-            ReadOnly = true // Initially read-only
-        };
-        dataGridView1.Columns.Add(col2);
-
-        // Add Edit/Save Button Column
-        DataGridViewButtonColumn btnEditSave = new DataGridViewButtonColumn
-        {
-            HeaderText = "Action",
-            Name = "EditSave",
-            Text = "Edit", // Initial button text
-            UseColumnTextForButtonValue = true, // Button will always show this text
-            FlatStyle = FlatStyle.Popup
-        };
-        dataGridView1.Columns.Add(btnEditSave);
-
-        // Remove duplicate event handler binding
-        dataGridView1.CellContentClick -= dataGridView1_CellContentClick;
-        dataGridView1.CellContentClick += dataGridView1_CellContentClick;
-
-        Db.ConClose();
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show("Error loading data: " + ex.Message);
-    }
-}
-
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <DeleteExistingFiles>true</DeleteExistingFiles>
+    <ExcludeApp_Data>false</ExcludeApp_Data>
+    <LaunchSiteAfterPublish>true</LaunchSiteAfterPublish>
+    <LastUsedBuildConfiguration>Release</LastUsedBuildConfiguration>
+    <LastUsedPlatform>Any CPU</LastUsedPlatform>
+    <PublishProvider>FileSystem</PublishProvider>
+    <PublishUrl>D:\Saurabh\Publish\PDI App</PublishUrl>
+    <WebPublishMethod>FileSystem</WebPublishMethod>
+    <_TargetId>Folder</_TargetId>
+    <SiteUrlToLaunchAfterPublish />
+    <TargetFramework>net8.0</TargetFramework>
+    <ProjectGuid>a922e235-233f-4b8c-bc2c-4dae6b871f82</ProjectGuid>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+</Project>
