@@ -11,6 +11,8 @@ public void LoadEventTrackGrid()
 
         dataGridView1.Columns.Clear();
         dataGridView1.AutoGenerateColumns = false;
+        dataGridView1.DataSource = null;  // Clear existing binding first
+        dataGridView1.AllowUserToAddRows = false; // Prevent extra empty row
         dataGridView1.DataSource = DtPDI;
 
         // Add columns dynamically
@@ -28,7 +30,7 @@ public void LoadEventTrackGrid()
             DataPropertyName = "Coil_id",
             HeaderText = "Coil ID",
             Name = "Coil_ID",
-            ReadOnly = true // Initially read-only
+            ReadOnly = true
         };
         dataGridView1.Columns.Add(col2);
 
@@ -37,7 +39,6 @@ public void LoadEventTrackGrid()
         {
             HeaderText = "Action",
             Name = "EditSave",
-            Text = "Edit",
             UseColumnTextForButtonValue = false, // Allow dynamic text
             FlatStyle = FlatStyle.Popup
         };
@@ -46,7 +47,16 @@ public void LoadEventTrackGrid()
         // Ensure all rows have "Edit" as the initial button text
         foreach (DataGridViewRow row in dataGridView1.Rows)
         {
-            row.Cells["EditSave"].Value = "Edit";
+            if (!row.IsNewRow) // Prevent setting button text on the new row
+            {
+                row.Cells["EditSave"].Value = "Edit";
+            }
+        }
+
+        // Explicitly remove the empty row if it still exists
+        if (dataGridView1.Rows.Count > 0 && dataGridView1.Rows[dataGridView1.Rows.Count - 1].IsNewRow)
+        {
+            dataGridView1.Rows.RemoveAt(dataGridView1.Rows.Count - 1);
         }
 
         dataGridView1.CellContentClick -= dataGridView1_CellContentClick;
