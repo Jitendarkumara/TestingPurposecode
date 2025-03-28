@@ -38,9 +38,16 @@ public void LoadEventTrackGrid()
             HeaderText = "Action",
             Name = "EditSave",
             Text = "Edit",
+            UseColumnTextForButtonValue = false, // Allow dynamic text
             FlatStyle = FlatStyle.Popup
         };
         dataGridView1.Columns.Add(btnEditSave);
+
+        // Ensure all rows have "Edit" as the initial button text
+        foreach (DataGridViewRow row in dataGridView1.Rows)
+        {
+            row.Cells["EditSave"].Value = "Edit";
+        }
 
         dataGridView1.CellContentClick -= dataGridView1_CellContentClick;
         dataGridView1.CellContentClick += dataGridView1_CellContentClick;
