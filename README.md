@@ -1,20 +1,15 @@
- public bool DatabaseConnectCheck()
- {
-     try
-     {
-         Con = new OracleConnection(ConnectioString);
-        
-             Con.Open();
-             return true;
-        
-     }
-     catch (OracleException ex)
-     {
-         // Handle specific Oracle errors if needed (e.g., ORA-12170 for timeouts)
-         return false;
-     }
-     catch (Exception)
-     {
-         return false;
-     }
- }
+public bool DatabaseConnectCheck()
+{
+    using (OracleConnection con = new OracleConnection(ConnectioString))
+    {
+        try
+        {
+            con.Open();
+            return true; // Connection successful
+        }
+        catch
+        {
+            return false; // Connection failed
+        }
+    }
+}
