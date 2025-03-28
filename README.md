@@ -1,65 +1,54 @@
-private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+public void LoadEventTrackGrid()
 {
-    // Ensure the clicked cell is a button and a valid row index
-    if (e.RowIndex >= 0 && dataGridView1.Columns[e.ColumnIndex].Name == "EditSave")
+    try
     {
-        DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-        DataGridViewCell btnCell = row.Cells["EditSave"];
+        Db.DatabaseConnect();
 
-        if (btnCell.Value == null || btnCell.Value.ToString() == "Edit")
+        string query = "SELECT Id_app_tag_Event, Coil_id FROM T_Event_Tracking";
+        OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
+        DataTable DtPDI = new DataTable();
+        da.Fill(DtPDI);
+
+        dataGridView1.Columns.Clear();
+        dataGridView1.AutoGenerateColumns = false;
+        dataGridView1.DataSource = DtPDI;
+
+        // Add columns dynamically
+        DataGridViewTextBoxColumn col1 = new DataGridViewTextBoxColumn
         {
-            // Enable editing for Coil_ID
-            row.Cells["Coil_ID"].ReadOnly = false;
-            dataGridView1.BeginEdit(true); // Start edit mode
-            btnCell.Value = "Save"; // Change button text dynamically
-        }
-        else if (btnCell.Value.ToString() == "Save")
+            DataPropertyName = "Id_app_tag_Event",
+            HeaderText = "Tag",
+            Name = "Tag",
+            ReadOnly = true
+        };
+        dataGridView1.Columns.Add(col1);
+
+        DataGridViewTextBoxColumn col2 = new DataGridViewTextBoxColumn
         {
-            try
-            {
-                // Get updated values
-                string id = row.Cells["Tag"].Value?.ToString(); // Ensure null safety
-                string coilId = row.Cells["Coil_ID"].Value?.ToString();
+            DataPropertyName = "Coil_id",
+            HeaderText = "Coil ID",
+            Name = "Coil_ID",
+            ReadOnly = true // Initially read-only
+        };
+        dataGridView1.Columns.Add(col2);
 
-                if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(coilId))
-                {
-                    MessageBox.Show("Tag or Coil_ID cannot be empty.");
-                    return;
-                }
+        // Add Edit/Save Button Column
+        DataGridViewButtonColumn btnEditSave = new DataGridViewButtonColumn
+        {
+            HeaderText = "Action",
+            Name = "EditSave",
+            Text = "Edit",
+            FlatStyle = FlatStyle.Popup
+        };
+        dataGridView1.Columns.Add(btnEditSave);
 
-                // Update query
-                string updateQuery = "UPDATE T_Event_Tracking SET Coil_id = :CoilID WHERE Id_app_tag_Event = :Id";
+        dataGridView1.CellContentClick -= dataGridView1_CellContentClick;
+        dataGridView1.CellContentClick += dataGridView1_CellContentClick;
 
-                Db.DatabaseConnect();
-                using (OracleCommand cmd = new OracleCommand(updateQuery, Db.Con))
-                {
-                    cmd.Parameters.Add(new OracleParameter(":CoilID", coilId));
-                    cmd.Parameters.Add(new OracleParameter(":Id", id));
-
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    if (rowsAffected > 0)
-                    {
-                        MessageBox.Show("Record updated successfully.");
-                    }
-                    else
-                    {
-                        MessageBox.Show("No record updated. Check if the ID exists.");
-                    }
-                }
-                Db.ConClose();
-
-                // Disable editing and change button text back to Edit
-                row.Cells["Coil_ID"].ReadOnly = true;
-                btnCell.Value = "Edit"; // Change button text back
-                
-                // Accept changes to reflect updated data
-                ((DataTable)dataGridView1.DataSource).AcceptChanges();
-                dataGridView1.Refresh(); // Refresh UI
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error updating record: " + ex.Message);
-            }
-        }
+        Db.ConClose();
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("Error loading data: " + ex.Message);
     }
 }
