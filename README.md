@@ -1,71 +1,52 @@
-public void LoadEventTrackGrid()
+else if (btnCell.Value.ToString() == "Save")
 {
     try
     {
+        // Get updated values
+        string id = row.Cells["Tag"].Value?.ToString();
+        string coilId = row.Cells["Coil_ID"].Value?.ToString();
+
+        if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(coilId))
+        {
+            MessageBox.Show("Tag or Coil_ID cannot be empty.");
+            return;
+        }
+
+        // Update query
+        string updateQuery = "UPDATE T_Event_Tracking SET Coil_id = :CoilID WHERE Id_app_tag_Event = :Id";
+
         Db.DatabaseConnect();
-
-        string query = "SELECT Id_app_tag_Event, Coil_id FROM T_Event_Tracking";
-        OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
-        DataTable DtPDI = new DataTable();
-        da.Fill(DtPDI);
-
-        dataGridView1.Columns.Clear();
-        dataGridView1.AutoGenerateColumns = false;
-        dataGridView1.DataSource = null;  // Clear existing binding first
-        dataGridView1.AllowUserToAddRows = false; // Prevent extra empty row
-        dataGridView1.DataSource = DtPDI;
-
-        // Add columns dynamically
-        DataGridViewTextBoxColumn col1 = new DataGridViewTextBoxColumn
+        using (OracleCommand cmd = new OracleCommand(updateQuery, Db.Con))
         {
-            DataPropertyName = "Id_app_tag_Event",
-            HeaderText = "Tag",
-            Name = "Tag",
-            ReadOnly = true
-        };
-        dataGridView1.Columns.Add(col1);
+            cmd.Parameters.Add(new OracleParameter(":CoilID", coilId));
+            cmd.Parameters.Add(new OracleParameter(":Id", id));
 
-        DataGridViewTextBoxColumn col2 = new DataGridViewTextBoxColumn
-        {
-            DataPropertyName = "Coil_id",
-            HeaderText = "Coil ID",
-            Name = "Coil_ID",
-            ReadOnly = true
-        };
-        dataGridView1.Columns.Add(col2);
-
-        // Add Edit/Save Button Column
-        DataGridViewButtonColumn btnEditSave = new DataGridViewButtonColumn
-        {
-            HeaderText = "Action",
-            Name = "EditSave",
-            UseColumnTextForButtonValue = false, // Allow dynamic text
-            FlatStyle = FlatStyle.Popup
-        };
-        dataGridView1.Columns.Add(btnEditSave);
-
-        // Ensure all rows have "Edit" as the initial button text
-        foreach (DataGridViewRow row in dataGridView1.Rows)
-        {
-            if (!row.IsNewRow) // Prevent setting button text on the new row
+            int rowsAffected = cmd.ExecuteNonQuery();
+            if (rowsAffected > 0)
             {
-                row.Cells["EditSave"].Value = "Edit";
+                MessageBox.Show("Record updated successfully.");
+            }
+            else
+            {
+                MessageBox.Show("No record updated. Check if the ID exists.");
             }
         }
-
-        // Explicitly remove the empty row if it still exists
-        if (dataGridView1.Rows.Count > 0 && dataGridView1.Rows[dataGridView1.Rows.Count - 1].IsNewRow)
-        {
-            dataGridView1.Rows.RemoveAt(dataGridView1.Rows.Count - 1);
-        }
-
-        dataGridView1.CellContentClick -= dataGridView1_CellContentClick;
-        dataGridView1.CellContentClick += dataGridView1_CellContentClick;
-
         Db.ConClose();
+
+        // Disable editing and change button text back to "Edit"
+        row.Cells["Coil_ID"].ReadOnly = true;
+        btnCell.Value = "Edit"; // Explicitly reset the button text
+        dataGridView1.RefreshEdit(); // Refresh the specific cell
+        dataGridView1.Refresh(); // Refresh UI
+
+        // Ensure changes are committed to the DataTable
+        if (dataGridView1.DataSource is DataTable dt)
+        {
+            dt.AcceptChanges();
+        }
     }
     catch (Exception ex)
     {
-        MessageBox.Show("Error loading data: " + ex.Message);
+        MessageBox.Show("Error updating record: " + ex.Message);
     }
 }
