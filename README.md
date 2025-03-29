@@ -4,8 +4,11 @@ public void DatabaseConnect()
     {
         using (OracleConnection con = new OracleConnection(ConnectionString))
         {
-            con.Open();
-            Console.WriteLine("Database connection established successfully.");
+            if (con.State == System.Data.ConnectionState.Closed)
+            {
+                con.Open();
+                Console.WriteLine("Database connection established successfully.");
+            }
         }
     }
     catch (Exception ex)
