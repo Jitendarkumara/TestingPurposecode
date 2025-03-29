@@ -1,19 +1,61 @@
-public void DatabaseConnect()
+using System;
+using System.Data;
+using Oracle.ManagedDataAccess.Client; // Ensure you have Oracle Managed Data Access installed.
+
+public class DatabaseHandler
 {
-    try
+    private string ConnectionString = "User Id=myUsername;Password=myPassword;Data Source=myOracleDB";
+
+    public void DatabaseConnect()
     {
-        using (OracleConnection con = new OracleConnection(ConnectionString))
+        try
         {
-            if (con.State == System.Data.ConnectionState.Closed)
+            using (OracleConnection con = new OracleConnection(ConnectionString))
             {
-                con.Open();
-                Console.WriteLine("Database connection established successfully.");
+                // Ensure the connection is closed before opening
+                if (con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                    Console.WriteLine("Database connection established successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Connection is already open.");
+                }
             }
         }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine("Invalid operation: " + ex.Message);
+            LogErrorToFile(ex.Message, "DatabaseConnect");
+        }
+        catch (OracleException ex)
+        {
+            Console.WriteLine("Oracle database error: " + ex.Message);
+            LogErrorToFile(ex.Message, "DatabaseConnect");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("General error: " + ex.Message);
+            LogErrorToFile(ex.Message, "DatabaseConnect");
+        }
     }
-    catch (Exception ex)
+
+    private void LogErrorToFile(string errorMessage, string functionName)
     {
-        LogErrorToFile(ex.Message, "DatabaseConnect");
-        Console.WriteLine("Database connection failed: " + ex.Message);
+        // Simple logging to a text file (Modify path as needed)
+        string logFilePath = @"C:\Logs\DatabaseErrors.log";
+
+        try
+        {
+            using (System.IO.StreamWriter writer = new System.IO.StreamWriter(logFilePath, true))
+            {
+                writer.WriteLine($"{DateTime.Now} - {functionName}: {errorMessage}");
+            }
+        }
+        catch
+        {
+            Console.WriteLine("Error logging failed.");
+        }
     }
 }
