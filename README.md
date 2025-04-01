@@ -1,14 +1,1 @@
-public void ConClose()
-{
-    if (Con != null && Con.State == ConnectionState.Open)
-    {
-        Con.Close();
-        Console.WriteLine("Database connection closed.");
-    }
-
-    if (Con != null)
-    {
-        Con.Dispose();
-        Con = null; // Prevent using disposed object
-    }
-}
+SELECT TCIP_PRODUCT_COIL,TCIP_CIL_END_TIME  FROM T_COL_COIL_INFO_PDO   order by  TCIP_CIL_END_TIME desc
