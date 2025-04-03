@@ -1,8 +1,21 @@
-Dear sir,
+Here is a corrected version of your email with improved grammar and clarity:
 
-I had gone to CCL to test our application but laser of Scanner machine is not working.
-Kindly help me for further process.
 
-Thanks and Regards
-Jitendar kumar
+---
+
+Subject: Assistance Required – Scanner Machine Issue
+
+Dear Sir,
+
+I visited CCL to test our application, but the scanner machine's laser is not working.
+Kindly assist me with the next steps.
+
+Thanks and Regards,
+Jitendar Kumar
 8789226053
+
+
+---
+
+This version makes the message clearer and more professional. Let me know if you need any further refinements!
+
