@@ -1,19 +1,8 @@
-SELECT 
-    TCIP_INPUT_COIL,
-    TCIP_PRODUCT_COIL,
-    ALKALINE_TANK_LEVEL1,
-    pdo_MAND_FLAG,
-    TCIP_CIL_START_TIME,
-    TCIP_CIL_END_TIME,
-    CASE 
-        WHEN pdo_MAND_FLAG = 'Y' THEN 'Mandal' 
-        WHEN pdo_MAND_FLAG = 'N' AND ALKALINE_TANK_LEVEL1 IS NOT NULL THEN 'Recoiler' 
-        WHEN ALKALINE_TANK_LEVEL1 IS NULL THEN 'menuall' 
-        ELSE TO_CHAR(ALKALINE_TANK_LEVEL1) 
-    END AS status
-FROM 
-    T_COL_COIL_INFO_PDO  
-WHERE 
-    TCIP_INPUT_COIL = 'K532124100'  
-ORDER BY 
-    TCIP_CIL_START_TIME DESC;
+Dear sir,
+
+I had gone to CCL to test our application but laser of Scanner machine is not working.
+Kindly help me for further process.
+
+Thanks and Regards
+Jitendar kumar
+8789226053
