@@ -1,83 +1,119 @@
-   public void LoadCoilTempGrid()
-   {
-       try
-       {
-           Db.DatabaseConnect();
+using System;
+using System.Data;
+using System.Drawing;
+using System.Windows.Forms;
+using Oracle.ManagedDataAccess.Client; // Ensure you have the correct Oracle library
 
-           string query = "select seq_No,coil_id,TOC from T_COIL_LOC_TEM";
-           OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
-           DataTable DtPDI = new DataTable();
-           da.Fill(DtPDI);
+public partial class Form1 : Form
+{
+    public Form1()
+    {
+        InitializeComponent();
+        this.Resize += new EventHandler(Form1_Resize); // Attach Resize event
+    }
 
-           dataGridView2.Columns.Clear();
-           dataGridView2.AutoGenerateColumns = false;
-           dataGridView2.DataSource = null;  // Clear existing binding first
-           dataGridView2.AllowUserToAddRows = false; // Prevent extra empty row
-           dataGridView2.DataSource = DtPDI;
+    public void LoadCoilTempGrid()
+    {
+        try
+        {
+            Db.DatabaseConnect();
 
-           // Add columns dynamically
-           DataGridViewTextBoxColumn col1 = new DataGridViewTextBoxColumn
-           {
-               DataPropertyName = "seq_No",
-               HeaderText = "Sequence No.",
-               Name = "Seq",
-               ReadOnly = true
-           };
-           dataGridView2.Columns.Add(col1);
+            string query = "SELECT seq_No, coil_id, TOC FROM T_COIL_LOC_TEM";
+            OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
+            DataTable DtPDI = new DataTable();
+            da.Fill(DtPDI);
 
-           DataGridViewTextBoxColumn col2 = new DataGridViewTextBoxColumn
-           {
-               DataPropertyName = "Coil_id",
-               HeaderText = "Coil ID",
-               Name = "Coil_ID",
-               ReadOnly = true
-           };
-           dataGridView2.Columns.Add(col2);
-           DataGridViewTextBoxColumn col3 = new DataGridViewTextBoxColumn
-           {
-               DataPropertyName = "TOC",
-               HeaderText = "Date Time",
-               Name = "dtTime",
-               ReadOnly = true
-           };
-           dataGridView2.Columns.Add(col3);
+            // Reset DataGridView before adding new data
+            dataGridView2.Columns.Clear();
+            dataGridView2.AutoGenerateColumns = false;
+            dataGridView2.DataSource = null;
+            dataGridView2.AllowUserToAddRows = false;
+            dataGridView2.DataSource = DtPDI;
 
-           // Add Edit/Save Button Column
-           DataGridViewButtonColumn btnDelete = new DataGridViewButtonColumn
-           {
-               HeaderText = "Action",
-               Name = "Delete",
-             
+            // Set auto size properties for better UI
+            dataGridView2.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            dataGridView2.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-               FlatStyle = FlatStyle.Popup
-           };
-           dataGridView2.Columns.Add(btnDelete);
+            // Add columns dynamically
+            DataGridViewTextBoxColumn col1 = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "seq_No",
+                HeaderText = "Sequence No.",
+                Name = "Seq",
+                ReadOnly = true
+            };
+            dataGridView2.Columns.Add(col1);
 
-           // Ensure all rows have "Edit" as the initial button text
-           foreach (DataGridViewRow row in dataGridView2.Rows)
-           {
-               if (!row.IsNewRow) // Prevent setting button text on the new row
-               {
-                   row.Cells["Delete"].Value = "Delete";
-                   row.Cells["Delete"].Style.BackColor = Color.AliceBlue; //SystemColors.Window;
-                   row.Cells["Delete"].Style.ForeColor = Color.Red;
+            DataGridViewTextBoxColumn col2 = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Coil_id",
+                HeaderText = "Coil ID",
+                Name = "Coil_ID",
+                ReadOnly = true
+            };
+            dataGridView2.Columns.Add(col2);
 
-               }
-           }
+            DataGridViewTextBoxColumn col3 = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "TOC",
+                HeaderText = "Date Time",
+                Name = "dtTime",
+                ReadOnly = true
+            };
+            dataGridView2.Columns.Add(col3);
 
-           // Explicitly remove the empty row if it still exists
-           if (dataGridView2.Rows.Count > 0 && dataGridView2.Rows[dataGridView2.Rows.Count - 1].IsNewRow)
-           {
-               dataGridView2.Rows.RemoveAt(dataGridView2.Rows.Count - 1);
-           }
-           dataGridView2.AutoSizeRowsMode= DataGridViewAutoSizeRowsMode.AllCells;
-          // dataGridView2.CellContentClick -= dataGridView2_CellContentClick;
-          // dataGridView2.CellContentClick += dataGridView2_CellContentClick;
+            // Add Delete Button Column
+            DataGridViewButtonColumn btnDelete = new DataGridViewButtonColumn
+            {
+                HeaderText = "Action",
+                Name = "Delete",
+                FlatStyle = FlatStyle.Popup,
+                Text = "Delete",
+                UseColumnTextForButtonValue = true // Ensures button text is displayed
+            };
+            dataGridView2.Columns.Add(btnDelete);
 
-           Db.ConClose();
-       }
-       catch (Exception ex)
-       {
-           MessageBox.Show("Error loading data: " + ex.Message);
-       }
-   }
+            // Set button styles for each row
+            foreach (DataGridViewRow row in dataGridView2.Rows)
+            {
+                if (!row.IsNewRow)
+                {
+                    row.Cells["Delete"].Style.BackColor = Color.AliceBlue;
+                    row.Cells["Delete"].Style.ForeColor = Color.Red;
+                }
+            }
+
+            // Ensure the last empty row is removed
+            if (dataGridView2.Rows.Count > 0 && dataGridView2.Rows[dataGridView2.Rows.Count - 1].IsNewRow)
+            {
+                dataGridView2.Rows.RemoveAt(dataGridView2.Rows.Count - 1);
+            }
+
+            // Adjust DataGridView height dynamically
+            AdjustGridHeight();
+
+            Db.ConClose();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Error loading data: " + ex.Message);
+        }
+    }
+
+    private void AdjustGridHeight()
+    {
+        int rowHeight = dataGridView2.RowTemplate.Height;
+        int headerHeight = dataGridView2.ColumnHeadersHeight;
+        int totalHeight = headerHeight + (dataGridView2.Rows.Count * rowHeight);
+
+        int maxHeight = this.ClientSize.Height - 50; // Ensure it fits in the form
+        int minHeight = 200; // Minimum height to keep visibility
+
+        dataGridView2.Height = Math.Max(Math.Min(totalHeight + 10, maxHeight), minHeight);
+    }
+
+    private void Form1_Resize(object sender, EventArgs e)
+    {
+        AdjustGridHeight();
+    }
+}
