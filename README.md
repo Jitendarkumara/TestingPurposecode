@@ -49,6 +49,30 @@
 </head>
 <body>
 
+    <!-- Filter Inputs -->
+    <div class="filter-container">
+        <label for="dateFilter">Select Date:</label>
+        <input type="date" id="dateFilter">
+        
+        <label for="shiftSelect">Select Shift:</label>
+        <select id="shiftSelect">
+            <option value="All">All</option>
+            <option value="A">Shift A</option>
+            <option value="B">Shift B</option>
+            <option value="C">Shift C</option>
+        </select>
+
+        <label for="statusSelect">Select Status:</label>
+        <select id="statusSelect">
+            <option value="All">All</option>
+            <option value="1">Running</option>
+            <option value="0">Stop</option>
+        </select>
+
+        <button onclick="refreshAllCharts()">Load Charts</button>
+    </div>
+
+    <!-- Dynamic Charts -->
     <div id="charts-container"></div>
 
     <script>
@@ -57,8 +81,16 @@
 
         async function loadChartData(millName) {
             try {
-                let selectedDate = new Date().toISOString().split('T')[0];
-                let url = `/Home/GetKWHData?millName=${encodeURIComponent(millName)}&selectedDate=${encodeURIComponent(selectedDate)}`;
+                let selectedDate = document.getElementById("dateFilter").value;
+                let selectedShift = document.getElementById("shiftSelect").value;
+                let selectedStatus = document.getElementById("statusSelect").value;
+
+                if (!selectedDate) {
+                    alert("Please select a date.");
+                    return;
+                }
+
+                let url = `/Home/GetKWHData?millName=${encodeURIComponent(millName)}&selectedDate=${encodeURIComponent(selectedDate)}&shiftSelect=${encodeURIComponent(selectedShift)}&RunningStatus=${encodeURIComponent(selectedStatus)}`;
 
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -142,10 +174,16 @@
         }
 
         function initializeCharts() {
+            document.getElementById("dateFilter").value = new Date().toISOString().split('T')[0]; // Set today's date
             mills.forEach(mill => {
                 createChartContainer(mill);
                 loadChartData(mill);
             });
+        }
+
+        function refreshAllCharts() {
+            document.getElementById("charts-container").innerHTML = ""; // Clear previous charts
+            initializeCharts();
         }
 
         window.onload = initializeCharts;
