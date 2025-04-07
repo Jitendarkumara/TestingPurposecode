@@ -36,15 +36,18 @@
 
                 const chartId = `chart-${feederName.replace(/\s+/g, '-')}`;
 
+                // Create chart container
                 const chartDiv = document.createElement("div");
                 chartDiv.classList.add("chart-wrapper");
                 chartDiv.innerHTML = `
                     <h3>${feederName}</h3>
-                    <canvas id="${chartId}"></canvas>
+                    <canvas id="${chartId}" width="800" height="400"></canvas>
                 `;
                 document.getElementById("charts-container").appendChild(chartDiv);
 
-                const chartResponse = await fetch(`/Home/GetFeedersKWHData?millName=${encodeURIComponent(mill)}&Feeders=${encodeURIComponent(feederName)}&FromDate=${encodeURIComponent(fromDate)}&ToDate=${encodeURIComponent(toDate)}&RunningStatus=${encodeURIComponent(status)}`);
+                // Fetch KWH data for feeder
+                const chartUrl = `/Home/GetFeedersKWHData?millName=${encodeURIComponent(mill)}&Feeders=${encodeURIComponent(feederName)}&FromDate=${encodeURIComponent(fromDate)}&ToDate=${encodeURIComponent(toDate)}&RunningStatus=${encodeURIComponent(status)}`;
+                const chartResponse = await fetch(chartUrl);
                 const chartData = await chartResponse.json();
 
                 if (!chartData || chartData.length === 0) return;
@@ -56,7 +59,9 @@
 
                 const ctx = document.getElementById(chartId).getContext("2d");
 
-                if (charts[feederName]) charts[feederName].destroy();
+                if (charts[feederName]) {
+                    charts[feederName].destroy();
+                }
 
                 charts[feederName] = new Chart(ctx, {
                     type: "line",
@@ -92,3 +97,18 @@
         loadFeederCharts(mill);
     };
 </script>
+
+<style>
+    .chart-wrapper {
+        margin-bottom: 50px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background: #f9f9f9;
+    }
+
+    h3 {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+</style>
