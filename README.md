@@ -1,12 +1,1 @@
-Here’s a self-evaluation Achievement/Comment you can use for this KPI:
-
-
----
-
-"Throughout the review period, I have consistently delivered assigned tasks within the agreed timelines. I ensured that expectations were clarified at the start of each assignment and proactively managed my schedule to meet deadlines. Regular follow-ups and communication helped in maintaining transparency and timely execution. I also remained open to feedback and worked on continuous improvement to enhance delivery efficiency."
-
-
----
-
-Let me know if you'd like to highlight a specific project or example in it.
-
+CUSTOMER	40	Delivery Quality-Error free first time right deliverable as per quality process (AD/BD) & aligned to safety, codes and standards ensuring customer satisfaction	Errors coming out of the deliverable , relating to technical/functional issues that causes impact to the desired project metrics and impact customer feedback	For maintaining the quality of project and deliverables I will ensure to follow all the reference guides and maintain the checklists which are defined to be followed.
