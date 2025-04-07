@@ -1,23 +1,12 @@
-function renderAllCharts() {
-    document.getElementById("charts-container").innerHTML = "";
-    mills.forEach(mill => {
-        let chartDiv = document.createElement("div");
-        chartDiv.classList.add("chart-wrapper");
-        chartDiv.innerHTML = `
-            <div class="chart-title">${mill}</div>
-            <button class="submill-btn" data-mill="${mill}">Submills</button>
-            <canvas id="chart-${mill}"></canvas>
-        `;
-        document.getElementById("charts-container").appendChild(chartDiv);
-        loadChartData(mill);
-    });
+document.querySelectorAll(".submill-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+        const millName = this.getAttribute("data-mill");
+        const fromDate = document.getElementById("FromDate").value;
+        const toDate = document.getElementById("ToDate").value;
+        const shift = document.getElementById("shiftSelect").value;
+        const status = document.getElementById("statusSelect").value;
 
-    // Handle submill button click
-    document.querySelectorAll(".submill-btn").forEach(btn => {
-        btn.addEventListener("click", function () {
-            const millName = this.getAttribute("data-mill");
-            alert("Open Submill data for: " + millName);
-            // You can replace alert with a modal, navigation, or AJAX call to load submill data
-        });
+        const query = `mill=${encodeURIComponent(millName)}&from=${fromDate}&to=${toDate}&shift=${shift}&status=${status}`;
+        window.open(`/SubmillChart.html?${query}`, '_blank');
     });
-}
+});
