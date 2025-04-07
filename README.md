@@ -5,8 +5,6 @@
 }
 
 <h2>Feeders Chart for @Model.Mill</h2>
-<canvas id="feedersChart" width="800" height="400"></canvas>
-
 <div id="charts-container"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,32 +15,49 @@
     const fromDate = '@Model.FromDate';
     const toDate = '@Model.ToDate';
     const status = '@Model.Status';
-    alert(mill);
-    async function loadFeedername(selectedMill) {
-            try {
-                let url = `/Home/GetFeeder?millName=${encodeURIComponent(selectedMill)}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                if (!data || data.length === 0) return;
 
-                
-                data.forEach(feeder => {
-                console.log(feeder);
-                      let url = `/Home/GetFeedersKWHData?millName=${encodeURIComponent(mill)}&Feeders=${encodeURIComponent(feeder)}&FromDate=${encodeURIComponent(fromDate)}&ToDate=${encodeURIComponent(toDate)}&RunningStatus=${encodeURIComponent(selectedStatus)}`;
-                      const response = await fetch(url);
+    const charts = {};
 
-                let timestamps = data.map(item => new Date(item.timeStamp));
-                let kwhData = data.map(item => parseFloat(item.kwh));
-                let lslData = data.map(item => parseFloat(item.lsl));
-                let uslData = data.map(item => parseFloat(item.usl));
+    async function loadFeederCharts(selectedMill) {
+        try {
+            const feederResponse = await fetch(`/Home/GetFeeder?millName=${encodeURIComponent(selectedMill)}`);
+            const feederList = await feederResponse.json();
 
-                let ctx = document.getElementById(`chart-${millName}`).getContext("2d");
+            if (!feederList || feederList.length === 0) {
+                console.warn("No feeders found.");
+                return;
+            }
 
-                if (charts[millName]) {
-                    charts[millName].destroy();
-                }
+            document.getElementById("charts-container").innerHTML = "";
 
-                charts[millName] = new Chart(ctx, {
+            for (const feeder of feederList) {
+                const chartId = `chart-${feeder.replace(/\s+/g, '-')}`;
+
+                // Create container for each chart
+                const chartDiv = document.createElement("div");
+                chartDiv.classList.add("chart-wrapper");
+                chartDiv.innerHTML = `
+                    <h3>${feeder}</h3>
+                    <canvas id="${chartId}"></canvas>
+                `;
+                document.getElementById("charts-container").appendChild(chartDiv);
+
+                // Fetch chart data
+                const chartResponse = await fetch(`/Home/GetFeedersKWHData?millName=${encodeURIComponent(mill)}&Feeders=${encodeURIComponent(feeder)}&FromDate=${encodeURIComponent(fromDate)}&ToDate=${encodeURIComponent(toDate)}&RunningStatus=${encodeURIComponent(status)}`);
+                const chartData = await chartResponse.json();
+
+                if (!chartData || chartData.length === 0) continue;
+
+                const timestamps = chartData.map(item => new Date(item.timeStamp));
+                const kwhData = chartData.map(item => parseFloat(item.kwh));
+                const lslData = chartData.map(item => parseFloat(item.lsl));
+                const uslData = chartData.map(item => parseFloat(item.usl));
+
+                const ctx = document.getElementById(chartId).getContext("2d");
+
+                if (charts[feeder]) charts[feeder].destroy();
+
+                charts[feeder] = new Chart(ctx, {
                     type: "line",
                     data: {
                         labels: timestamps,
@@ -55,36 +70,24 @@
                     options: {
                         responsive: true,
                         scales: {
-                            x: { type: "time", time: { unit: "minute" }, title: { display: true, text: "Timestamp" } },
-                            y: { title: { display: true, text: "KWH / LSL / USL" } }
+                            x: {
+                                type: "time",
+                                time: { unit: "minute" },
+                                title: { display: true, text: "Timestamp" }
+                            },
+                            y: {
+                                title: { display: true, text: "KWH / LSL / USL" }
+                            }
                         }
                     }
                 });
-                });
-
-               
-                loadChartData(selectedMill, selectedFeeder, selectedDate,Runningstatus);
-            } catch (error) {
-                console.error("Error loading Feeder Names:", error);
             }
+        } catch (error) {
+            console.error("Error loading feeder charts:", error);
         }
-         function renderAllCharts() {
-            document.getElementById("charts-container").innerHTML = "";
+    }
 
-            mills.forEach(mill => {
-                let chartDiv = document.createElement("div");
-                chartDiv.classList.add("chart-wrapper");
-                chartDiv.innerHTML = `
-                    <div class="chart-title">${mill}</div>
-                    <button class="Feeders-btn" data-mill="${mill}">Feeders</button>
-                    <canvas id="chart-${mill}"></canvas>
-                `;
-                document.getElementById("charts-container").appendChild(chartDiv);
-                loadChartData(mill);
-            });
-            }
-         window.onload = function () {
-              const mill = '@Model.Mill';
-            loadFeedername(mill)
-        };
+    window.onload = function () {
+        loadFeederCharts(mill);
+    };
 </script>
