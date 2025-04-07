@@ -1,57 +1,94 @@
-   async function loadChartData(millName) {
-       try {
-           let FromDate = document.getElementById("FromDate").value;
-           let ToDate = document.getElementById("ToDate").value;
-           let selectedShift = document.getElementById("shiftSelect").value;
-           let selectedStatus = document.getElementById("statusSelect").value;
+@model FeedersChartViewModel
 
-           if (!FromDate) {
-               alert("Please select a date.");
-               return;
-           }
+@{
+    ViewData["Title"] = "Feeders Chart";
+}
 
-           let url = `/Home/GetKWHData?millName=${encodeURIComponent(millName)}&FromDate=${encodeURIComponent(FromDate)}&ToDate=${encodeURIComponent(ToDate)}&shiftSelect=${encodeURIComponent(selectedShift)}&RunningStatus=${encodeURIComponent(selectedStatus)}`;
+<h2>Feeders Chart for @Model.Mill</h2>
+<div id="charts-container"></div>
 
-           const response = await fetch(url);
-           if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-           const data = await response.json();
-           if (!data || data.length === 0) {
-               console.warn(`No data available for ${millName}`);
-               return;
-           }
+<script>
+    const mill = '@Model.Mill';
+    const fromDate = '@Model.FromDate';
+    const toDate = '@Model.ToDate';
+    const status = '@Model.Status';
 
-           let timestamps = data.map(item => new Date(item.timeStamp));
-           let kwhData = data.map(item => parseFloat(item.kwh));
-           let lslData = data.map(item => parseFloat(item.lsl));
-           let uslData = data.map(item => parseFloat(item.usl));
+    const charts = {};
 
-           let ctx = document.getElementById(`chart-${millName}`).getContext("2d");
+    async function loadFeederCharts(selectedMill) {
+        try {
+            const feederResponse = await fetch(`/Home/GetFeeder?millName=${encodeURIComponent(selectedMill)}`);
+            const feederList = await feederResponse.json();
 
-           if (charts[millName]) {
-               charts[millName].destroy();
-           }
+            if (!feederList || feederList.length === 0) {
+                console.warn("No feeders found.");
+                return;
+            }
 
-           charts[millName] = new Chart(ctx, {
-               type: "line",
-               data: {
-                   labels: timestamps,
-                   datasets: [
-                       { label: "KWH", data: kwhData, borderColor: "blue", fill: false },
-                       { label: "LSL", data: lslData, borderColor: "green", borderDash: [5, 5] },
-                       { label: "USL", data: uslData, borderColor: "red", borderDash: [5, 5] }
-                   ]
-               },
-               options: {
-                   responsive: true,
-                   scales: {
-                       x: { type: "time", time: { unit: "minute" }, title: { display: true, text: "Timestamp" } },
-                       y: { title: { display: true, text: "KWH / LSL / USL" } }
-                   }
-               }
-           });
+            document.getElementById("charts-container").innerHTML = "";
 
-       } catch (error) {
-           console.error(`Error loading data for ${millName}:`, error);
-       }
-   }
+            feederList.forEach(async feeder => {
+                const feederName = feeder.feederName;
+                if (!feederName) return;
+
+                const chartId = `chart-${feederName.replace(/\s+/g, '-')}`;
+
+                const chartDiv = document.createElement("div");
+                chartDiv.classList.add("chart-wrapper");
+                chartDiv.innerHTML = `
+                    <h3>${feederName}</h3>
+                    <canvas id="${chartId}"></canvas>
+                `;
+                document.getElementById("charts-container").appendChild(chartDiv);
+
+                const chartResponse = await fetch(`/Home/GetFeedersKWHData?millName=${encodeURIComponent(mill)}&Feeders=${encodeURIComponent(feederName)}&FromDate=${encodeURIComponent(fromDate)}&ToDate=${encodeURIComponent(toDate)}&RunningStatus=${encodeURIComponent(status)}`);
+                const chartData = await chartResponse.json();
+
+                if (!chartData || chartData.length === 0) return;
+
+                const timestamps = chartData.map(item => new Date(item.timeStamp));
+                const kwhData = chartData.map(item => parseFloat(item.kwh));
+                const lslData = chartData.map(item => parseFloat(item.lsl));
+                const uslData = chartData.map(item => parseFloat(item.usl));
+
+                const ctx = document.getElementById(chartId).getContext("2d");
+
+                if (charts[feederName]) charts[feederName].destroy();
+
+                charts[feederName] = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: timestamps,
+                        datasets: [
+                            { label: "KWH", data: kwhData, borderColor: "blue", fill: false },
+                            { label: "LSL", data: lslData, borderColor: "green", borderDash: [5, 5] },
+                            { label: "USL", data: uslData, borderColor: "red", borderDash: [5, 5] }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                type: "time",
+                                time: { unit: "minute" },
+                                title: { display: true, text: "Timestamp" }
+                            },
+                            y: {
+                                title: { display: true, text: "KWH / LSL / USL" }
+                            }
+                        }
+                    }
+                });
+            });
+        } catch (error) {
+            console.error("Error loading feeder charts:", error);
+        }
+    }
+
+    window.onload = function () {
+        loadFeederCharts(mill);
+    };
+</script>
