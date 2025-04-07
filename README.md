@@ -72,7 +72,7 @@
         });
     }
 
-    // Event listener for the Search button
+    // Button click
     document.getElementById("btnSearch").addEventListener("click", renderAllCharts);
 
     // On page load
