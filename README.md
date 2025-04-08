@@ -1,86 +1,65 @@
-private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-{
-    if (txtbox_modifiedBy.Text != "" && txtbox_Remark.Text != "")
-    {
-        if (e.RowIndex >= 0 && dataGridView1.Columns[e.ColumnIndex].Name == "EditSave")
-        {
-            DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-            DataGridViewCell btnCell = row.Cells["EditSave"];
+   private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e)
+   {
+       if (txtmodified.Text != "" && txtRemark.Text != "")
+       {
+           if (e.ColumnIndex == dataGridView2.Columns["Delete"].Index && e.RowIndex >= 0)
+           {
+               // Get the selected row's coil_id
+               string coilId = dataGridView2.Rows[e.RowIndex].Cells["Coil_ID"].Value.ToString();
 
-            if (btnCell.Value == null || btnCell.Value.ToString() == "Edit")
-            {
-                // Enable editing
-                row.Cells["Coil_ID"].ReadOnly = false;
-                dataGridView1.CurrentCell = row.Cells["Coil_ID"];
-                dataGridView1.BeginEdit(true);
-                btnCell.Value = "Save";
-                btnCell.Style.BackColor = Color.Red;
-                btnCell.Style.ForeColor = Color.Blue;
-            }
-            else if (btnCell.Value.ToString() == "Save")
-            {
-                try
-                {
-                    string id = row.Cells["Tag"].Value?.ToString();
-                    string coilId = row.Cells["Coil_ID"].Value?.ToString();
+               // Ask for confirmation
+               DialogResult result = MessageBox.Show($"Are you sure you want to delete Coil ID {coilId}?",
+                   "Confirm Delete", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
 
-                    if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(coilId))
-                    {
-                        MessageBox.Show("Tag or Coil_ID cannot be empty.");
-                        return;
-                    }
+               if (result == DialogResult.OK)
+               {
+                   try
+                   {
+                       // Delete record from database
+                       Db.DatabaseConnect();
+                       string deleteQuery = "DELETE FROM T_COIL_LOC_TEM WHERE coil_id = :coilId";
+                       using (OracleCommand cmd = new OracleCommand(deleteQuery, Db.Con))
+                       {
+                           //cmd.Parameters.Add(new OracleParameter("coilId", coilId));
+                           // cmd.ExecuteNonQuery();
+                           string remark = txtRemark.Text;
+                           string InsertQuery = "INSERT INTO  t_ccl_update_status(COIL_ID,UPDATED_BY,DATE_TIME,TABLE_MODIFIED,REMARK) VALUES(:COIL_ID,:Updated_by,:TIME,:Table,:Remark`)";
 
-                    string updateQuery = "UPDATE T_Event_Tracking SET Coil_id = :CoilID WHERE Id_app_tag_Event = :Id";
+                           OracleCommand cmdInsert = new OracleCommand(InsertQuery, Db.Con);
+                           cmdInsert.CommandType = CommandType.Text;
 
-                    Db.DatabaseConnect();
-                    using (OracleCommand cmd = new OracleCommand(updateQuery, Db.Con))
-                    {
-                        cmd.Parameters.Add(new OracleParameter("CoilID", coilId));
-                        cmd.Parameters.Add(new OracleParameter("Id", id));
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                           string updatedby = txtmodified.Text;
+                           cmdInsert.Parameters.Add(":COIL_ID", OracleDbType.Varchar2).Value = Convert.ToString(coilId);
+                           cmdInsert.Parameters.Add(":Updated_by", OracleDbType.Varchar2).Value = updatedby;
+                           cmdInsert.Parameters.Add(":TIME", OracleDbType.TimeStamp).Value = DateTime.Now;
+                           cmdInsert.Parameters.Add(":Table", OracleDbType.Varchar2).Value = "T_COIL_LOC_Temp";
+                           cmdInsert.Parameters.Add(":Remark", OracleDbType.Varchar2).Value = remark;
+                           int rowinserted = cmd.ExecuteNonQuery();
 
-                        if (rowsAffected > 0)
-                        {
-                            string remark = txtbox_Remark.Text;
-                            string updatedBy = txtbox_modifiedBy.Text;
+                           if (rowinserted > 0)
+                           {
 
-                            string insertQuery = "INSERT INTO t_ccl_update_status(COIL_ID, UPDATED_BY, DATE_TIME, TABLE_MODIFIED, REMARK) " +
-                                                 "VALUES(:COIL_ID, :Updated_by, :TIME, :Table, :Remark)";
+                               MessageBox.Show("Record updated successfully.");
+                           }
 
-                            using (OracleCommand cmdInsert = new OracleCommand(insertQuery, Db.Con))
-                            {
-                                cmdInsert.CommandType = CommandType.Text;
-                                cmdInsert.Parameters.Add(":COIL_ID", OracleDbType.Varchar2).Value = coilId;
-                                cmdInsert.Parameters.Add(":Updated_by", OracleDbType.Varchar2).Value = updatedBy;
-                                cmdInsert.Parameters.Add(":TIME", OracleDbType.TimeStamp).Value = DateTime.Now;
-                                cmdInsert.Parameters.Add(":Table", OracleDbType.Varchar2).Value = "T_COIL_TRACKING";
-                                cmdInsert.Parameters.Add(":Remark", OracleDbType.Varchar2).Value = remark;
+                       }
+                       Db.ConClose();
 
-                                int rowInserted = cmdInsert.ExecuteNonQuery();
-                                if (rowInserted > 0)
-                                {
-                                    MessageBox.Show("Record updated successfully.");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show("No record updated. Check if the ID exists.");
-                        }
-                    }
-                    Db.ConClose();
-                    LoadEventTrackGrid();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error updating record: " + ex.Message);
-                }
-            }
-        }
-    }
-    else
-    {
-        MessageBox.Show("Kindly enter 'Modified By' and 'Remark'.");
-    }
-}
+                       // Remove row from DataGridView
+                       dataGridView2.Rows.RemoveAt(e.RowIndex);
+
+                       MessageBox.Show("Record deleted successfully!", "Danger", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                   }
+                   catch (Exception ex)
+                   {
+                       MessageBox.Show("Error deleting data: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                   }
+               }
+           }
+       }
+       else
+       {
+           MessageBox.Show("Kindly Enter Modified By and Remark");
+       }
+   }
