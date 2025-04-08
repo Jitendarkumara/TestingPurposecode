@@ -1,2 +1,3 @@
-string insertQuery = "INSERT INTO t_ccl_update_status (COIL_ID, UPDATED_BY, DATE_TIME, TABLE_MODIFIED, REMARK) " +
-                     "VALUES (:COIL_ID, :UPDATED_BY, :DATE_TIME, :TABLE_MODIFIED, :REMARK)";
+ string Coil= txtPdiCoilNum.Text;
+ Message_Structure_CCL M = new Message_Structure_CCL();
+ M.Show();
