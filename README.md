@@ -1,12 +1,17 @@
-Here’s a self-evaluation Achievement/Comment for the LEARNING & GROWTH – Team Contribution KPI:
+private void textBox1_Enter(object sender, EventArgs e)
+{
+    if (textBox1.Text == "Enter your name")
+    {
+        textBox1.Text = "";
+        textBox1.ForeColor = Color.Black;
+    }
+}
 
-
----
-
-"Actively contributed to team success by sharing workload and supporting peers during high-demand phases. Participated in knowledge-sharing sessions and informal mentoring to help team members upskill and resolve challenges. Maintained a positive and collaborative attitude, promoting a team-first approach. Demonstrated flexibility and willingness to assist wherever needed to ensure smooth project execution."
-
-
----
-
-Let me know if you’ve led any sessions or mentored someone directly—I can include that to make it stronger.
-
+private void textBox1_Leave(object sender, EventArgs e)
+{
+    if (string.IsNullOrWhiteSpace(textBox1.Text))
+    {
+        textBox1.Text = "Enter your name";
+        textBox1.ForeColor = Color.Gray;
+    }
+}
