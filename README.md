@@ -40,10 +40,9 @@
 
                 const chartDiv = document.createElement("div");
                 chartDiv.classList.add("chart-wrapper");
-                chartDiv.style.marginBottom = "40px";
                 chartDiv.innerHTML = `
-                    <h3>${feederName}</h3>
-                    <canvas id="${chartId}" height="300"></canvas>
+                    <h3 class="chart-title">${feederName}</h3>
+                    <canvas id="${chartId}"></canvas>
                 `;
                 document.getElementById("charts-container").appendChild(chartDiv);
 
@@ -91,6 +90,7 @@
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: { position: 'top' },
                             title: { display: false }
@@ -137,8 +137,9 @@
 
     .chart-wrapper {
         position: relative;
-        width: 600px;
-        height: 300px;
+        width: 100%;
+        max-width: 800px;
+        height: 400px;
         border: 2px solid black;
         padding: 10px;
         background-color: white;
@@ -146,10 +147,14 @@
         border-radius: 8px;
     }
 
+    .chart-wrapper canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
     .chart-title {
         text-align: center;
         font-weight: bold;
         margin-bottom: 10px;
     }
-    
 </style>
