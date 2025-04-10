@@ -5,23 +5,18 @@ private void button1_Click(object sender, EventArgs e)
     string value2 = comboBox2.SelectedItem?.ToString() ?? "";
     string value3 = textBox1.Text;
 
-    // Build CSV line
-    string csvLine = $"{value1},{value2},{value3}";
+    // Prepare CSV content
+    List<string> csvLines = new List<string>
+    {
+        "Combo1,Combo2,Text", // header
+        $"{value1},{value2},{value3}"
+    };
 
-    // Set CSV file path
+    // Set file path (e.g., Desktop)
     string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "output.csv");
 
-    // Check if file exists to add header if necessary
-    bool fileExists = File.Exists(filePath);
+    // Write the file (overwrites if exists)
+    File.WriteAllLines(filePath, csvLines);
 
-    using (StreamWriter writer = new StreamWriter(filePath, append: true))
-    {
-        if (!fileExists)
-        {
-            writer.WriteLine("Combo1,Combo2,Text"); // header
-        }
-        writer.WriteLine(csvLine);
-    }
-
-    MessageBox.Show("Data saved to CSV!");
+    MessageBox.Show("CSV file created and data written (overwritten if existed).");
 }
