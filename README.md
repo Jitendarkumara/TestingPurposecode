@@ -1,74 +1,91 @@
-public void LoadPdoRptGridSearch(DateTime searchDate, DateTime TosearchDate, string shift)
-{
-    try
-    {
-        Db.DatabaseConnect();
+ private void LoadPdiRptGridSearch(DateTime selectedDate, DateTime TosearchDate, string shift)
+ {
+     try
+     {
+         DateTime startDate = selectedDate.Date;                   // Start time: 10 Sep 2024 12:00 AM
+         DateTime endDate = TosearchDate.AddDays(1).AddSeconds(-1); // End time: 10 Sep 2024 11:59:59 PM
 
-        DateTime startDateTime, endDateTime;
+         // Format the dates as strings in 'YYYY-MM-DD HH24:MI:SS' format
+         string formattedStartDate = startDate.ToString("yyyy-MM-dd HH:mm:ss");
+         string formattedEndDate = endDate.ToString("yyyy-MM-dd HH:mm:ss");
 
-        switch (shift.ToUpper())
-        {
-            case "A":
-                startDateTime = searchDate.Date.AddHours(6); // 06:00:00 on FromDate
-                endDateTime = TosearchDate.Date.AddHours(14).AddSeconds(-1); // 13:59:59 on ToDate
-                break;
+         Db.DatabaseConnect();
+     //   string connectionString = "your_connection_string"; // Replace with your database connection string
+     string query = @"SELECT t_col_cot_pdi_l3.tc_coil_number, t_col_cot_pdi_l3.TC_WEIGHT,TC_ID_MESSAGE
+              FROM t_col_cot_pdi_l3
+              WHERE REGEXP_LIKE(t_col_cot_pdi_l3.tc_id_message, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$')
+              AND TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN
+              TO_TIMESTAMP(:startDate, 'YYYY-MM-DD HH24:MI:SS')
+              AND TO_TIMESTAMP(:endDate, 'YYYY-MM-DD HH24:MI:SS') and substr(t_col_cot_pdi_l3.tc_id_message, 12,8) BETWEEN
+             :StartShift And :EndShift
+              AND t_col_cot_pdi_l3.tc_coil_number NOT IN ('D1000', 'D2000') order by TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') desc";
+             //AND 
+             //    TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN :StartShift AND :EndShift 
+            
+             //;";
 
-            case "B":
-                startDateTime = searchDate.Date.AddHours(14); // 14:00:00
-                endDateTime = TosearchDate.Date.AddHours(22).AddSeconds(-1); // 21:59:59
-                break;
+     // Dynamically compute the time ranges based on the selected shift and date
+     string startShift, endShift;
+         string strDate = selectedDate.Date.ToString("yyyy-MM-dd HH:mm:ss");                   // Start time: 10 Sep 2024 12:00 AM
+         string enDate = TosearchDate.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss");
+         switch (shift)
+     {
+         case "A":
+                 // shift1 = (selectedDate.AddHours(6)).ToString("HH:mm:ss");
+                 //    startShift = (selectedDate.AddHours(6)).ToString("yyyy-MM-dd HH:mm:ss");  // 06:00:00
+                 //endShift = (selectedDate.AddHours(14)).ToString("yyyy-MM-dd HH:mm:ss");  // 14:00:00
+                 startShift = (selectedDate.AddHours(6)).ToString("HH.mm.ss");  // 06:00:00
+                 endShift = (selectedDate.AddHours(14)).ToString("HH.mm.ss");
 
-            case "C":
-                startDateTime = searchDate.Date.AddHours(22); // 22:00:00
-                endDateTime = TosearchDate.AddDays(1).Date.AddHours(6).AddSeconds(-1); // Next day 05:59:59
-                break;
+                 break;
+         case "B":
+             startShift = (selectedDate.AddHours(14)).ToString("HH.mm.ss"); // 14:00:00
+             endShift = (selectedDate.AddHours(22)).ToString("HH.mm.ss");  // 22:00:00
+             break;
+         case "C":
+             startShift = (selectedDate.AddHours(22)).ToString("HH.mm.ss");        // 22:00:00
+             endShift = (selectedDate.AddDays(1).AddHours(6)).ToString("HH.mm.ss"); // Next day 06:00:00
+             break;
+         case "ALL":
+                 // End time: 10 Sep 2024 11:59:59 PM
+                 startShift = startDate.ToString("HH:mm:ss");
+                 endShift = endDate.ToString("HH:mm:ss");
+                 // Format the dates as strings in 'YYYY-MM-DD HH24:MI:SS' format
+                 //   startShift = strDate.ToString("HH.mm.ss");
+                 // endShift = enDate.ToString("HH.mm.ss");
+                 break;
+                 default:
+                 throw new Exception("Envalide Shift");
+             //return;
+     }
 
-            case "ALL":
-                startDateTime = searchDate.Date;
-                endDateTime = TosearchDate.Date.AddDays(1).AddSeconds(-1); // full to-date 23:59:59
-                break;
+    
+         // using (SqlConnection connection = new SqlConnection(Db.Con))
+         OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
 
-            default:
-                throw new Exception("Invalid shift selected.");
-        }
+         // Pass the formatted dates as strings to the query
+         da.SelectCommand.Parameters.Add(new OracleParameter(":startDate", strDate));
+         da.SelectCommand.Parameters.Add(new OracleParameter(":endDate", enDate));
+         da.SelectCommand.Parameters.Add(new OracleParameter(":StartShift", startShift));
+         da.SelectCommand.Parameters.Add(new OracleParameter(":EndShift", endShift));
+         // da.SelectCommand.Parameters.Add(new OracleParameter(":SelectedShift", shift));
 
-        string formattedStart = startDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-        string formattedEnd = endDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+         string PDIquery = @"SELECT t_col_cot_pdi_l3.tc_coil_number, t_col_cot_pdi_l3.TC_WEIGHT,TC_ID_MESSAGE FROM t_col_cot_pdi_l3  
+              WHERE REGEXP_LIKE(t_col_cot_pdi_l3.tc_id_message, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$') AND" +
+             " TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN TO_TIMESTAMP('"+ strDate + "', 'YYYY-MM-DD HH24:MI:SS') AND " +
+             "TO_TIMESTAMP('"+endDate+"', 'YYYY-MM-DD HH24:MI:SS') and substr(t_col_cot_pdi_l3.tc_id_message, 12,8) BETWEEN" +
+             "'"+startShift+"' and '"+endShift+"' AND t_col_cot_pdi_l3.tc_coil_number NOT IN ('D1000', 'D2000') order by TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') desc";
 
-        string query = @"
-            SELECT pdo.tcip_input_coil, 
-                   pdo.tcip_product_coil,
-                   pdo.tcpi_actual_wt, 
-                   pdo.TCIP_CIL_END_TIME, 
-                   pdo.L3_FLAG
-            FROM t_col_coil_info_pdo pdo
-            WHERE pdo.tcip_input_coil IN (
-                SELECT l3.tc_coil_number
-                FROM t_col_cot_pdi_l3 l3
-                WHERE REGEXP_LIKE(l3.tc_id_message, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$')
-                  AND TO_TIMESTAMP(l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN 
-                      TO_TIMESTAMP(:startTime, 'YYYY-MM-DD HH24:MI:SS') AND 
-                      TO_TIMESTAMP(:endTime, 'YYYY-MM-DD HH24:MI:SS')
-                  AND l3.tc_coil_number NOT IN ('D1000', 'D2000')
-            )
-            ORDER BY pdo.TCIP_CIL_END_TIME DESC";
+         DtPDI = new DataTable();
+         da.Fill(DtPDI);
+         dataGridViewRptPdi.DataSource = DtPDI;
+         dataGridViewRptPdi.AutoGenerateColumns = true;
 
-        OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
-        da.SelectCommand.Parameters.Add(new OracleParameter(":startTime", formattedStart));
-        da.SelectCommand.Parameters.Add(new OracleParameter(":endTime", formattedEnd));
-
-        DtPDO = new DataTable();
-        da.Fill(DtPDO);
-
-        dataGridViewPDORPT.DataSource = DtPDO;
-        dataGridViewPDORPT.AutoGenerateColumns = false;
-        dataGridViewPDORPT.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
-        dataGridViewPDORPT.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
-
-        Db.ConClose();
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show("Error loading data: " + ex.Message);
-    }
-}
+        
+         
+     }
+     catch (Exception ex)
+     {
+         MessageBox.Show("Error: " + ex.Message);
+     }
+ }
