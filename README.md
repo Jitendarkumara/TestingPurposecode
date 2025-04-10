@@ -1,13 +1,27 @@
-Here’s a well-rounded way to present your Significant Contribution at Tata Steel Khopoli:
+private void button1_Click(object sender, EventArgs e)
+{
+    // Get values from controls
+    string value1 = comboBox1.SelectedItem?.ToString() ?? "";
+    string value2 = comboBox2.SelectedItem?.ToString() ?? "";
+    string value3 = textBox1.Text;
 
+    // Build CSV line
+    string csvLine = $"{value1},{value2},{value3}";
 
----
+    // Set CSV file path
+    string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "output.csv");
 
-Significant Contribution:
-Played a key role in the successful execution of critical digital initiatives at Tata Steel Khopoli, including the development and deployment of CCL, GP2, and EMS applications. These contributions enhanced process visibility, improved operational efficiency, and supported data-driven decision-making. Additionally, actively participated in process standardization and automation efforts, promoting knowledge reuse and aligning with Tata Steel’s digital transformation goals.
+    // Check if file exists to add header if necessary
+    bool fileExists = File.Exists(filePath);
 
+    using (StreamWriter writer = new StreamWriter(filePath, append: true))
+    {
+        if (!fileExists)
+        {
+            writer.WriteLine("Combo1,Combo2,Text"); // header
+        }
+        writer.WriteLine(csvLine);
+    }
 
----
-
-Let me know if you'd like to add specific outcomes or recognition received for these contributions!
-
+    MessageBox.Show("Data saved to CSV!");
+}
