@@ -1,91 +1,74 @@
-   public void LoadPdoRptGridSearch(DateTime searchDate, DateTime TosearchDate, string shift)
-   {
-       try
-       {
+public void LoadPdoRptGridSearch(DateTime searchDate, DateTime TosearchDate, string shift)
+{
+    try
+    {
+        Db.DatabaseConnect();
 
-          // Calculate the start and end date times
-          DateTime startDate = searchDate.Date;                   // Start time: 10 Sep 2024 12:00 AM
-           DateTime endDate = TosearchDate.AddDays(1).AddSeconds(-1); // End time: 10 Sep 2024 11:59:59 PM
+        DateTime startDateTime, endDateTime;
 
-           // Format the dates as strings in 'YYYY-MM-DD HH24:MI:SS' format
-           string formattedStartDate = startDate.ToString("yyyy-MM-dd HH:mm:ss");
-           string formattedEndDate = endDate.ToString("yyyy-MM-dd HH:mm:ss");
-          // DateTime startDate = searchDate.Date;                   // Start time: 10 Sep 2024 12:00 AM
-          // DateTime endDate = startDate.AddDays(1).AddSeconds(-1);
+        switch (shift.ToUpper())
+        {
+            case "A":
+                startDateTime = searchDate.Date.AddHours(6); // 06:00:00 on FromDate
+                endDateTime = TosearchDate.Date.AddHours(14).AddSeconds(-1); // 13:59:59 on ToDate
+                break;
 
-           Db.DatabaseConnect();
-           string s = @"SELECT pdo.tcip_input_coil, pdo.tcip_product_coil ,pdo.tcpi_actual_wt,TCIP_CIL_END_TIME,pdo.L3_FLAG
-                FROM t_col_coil_info_pdo pdo
-                WHERE pdo.tcip_input_coil IN (
-                    SELECT t_col_cot_pdi_l3.tc_coil_number
-                    FROM t_col_cot_pdi_l3
-                    WHERE REGEXP_LIKE(t_col_cot_pdi_l3.tc_id_message, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$')
-                       AND TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN
-                TO_TIMESTAMP(:startDate, 'YYYY-MM-DD HH24:MI:SS')
-                AND TO_TIMESTAMP(:endDate, 'YYYY-MM-DD HH24:MI:SS') and substr(t_col_cot_pdi_l3.tc_id_message, 12,8) BETWEEN
-               :StartShift And :EndShift
-                    AND t_col_cot_pdi_l3.tc_coil_number NOT IN ('D1000', 'D2000')) order by TCIP_CIL_END_TIME desc";
-           string startShift, endShift;
-           switch (shift)
-           {
-               case "A":
-                   startShift = (searchDate.AddHours(6)).ToString("HH:mm:ss");  // 06:00:00
-                   endShift = (searchDate.AddHours(14)).ToString("HH:mm:ss");  // 14:00:00
+            case "B":
+                startDateTime = searchDate.Date.AddHours(14); // 14:00:00
+                endDateTime = TosearchDate.Date.AddHours(22).AddSeconds(-1); // 21:59:59
+                break;
 
-                   break;
-               case "B":
-                   startShift = (searchDate.AddHours(14)).ToString("HH:mm:ss"); // 14:00:00
-                   endShift = (searchDate.AddHours(22)).ToString("HH:mm:ss");  // 22:00:00
-                   break;
-               case "C":
-                   startShift = (searchDate.AddHours(22)).ToString("HH:mm:ss");        // 22:00:00
-                   endShift = (searchDate.AddDays(1).AddHours(6)).ToString("HH:mm:ss"); // Next day 06:00:00
-                   break;
-               case "ALL":
-                // End time: 10 Sep 2024 11:59:59 PM
+            case "C":
+                startDateTime = searchDate.Date.AddHours(22); // 22:00:00
+                endDateTime = TosearchDate.AddDays(1).Date.AddHours(6).AddSeconds(-1); // Next day 05:59:59
+                break;
 
-                   // Format the dates as strings in 'YYYY-MM-DD HH24:MI:SS' format
-                   startShift = startDate.ToString("HH:mm:ss");
-                   endShift = endDate.ToString("HH:mm:ss");
+            case "ALL":
+                startDateTime = searchDate.Date;
+                endDateTime = TosearchDate.Date.AddDays(1).AddSeconds(-1); // full to-date 23:59:59
+                break;
 
-                   break;
-               default:
-                   throw new Exception("Envalide shift");
+            default:
+                throw new Exception("Invalid shift selected.");
+        }
 
-           }
+        string formattedStart = startDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+        string formattedEnd = endDateTime.ToString("yyyy-MM-dd HH:mm:ss");
 
-           OracleDataAdapter da = new OracleDataAdapter(s, Db.Con);
+        string query = @"
+            SELECT pdo.tcip_input_coil, 
+                   pdo.tcip_product_coil,
+                   pdo.tcpi_actual_wt, 
+                   pdo.TCIP_CIL_END_TIME, 
+                   pdo.L3_FLAG
+            FROM t_col_coil_info_pdo pdo
+            WHERE pdo.tcip_input_coil IN (
+                SELECT l3.tc_coil_number
+                FROM t_col_cot_pdi_l3 l3
+                WHERE REGEXP_LIKE(l3.tc_id_message, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$')
+                  AND TO_TIMESTAMP(l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN 
+                      TO_TIMESTAMP(:startTime, 'YYYY-MM-DD HH24:MI:SS') AND 
+                      TO_TIMESTAMP(:endTime, 'YYYY-MM-DD HH24:MI:SS')
+                  AND l3.tc_coil_number NOT IN ('D1000', 'D2000')
+            )
+            ORDER BY pdo.TCIP_CIL_END_TIME DESC";
 
-           // Pass the formatted dates as strings to the query
+        OracleDataAdapter da = new OracleDataAdapter(query, Db.Con);
+        da.SelectCommand.Parameters.Add(new OracleParameter(":startTime", formattedStart));
+        da.SelectCommand.Parameters.Add(new OracleParameter(":endTime", formattedEnd));
 
-           da.SelectCommand.Parameters.Add(new OracleParameter(":startDate", formattedStartDate));
-           da.SelectCommand.Parameters.Add(new OracleParameter(":endDate", formattedEndDate));
-           da.SelectCommand.Parameters.Add(new OracleParameter(":StartShift", startShift));
-           da.SelectCommand.Parameters.Add(new OracleParameter(":EndShift", endShift));
+        DtPDO = new DataTable();
+        da.Fill(DtPDO);
 
-           string NewQuery = @"SELECT pdo.tcip_input_coil, pdo.tcip_product_coil ,pdo.tcpi_actual_wt,TCIP_CIL_END_TIME,pdo.L3_FLAG
-                FROM t_col_coil_info_pdo pdo
-                WHERE pdo.tcip_input_coil IN (
-                    SELECT t_col_cot_pdi_l3.tc_coil_number
-                    FROM t_col_cot_pdi_l3
-                    WHERE REGEXP_LIKE(t_col_cot_pdi_l3.tc_id_message, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$')
-                       AND TO_TIMESTAMP(t_col_cot_pdi_l3.tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN
-                TO_TIMESTAMP('"+formattedStartDate+"', 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND TO_TIMESTAMP('"+formattedEndDate+"' , 'YYYY-MM-DD HH24:MI:SS') and substr(t_col_cot_pdi_l3.tc_id_message, 12,8) BETWEEN " +
-                " '"+ startShift + "' And '"+endShift+"'" +
-                " AND t_col_cot_pdi_l3.tc_coil_number NOT IN ('D1000', 'D2000')) order by TCIP_CIL_END_TIME desc";
+        dataGridViewPDORPT.DataSource = DtPDO;
+        dataGridViewPDORPT.AutoGenerateColumns = false;
+        dataGridViewPDORPT.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
+        dataGridViewPDORPT.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
 
-           DtPDO = new DataTable();
-           da.Fill(DtPDO);
-           dataGridViewPDORPT.DataSource = DtPDO;
-           dataGridViewPDORPT.AutoGenerateColumns = true;
-           Db.ConClose();
-           dataGridViewPDORPT.AutoGenerateColumns = false;
-           dataGridViewPDORPT.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
-           dataGridViewPDORPT.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
-       }
-       catch (Exception ex)
-       {
-           MessageBox.Show(ex.Message);
-       }
-   }
+        Db.ConClose();
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("Error loading data: " + ex.Message);
+    }
+}
