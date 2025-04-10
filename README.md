@@ -1,22 +1,10 @@
-private void button1_Click(object sender, EventArgs e)
+comboBox1.DisplayMember = "Text";
+comboBox1.ValueMember = "Value";
+comboBox1.DataSource = new List<KeyValuePair<string, string>>()
 {
-    // Get values from controls
-    string value1 = comboBox1.SelectedItem?.ToString() ?? "";
-    string value2 = comboBox2.SelectedItem?.ToString() ?? "";
-    string value3 = textBox1.Text;
+    new KeyValuePair<string, string>("1", "Option 1"),
+    new KeyValuePair<string, string>("2", "Option 2")
+};
 
-    // Prepare CSV content
-    List<string> csvLines = new List<string>
-    {
-        "Combo1,Combo2,Text", // header
-        $"{value1},{value2},{value3}"
-    };
-
-    // Set file path (e.g., Desktop)
-    string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "output.csv");
-
-    // Write the file (overwrites if exists)
-    File.WriteAllLines(filePath, csvLines);
-
-    MessageBox.Show("CSV file created and data written (overwritten if existed).");
-}
+string selectedText = comboBox1.Text;
+string selectedValue = ((KeyValuePair<string, string>)comboBox1.SelectedItem).Key;
