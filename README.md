@@ -1,3 +1,50 @@
+
+private void pDOToolStripMenuItem_Click(object sender, EventArgs e)
+{
+    try
+    {
+        PDOMaster pDOMaster = new PDOMaster();
+        pDOMaster.MdiParent = this;
+        pDOMaster.Show();
+    }
+    catch(Exception ex)
+    {
+        MessageBox.Show(ex.Message + "9999");
+    }
+
+
+}
+private void PDOMaster_Load(object sender, EventArgs e)
+{
+    try
+    {
+        LoadPDO();
+        //this.pnlPDO.Controls.Clear();
+        //ucfPDOGen pdoGen = new ucfPDOGen();
+        //lblPdoTitle.Text = "GENERAL";
+        //this.pnlPDO.Controls.Add(pdoGen);
+        pnlPdoSide.Visible = false;
+        btnGeneral.ForeColor = Color.Black;
+        PDO.General Gen = new PDO.General();
+            Gen.TopLevel = false;
+        Gen.AutoScroll = true;
+        Dock = DockStyle.Fill;
+        pnlPdo.Controls.Clear();
+        
+        pnlPdo.Controls.Add(Gen);
+        Gen.Show();
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show(ex.Message);
+    }
+
+}
+private void General_Load(object sender, EventArgs e)
+{
+    LoadGenInfoData();
+}
+
 private void dgvPDO_SelectionChanged(object sender, EventArgs e)
 {
     try
