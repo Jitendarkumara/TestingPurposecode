@@ -1,2 +1,1 @@
-As discussed with  @Mayuresh Sulakhe,  for below mentioned column ,  View has been created and given access for  user  L3L2_CCLK, L2L3_GP2  some of the column that is not available .
- 
+As discussed with @Mayuresh Sulakhe, a view has been created for the column mentioned below, and access has been granted to users L3L2_CCLK and L2L3_GP2. However, some columns are not available
