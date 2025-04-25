@@ -1,4 +1,3 @@
-Still problem not resolved, I am not able to connect server system Ip address 10.112.6.73 and 
-asset id is tsisc08707
+I am still facing an issue and unable to connect to the server with IP address 10.112.6.73. The asset ID is TSISC08707.
 
-Kindly help me to resolve this it is impacting my task .
+Kindly assist in resolving this as it is impacting my tasks.
