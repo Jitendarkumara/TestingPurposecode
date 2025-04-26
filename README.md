@@ -1,1 +1,1 @@
-Delivered high-quality, first-time-right solutions across key applications at Tata Steel Khopoli—including GP2, CCL, Tube Mill, and EMS—by strictly following AD/BD quality processes and adhering to safety, coding standards, and customer expectations, resulting in enhanced satisfaction and minimal rework.
+All Compliance (Process)-Time Sheet, WRENCH, EMS, Leave & Attendance, Standard delivery processes, Project procedures
