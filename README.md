@@ -1,1 +1,1 @@
-	Innovation -Automation, higher maturity in usage of engineering tools aligned to WoW and 3D
+Drove innovation through the implementation of automation and enhanced the maturity of engineering tool usage across key applications at Tata Steel Khopoli—including GP2, CCL, Tube Mill, and EMS—by aligning workflows with Ways of Working (WoW) and 3D practices, resulting in improved design accuracy, reduced manual effort, and increased overall efficiency.
