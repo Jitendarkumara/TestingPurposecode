@@ -1,1 +1,2 @@
-Team Contribution-Team workload sharing, Training, Mentoring, Knowledge Sharing
+Achievement:
+Actively contributed to team success at Tata Steel Khopoli by effectively sharing workload, mentoring peers, and facilitating knowledge transfer across critical applications such as GP2, CCL, Tube Mill, and EMS—fostering team growth, improving collaboration, and ensuring continuity in project delivery.
