@@ -1,1 +1,1 @@
-Consistently delivered 25% higher productivity compared to the average peer on the Tata Steel Khopoli project by actively contributing to a culture of knowledge reuse. Played a key role in multiple critical applications including GP2, CCL, Tube Mill, and EMS, ensuring efficient development, streamlined issue resolution, and accelerated delivery timelines.
+Delivery On time-Timely completion of task/deliverable as per agreed time schedule
