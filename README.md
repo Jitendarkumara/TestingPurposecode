@@ -1,1 +1,1 @@
-Maintained full compliance with all defined processes and procedures—including Time Sheet submission, WRENCH, EMS, Leave & Attendance, and standard delivery processes—while working across critical applications at Tata Steel Khopoli (GP2, CCL, Tube Mill, EMS), ensuring smooth audits, operational discipline, and consistent project governance.
+	Innovation -Automation, higher maturity in usage of engineering tools aligned to WoW and 3D
