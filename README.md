@@ -1,1 +1,1 @@
-Successfully ensured on-time delivery of all assigned tasks and deliverables across multiple key applications at Tata Steel Khopoli—including GP2, CCL, Tube Mill, and EMS—by adhering strictly to project timelines and maintaining consistent coordination with stakeholders and team members.
+	Delivery Quality-Error free first time right deliverable as per quality process (AD/BD) & aligned to safety, codes and standards ensuring customer satisfaction
