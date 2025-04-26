@@ -1,3 +1,1 @@
-I am still facing an issue and unable to connect to the server with IP address 10.112.6.73. The asset ID is TSISC08707.
-
-Kindly assist in resolving this as it is impacting my tasks.
+Productivity-25% higher productivity vs average peer productivity on the project and culture of Knowledge Reuse  Target was this kindly write Achivement where I have worked many application Tata steel khopoli  like GP2 , CCl , Tubemill,Ems application
