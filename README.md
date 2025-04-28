@@ -1,3 +1,14 @@
-As users are facing difficulties in some cases during the GR from Level 2, when the width of the PDO does not match the PDI width, it creates an issue during the transfer to MES.
-
-Kindly provide the logic so that we can validate the width before GR, and thereby handle the GR error in advance.
+SELECT 
+    PDI.TC_COIL_NUMBER,
+    PDI.TC_WEIGHT,
+    PDO.TCIP_PRODUCT_COIL,
+    PDO.TCIP_ACTUAL_WT,
+    PDO.TCIP_CIL_END_TIME
+FROM 
+    PDI
+JOIN 
+    PDO
+ON 
+    PDI.TC_COIL_NUMBER = PDO.TCIP_INPUT_COIL
+ORDER BY 
+    PDI.TC_COIL_NUMBER;
