@@ -1,4 +1,2 @@
-To Develop CCL application according to system resolution . I need to exchange monitor and I have been got 
-Approval from the side to @Sumit Kumar Sharma sir .
-
-Kindly approve from your side so that we can proceed.
+To develop the CCL application according to the system resolution, I need to replace the monitor. I have already received approval from @Sumit Kumar Sharma sir.
+Kindly approve it from your side as well so that we can proceed.
