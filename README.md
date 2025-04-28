@@ -1,4 +1,3 @@
+As users are facing difficulties in some cases during the GR from Level 2, when the width of the PDO does not match the PDI width, it creates an issue during the transfer to MES.
 
-As user are getting difficulty in some cases during the GR from level 2 , when  the width of the PDO not matches with PDI width, then it creates an issue while transfer to MES .
-
-Kindly give the logic so that we can validate width before GR and hence we can handle the error of GR.
+Kindly provide the logic so that we can validate the width before GR, and thereby handle the GR error in advance.
