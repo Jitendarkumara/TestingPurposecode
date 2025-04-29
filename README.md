@@ -1,42 +1,21 @@
-using ClosedXML.Excel;
-using System.Data;
-using System.Windows.Forms;
+SELECT 
+    CASE WHEN ROW_NUMBER() OVER (PARTITION BY PDI.TC_COIL_NUMBER ORDER BY PDO.TCIP_CIL_END_TIME) = 1 THEN PDI.TC_COIL_NUMBER ELSE '' END AS Mother_COIL,
+    CASE WHEN ROW_NUMBER() OVER (PARTITION BY PDI.TC_COIL_NUMBER ORDER BY PDO.TCIP_CIL_END_TIME) = 1 THEN PDI.TC_WEIGHT ELSE NULL END AS Pdi_WEIGHT,
+        CASE WHEN ROW_NUMBER() OVER (PARTITION BY PDI.tc_id_message ORDER BY PDI.tc_id_message) = 1 THEN PDI.tc_id_message ELSE NULL END AS PDI_Time,
 
-private void ExportToExcel(DataGridView dataGridView)
-{
-    // Convert DataGridView to DataTable
-    DataTable dt = new DataTable();
-
-    foreach (DataGridViewColumn column in dataGridView.Columns)
-    {
-        if (column.Visible)
-            dt.Columns.Add(column.HeaderText);
-    }
-
-    foreach (DataGridViewRow row in dataGridView.Rows)
-    {
-        if (!row.IsNewRow)
-        {
-            DataRow dr = dt.NewRow();
-            for (int i = 0; i < dataGridView.Columns.Count; i++)
-            {
-                if (dataGridView.Columns[i].Visible)
-                    dr[i] = row.Cells[i].Value?.ToString() ?? "";
-            }
-            dt.Rows.Add(dr);
-        }
-    }
-
-    using (SaveFileDialog sfd = new SaveFileDialog() { Filter = "Excel Workbook|*.xlsx" })
-    {
-        if (sfd.ShowDialog() == DialogResult.OK)
-        {
-            using (XLWorkbook wb = new XLWorkbook())
-            {
-                wb.Worksheets.Add(dt, "Sheet1");
-                wb.SaveAs(sfd.FileName);
-            }
-            MessageBox.Show("Data Exported Successfully!", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-    }
-}
+    PDO.TCIP_PRODUCT_COIL as Daughter_COIL,
+    PDO.TCPI_ACTUAL_WT as Pdo_WEIGHT,
+    PDO.TCIP_CIL_END_TIME End_Time
+FROM 
+    T_COL_COT_PDI_L3 PDI
+JOIN 
+    T_COL_COIL_INFO_PDO PDO
+ON 
+    PDI.TC_COIL_NUMBER = PDO.TCIP_INPUT_COIL  
+    WHERE REGEXP_LIKE(tc_id_message, '^\d{4}-\d{2}-\d{2}-\d{2}\.\d{2}\.\d{2}\.\d{6}$') 
+    AND TO_TIMESTAMP(tc_id_message, 'YYYY-MM-DD-HH24.MI.SS.FF6') BETWEEN
+    TO_TIMESTAMP('2025-04-29 06:00:00', 'YYYY-MM-DD HH24:MI:SS') AND
+    TO_TIMESTAMP('2025-04-30 05:59:59', 'YYYY-MM-DD HH24:MI:SS')
+ORDER BY 
+   PDI.TC_ID_Message DESC,
+    PDO.TCIP_PRODUCT_COIL
