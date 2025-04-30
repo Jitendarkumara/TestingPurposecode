@@ -1,4 +1,14 @@
-SELECT *
+        public void LoadRptGrid(DateTime selectedDate, DateTime TosearchDate, string shift)
+        {
+            try
+            {
+                Db.DatabaseConnect();
+                string formattedStart = selectedDate.ToString("yyyy-MM-dd HH:mm:ss");
+                string formattedEnd = TosearchDate.ToString("yyyy-MM-dd HH:mm:ss");
+                string s = "";
+                if(shift=="All")
+                {
+                    s = @"SELECT *
 FROM (
     SELECT 
         PROD_SHIFT AS SHIFT,
@@ -8,8 +18,63 @@ FROM (
         DECODE(TXN_USER, 'LEVEL2', 'LEVEL2', 'MANUAL') AS STATUS  
     FROM DBPROD.PROD_WIP@DB_L3L2_GP02_PRD1
     WHERE 
-        TRUNC(UPD_DATE) BETWEEN TRUNC(TO_DATE('2025-04-29 06:00:00', 'YYYY-MM-DD HH24:MI:SS')) 
-                             AND TRUNC(TO_DATE('2025-04-30 06:00:00', 'YYYY-MM-DD HH24:MI:SS'))
-        AND CUR_STAGE IN ('GL', 'G2')
+        TRUNC(UPD_DATE) BETWEEN TRUNC(TO_DATE(:startDate, 'YYYY-MM-DD HH24:MI:SS')) 
+                             AND TRUNC(TO_DATE(:endDate, 'YYYY-MM-DD HH24:MI:SS'))
+        AND CUR_STAGE IN ('GL', 'G2') and PROD_SHIFT=:Shift
 )
-WHERE STATUS = 'MANUAL';
+WHERE STATUS = 'MANUAL'
+ ";
+                }
+                else
+                {
+                    s = @"SELECT *
+FROM (
+    SELECT 
+        PROD_SHIFT AS SHIFT,
+        UPD_DATE AS UPDATE_DATE,
+        COIL_NO,
+        DECODE(CUR_STAGE, 'C', 'CCL', 'GL', 'GP/GL-2', 'G2', 'GP/GL-2', NULL) AS STAGE,
+        DECODE(TXN_USER, 'LEVEL2', 'LEVEL2', 'MANUAL') AS STATUS  
+    FROM DBPROD.PROD_WIP@DB_L3L2_GP02_PRD1
+    WHERE 
+        TRUNC(UPD_DATE) BETWEEN TRUNC(TO_DATE(:startDate, 'YYYY-MM-DD HH24:MI:SS')) 
+                             AND TRUNC(TO_DATE(:endDate, 'YYYY-MM-DD HH24:MI:SS'))
+        AND CUR_STAGE IN ('GL', 'G2') 
+)
+WHERE STATUS = 'MANUAL'
+ ";
+                }
+
+
+                OracleDataAdapter da = new OracleDataAdapter(s, Db.Con);
+                if (shift == "All")
+                {
+                    da.SelectCommand.Parameters.Add(new OracleParameter(":startDate", formattedStart));
+                    da.SelectCommand.Parameters.Add(new OracleParameter(":endDate", formattedEnd));
+                }
+             else
+                {
+                    da.SelectCommand.Parameters.Add(new OracleParameter(":startDate", formattedStart));
+                    da.SelectCommand.Parameters.Add(new OracleParameter(":endDate", formattedEnd));
+                    da.SelectCommand.Parameters.Add(new OracleParameter(":Shift", shift));
+
+                }
+               
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                dataGridView1.DataSource = dt;
+                dataGridView1.AutoGenerateColumns = true;
+                Db.ConClose();
+                dataGridView1.AutoGenerateColumns = false;
+                //dataGridView1.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
+                //dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+
+                dataGridView1.RowsDefaultCellStyle.BackColor = System.Drawing.Color.WhiteSmoke;
+                dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.LightGray;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
