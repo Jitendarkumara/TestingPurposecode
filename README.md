@@ -1,39 +1,43 @@
-try
-{
-    porselected += 1;
-    if (btnPOR2.BackColor != Color.Maroon)
-    {
-        if (dataGridViewLine.Rows[0].Cells[4].Value != null)
-        {
-            gridBtnTxt = dataGridViewLine.Rows[0].Cells[4].Value.ToString();
-        }
-        tempTracking = dtToLine.Copy();
-        dataGridViewLine.DataSource = tempTracking;
-        if (dataGridView1.SelectedRows.Count > 0)
-        {
-            DataGridViewRow row = dataGridView1.SelectedRows[0];
-            DataRow dr = tempTracking.NewRow();
-            dr[0] = "L1_POR2_SEL";
-            dr[1] = row.Cells[0].Value;
-            dr[2] = row.Cells[1].Value;
-            dr[3] = row.Cells[2].Value;
-            tempTracking.Rows.RemoveAt(4);
-            tempTracking.Rows.InsertAt(dr, 4);
-            lstsdlCoil.Add(dr[1].ToString());
-            btnPOR2.BackColor = Color.Maroon;
-            int LineRowIndex = lstsdlCoil.Count - 1;
-            string selectedCoil = row.Cells[0].Value.ToString();
-            ReorderPDIgrid(selectedCoil, LineRowIndex);
-            dataGridViewLine.Rows[4].Cells[4].Value = "Cancel";
-            dataGridViewLine.Rows[0].Cells[4].Value = gridBtnTxt;
-            SetLineGridColor();
-            buttonExecute.Enabled = true;
-            dtToLine = tempTracking.Copy();
-        }
-    }
-    
-}
-catch (Exception ex)
-{
-    MessageBox.Show(ex.Message);
-}
+ private void btnGo_Click(object sender, EventArgs e)
+ {
+     try
+     {
+         if (string.IsNullOrEmpty(txtSearchCoilNumb.Text))
+         {
+             MessageBox.Show("Please enter the coil number.");
+             return; // Exit if no coil number is provided.
+         }
+
+         string tempCoilNum = txtSearchCoilNumb.Text.Trim();
+         dgvPDO.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+         BsPdo = new BindingSource();
+         BsPdo.DataSource = dtPdo;
+         BsPdo.Filter = string.Format("CGD_ID_COIL = '{0}'", tempCoilNum); // Ensure the filter is correctly formatted.
+
+         // Use parameterized SQL query to prevent SQL injection
+         string query = "SELECT CGD_ID_COIL FROM T_PDO_INFO WHERE CGD_ID_COIL = :coilNum";
+
+         using (OracleCommand cmd = new OracleCommand(query, Db.Con))
+         {
+             cmd.Parameters.Add(new OracleParameter(":coilNum", tempCoilNum));
+
+             OracleDataAdapter da = new OracleDataAdapter(cmd);
+             DataTable dt = new DataTable();
+             da.Fill(dt);
+
+             dgvPDO.DataSource = dt;
+             dgvPDO.AutoGenerateColumns = false;
+             dgvPDO.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
+             dgvPDO.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+         }
+         PDO.General GP1 = (PDO.General)Application.OpenForms["General"];
+         GP1.LoadGenInfoData();
+
+         Db.ConClose(); // Close the connection after the operation
+     }
+     catch (Exception ex)
+     {
+         // Handle exceptions properly
+         MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+     }
+ }
