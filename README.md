@@ -1,13 +1,23 @@
- Db.DatabaseConnect();
- // string s = " SELECT CGD_ID_COIL FROM T_PDO_INFO order by CGD_TS_END DESC";
- string s = "SELECT CGD_ID_COIL COIL_ID , to_char(CGD_TS_END,'DD-MON-YY HH.MI.SS AM') END_TIME FROM T_PDO_INFO order by CGD_TS_END DESC";
- OracleDataAdapter da = new OracleDataAdapter(s, Db.Con);
- DataTable dt = new DataTable();
- da.Fill(dt);
- dgvPDO.DataSource = dt;
- //dgvPDO.AutoGenerateColumns = false;
+SELECT 
 
- dgvPDO.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
- dgvPDO.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
- Db.ConClose();
-            
+    PDI.TC_COIL_NUMBER AS Mother_COIL,
+
+
+PDI.TC_WEIGHT as Pdi_WEIGHT,
+ PDI.tc_id_message AS PDI_Time,
+
+   count( PDO.TCIP_PRODUCT_COIL) AS Daughter_COIL_Count,
+    sum( PDO.TCPI_ACTUAL_WT) AS Pdo_WEIGHT,
+--    PDO.TCIP_CIL_END_TIME AS End_Time,
+    pdo.l3_flag
+
+FROM 
+    T_COL_COT_PDI_L3 PDI
+JOIN 
+    T_COL_COIL_INFO_PDO PDO
+ON 
+    PDI.TC_COIL_NUMBER = PDO.TCIP_INPUT_COIL  
+  group by    PDI.TC_COIL_NUMBER,  pdo.l3_flag, PDI.tc_id_message
+ORDER BY  
+   PDI.TC_ID_Message DESC,
+    PDO.TCIP_PRODUCT_COIL
