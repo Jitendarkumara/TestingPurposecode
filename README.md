@@ -1,18 +1,1 @@
-SELECT 
-    PDI.TC_COIL_NUMBER AS Mother_COIL,
-    MAX(PDI.TC_WEIGHT) AS PDI_WEIGHT,  -- using MAX assuming weight is constant per coil
-    PDI.TC_ID_MESSAGE AS PDI_Time,
-    COUNT(PDO.TCIP_PRODUCT_COIL) AS Daughter_COIL_Count,
-    SUM(PDO.TCPI_ACTUAL_WT) AS PDO_WEIGHT,
-    PDO.L3_FLAG
-FROM 
-    T_COL_COT_PDI_L3 PDI
-JOIN 
-    T_COL_COIL_INFO_PDO PDO
-    ON PDI.TC_COIL_NUMBER = PDO.TCIP_INPUT_COIL
-GROUP BY    
-    PDI.TC_COIL_NUMBER,
-    PDO.L3_FLAG,
-    PDI.TC_ID_MESSAGE
-ORDER BY  
-    PDI.TC_ID_MESSAGE DESC;
+https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/7.0.20/windowsdesktop-runtime-7.0.20-win-x64.exe
