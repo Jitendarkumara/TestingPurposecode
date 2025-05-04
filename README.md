@@ -1,1 +1,4 @@
-const table = $("<table>").addClass("table table-bordered w-100");
+#tbl_table_container td, 
+#tbl_table_container th {
+    border: 1px solid black;
+}
