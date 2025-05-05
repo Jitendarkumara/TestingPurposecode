@@ -1,20 +1,114 @@
-if (txtDaughterCoil.Text != "" && txtCustomer.Text != "" && txtActThk.Text != "" &&
-    txtActWidth.Text != "" && txtRemarks.Text != "" && txtStartTime.Text != "" &&
-    txtDuration.Text != "" && txtMotherCoil.Text != "" && txtEndTime.Text != "" &&
-    txtHoldReason.Text != "")
-{
-    DialogResult result = MessageBox.Show("Are you sure you want to proceed with the transfer?", 
-                                          "Confirm Transfer", 
-                                          MessageBoxButtons.OKCancel, 
-                                          MessageBoxIcon.Question);
+CGD_TAS_POR1_TEN, 
+	CGD_TAS_POR2_TEN, 
+	CGD_TAS_EX_ACCTEN, 
+	CGD_RINS_TANK1_TMP, 
+	CGD_RINS_TANK2_TMP, 
+	CGD_PHF_ZON1_TMP, 
+	CGD_PHF_ZON2_TMP, 
+	CGD_PHF_ZON3_TMP, 
+	CGD_PHF_ZON4_TMP, 
+	CGD_RTF_ZON1_TMP, 
+	CGD_RTF_ZON2_TMP, 
+	CGD_RTF_ZON3_TMP, 
+	CGD_JCF_HEATER_ZON1_TMP, 
+	CGD_JCF_HEATER_ZON2_TMP, 
+	CGD_JCF_HEATER_ZON3_TMP, 
+    CGD_HF_STRIP_TMP,
+    CGD_RTF_ZON4_TMP, 
+	RECOILER_TEN_ACT, 
+	PROCESS_SPEED, 
+	POT_TEN_ACT, 
+	GL_POT_TEMP
 
-    if (result == DialogResult.OK)
-    {
-        // Proceed with the transfer
-        CallTransferToMES();
-    }
-}
-else
-{
-    MessageBox.Show("Mandatory Fields are blank. Please fill all textboxes in Yellow.");
-}
+INSERT INTO DBPROD.T_RM_GP2_PDO_INT@DB_L3L2_GP02_PRD1(
+        CGD_ID_COIL,
+        CGD_MK_CUSTOMER,
+        CGD_TS_START,
+        CGD_TS_END,
+        CGD_WORK_DUR,
+        CGD_ID_COIL_MTHR,
+        CGD_TDC_NO,
+        CGD_CD_GRADE,
+       CGD_SEC1_COIL,
+        CGD_WIDTH,
+        CGD_LN_COIL,
+        CGD_MS_ACTL,
+        CGD_MS_CAL,
+        CGD_CD_RSN_HOLD,
+        CGD_HOLD_REQ,
+        CGD_READ_FLAG,
+        REMARKS,
+        CGD_ID_MESSAGE,
+		CGD_TAS_EN_ACCTEN, 
+	CGD_TAS_POR1_TEN, 
+	CGD_TAS_POR2_TEN, 
+	CGD_TAS_EX_ACCTEN, 
+	CGD_RINS_TANK1_TMP, 
+	CGD_RINS_TANK2_TMP, 
+	CGD_PHF_ZON1_TMP, 
+	CGD_PHF_ZON2_TMP, 
+	CGD_PHF_ZON3_TMP, 
+	CGD_PHF_ZON4_TMP, 
+	CGD_RTF_ZON1_TMP, 
+	CGD_RTF_ZON2_TMP, 
+	CGD_RTF_ZON3_TMP, 
+	CGD_JCF_HEATER_ZON1_TMP, 
+	CGD_JCF_HEATER_ZON2_TMP, 
+	CGD_JCF_HEATER_ZON3_TMP, 
+    CGD_HF_STRIP_TMP,
+    CGD_RTF_ZON4_TMP, 
+	RECOILER_TEN_ACT, 
+	PROCESS_SPEED, 
+	POT_TEN_ACT, 
+	GL_POT_TEMP
+
+
+    )
+    SELECT
+        CGD_ID_COIL,          
+        CGD_MK_CUSTOMER,        
+        CGD_TS_START,          
+        CGD_TS_END,            
+        CGD_WORK_DUR,          
+        CGD_ID_COIL_MTHR,      
+        CGD_TDC_NO,            
+        CGD_CD_GRADE,          
+       CGD_ACT_THICKNESS,          
+        ACT_WIDTH,              
+        CGD_LN_COIL,            
+        CGD_MS_ACTL,            
+        CGD_MS_CAL,            
+        CGD_CD_RSN_HOLD,        
+        CGD_HOLD_REQ,          
+        'N',                    
+        REMARKS,  
+        id_message, -- Use the variable here
+		CGD_TAS_EN_ACCTEN, 
+	CGD_TAS_POR1_TEN, 
+	CGD_TAS_POR2_TEN, 
+	CGD_TAS_EX_ACCTEN, 
+	CGD_RINS_TANK1_TMP, 
+	CGD_RINS_TANK2_TMP, 
+	CGD_PHF_ZON1_TMP, 
+	CGD_PHF_ZON2_TMP, 
+	CGD_PHF_ZON3_TMP, 
+	CGD_PHF_ZON4_TMP, 
+	CGD_RTF_ZON1_TMP, 
+	CGD_RTF_ZON2_TMP, 
+	CGD_RTF_ZON3_TMP, 
+	CGD_JCF_HEATER_ZON1_TMP, 
+	CGD_JCF_HEATER_ZON2_TMP, 
+	CGD_JCF_HEATER_ZON3_TMP, 
+    CGD_HF_STRIP_TMP,
+    CGD_RTF_ZON4_TMP, 
+	RECOILER_TEN_ACT, 
+	PROCESS_SPEED, 
+	POT_TEN_ACT, 
+	GL_POT_TEMP
+
+
+
+    FROM
+        T_PDO_INFO
+    WHERE
+        CGD_ID_COIL = p_cgd_id_coil;
