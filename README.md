@@ -1,3 +1,5 @@
-SELECT CGP_ID_COIL, CGP_SEC1_COIL, CGP_SEC2_COIL ,CGP_LN_COIL, CGP_MS_COIL,
-CGP_CD_GRADE,CGP_TDC_NO,CGP_TOC FROM T_GP2_PDI WHERE CGP_TOC between TO_TIMESTAMP('04-May-25 12.51.28 PM', 'YYYY-MM-DD HH24:MI:SS') AND
-                  TO_TIMESTAMP('05-May-25 12.51.28 PM', 'YYYY-MM-DD HH24:MI:SS') order by CGP_TOC desc
+SELECT name AS LoginName,
+       is_expiration_checked AS IsPasswordExpirationEnforced,
+       is_expired AS IsPasswordExpired
+FROM sys.sql_logins
+WHERE name = 'YourLoginName';
