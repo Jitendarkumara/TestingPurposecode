@@ -1,42 +1,77 @@
-1. Customer Name Auto-Population:
-In manual PDO generation, the customer name was not being inserted automatically, so users had to input it manually during GR.
-Now, the code has been updated to insert the customer name with PDO data, so it automatically populates in the GR window without manual input.
+<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
 
-2. PDI and POD Report Updates:
-Modified both PDI and POD reports according to user requirements.
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageIcon>automated.png</PackageIcon>
+    <ApplicationIcon>Resources\automated.ico</ApplicationIcon>
+  </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="NewFolder\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
+    <None Remove="NewFolder\**" />
+  </ItemGroup>
 
-3. Confirmation Message Before GR:
-Added a confirmation message prompt before generating the GR.
+  <ItemGroup>
+    <Compile Remove="PDI_Module\Pdi.cs" />
+    <Compile Remove="PDI_Module\Pdi.Designer.cs" />
+    <Compile Remove="SetPoint_Module\CqGrade.cs" />
+    <Compile Remove="SetPoint_Module\CqGrade.Designer.cs" />
+  </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Remove="PDI_Module\Pdi.resx" />
+    <EmbeddedResource Remove="SetPoint_Module\CqGrade.resx" />
+  </ItemGroup>
 
-4. Date and Time in Level 2:
-Displayed the scheduled PDI's date and time in the Level 2 section.
+  <ItemGroup>
+    <Content Include="Resources\automated.ico" />
+  </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="iTextSharp" Version="5.5.13.4" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.6.0" />
+    <PackageReference Include="QRCoder" Version="1.6.0" />
+    <PackageReference Include="WinForms.DataVisualization" Version="1.9.2" />
+  </ItemGroup>
 
-5. Auto Calculation of PDO Duration:
-Automatically calculated the duration in minutes for the PDO based on the start and end times.
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 
-6. Print Sticker Popup Issue:
-Resolved the issue where the print sticker popup was displaying repeatedly.
+  <ItemGroup>
+    <None Update="Resources\automated.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Resources\automated.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
-
-7. PDO Coil ID Case Handling:
-Handled the scenario where users entered the coil ID in lowercase during PDO generation.
-The coil ID is now converted to uppercase before inserting into the database.
-
-
-8. Abnormal Tension Value Handling During GR:
-Resolved an error that occurred during GR when the tension value was abnormal.
-The database procedure was updated to set the tension value to 0 if it's less than 0.
-
-
-9. Manual GR Report Window:
-Added a new report window to display manual GR data, filtered by date.
-
-
-10. Input Coil ID Lock During PDO Generation:
-In some cases, users were changing the input coil ID (e.g., from K58562000 to k58562000).
-This issue is now handled by disabling the coil ID textbox (setting Enabled = false) after input.
+</Project>
