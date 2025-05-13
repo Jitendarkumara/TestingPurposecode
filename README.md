@@ -1,8 +1,2 @@
-private void dateTimePicker1_KeyUp(object sender, KeyEventArgs e)
-{
-    if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
-    {
-        // Move to the next field (hour -> minute -> AM/PM)
-        SendKeys.Send("{RIGHT}");
-    }
-}
+Severity	Code	Description	Project	File	Line	Suppression State
+Error		Couldn't process file GP-02.resx due to its being in the Internet or Restricted zone or having the mark of the web on the file. Remove the mark of the web if you want to process these files.	GP02Line			
