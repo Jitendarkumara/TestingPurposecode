@@ -1,2 +1,2 @@
- dgvPDO.RowHeadersWidth = 5;
- dgvPDO.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+dgvPDO.DataSource = yourDataTable;  // or your binding source
+dgvPDO.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
