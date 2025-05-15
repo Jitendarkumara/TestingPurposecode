@@ -1,2 +1,1 @@
-Severity	Code	Description	Project	File	Line	Suppression State
-Error		Couldn't process file GP-02.resx due to its being in the Internet or Restricted zone or having the mark of the web on the file. Remove the mark of the web if you want to process these files.	GP02Line			
+SELECT DISTINCT TC_COIL_NUMBER, TC_WIDTH, TC_ID_MESSAGE,to_char(TC_ID_MESSAGE,'DD-MON-YY HH.MI.SS AM') FROM T_COL_COT_PDI_L3 WHERE TRUNC(TO_TIMESTAMP(TC_ID_MESSAGE, 'YYYY-MM-DD-HH24.MI.SS.FF6')) > TRUNC(SYSDATE-60) ORDER BY TO_TIMESTAMP(TC_ID_MESSAGE, 'YYYY-MM-DD-HH24.MI.SS.FF6') DESC
