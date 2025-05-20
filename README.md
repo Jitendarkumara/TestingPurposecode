@@ -1,2 +1,17 @@
-dataGridView1.RowTemplate.Height = 50;
-dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+CREATE TABLE T_GI_HARD_CYCLE_NEW AS
+SELECT
+    NULL AS NEW_COLUMN,  -- Your new column
+    THK_FROM,
+    THK_TO,
+    UNQ_NO,
+    RTT_EXIT_TEMP,
+    SF_EXIT_TEMP,
+    JCF_EXIT_TEMP,
+    CZ_TEMP,
+    HRB_EXIT_TEMP,
+    SNOUT_TEMP,
+    BATH_TEMP,
+    STRIP_TEMP,
+    NOF_EXIT_TEMP,
+    TDC_NUMBER
+FROM T_GI_HARD_CYCLE;
