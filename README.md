@@ -1,4 +1,5 @@
-Kindly find the screenshots,
-Here I am adding the screenshot in which we are displaying RLNG data in level 2 applications also adding screenshots of MES applications.
+Kindly find the screenshots below.
 
-NOTE—In MES application RLNG data will reflect after New GR.
+I have included the screenshots where RLNG data is displayed in the Level 2 application, as well as screenshots from the MES application.
+
+Note: In the MES application, RLNG data will be reflected only after a new GR is created.
