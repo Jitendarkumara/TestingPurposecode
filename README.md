@@ -1,1 +1,1 @@
-Now all tag data are inserting to MES table only Below three columns has been sent to add in MES table it will appear after adding in MES table.
+Currently, all tag data is being inserted into the MES table. Only the three columns mentioned below are being added to the MES table, and they will appear after the insertion
