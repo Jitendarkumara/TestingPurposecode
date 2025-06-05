@@ -1,16 +1,1 @@
-SELECT  
-    TCIP_PRODUCT_COIL AS Coil_Id, 
-    TCIP_CIL_START_TIME AS Start_Time,
-    TCIP_CIL_END_TIME AS End_Time,
-    CASE 
-        WHEN pdo_MAND_FLAG = 'Y' THEN 'Mandal'
-        WHEN pdo_MAND_FLAG = 'N' AND ALKALINE_TANK_LEVEL1 IS NOT NULL THEN 'Recoiler'
-        WHEN ALKALINE_TANK_LEVEL1 IS NULL THEN 'menuall'
-        ELSE TO_CHAR(ALKALINE_TANK_LEVEL1)
-    END AS status
-FROM   
-    T_COL_COIL_INFO_PDO 
-WHERE  
-    TCIP_CIL_END_TIME > SYSDATE - 1
-ORDER BY   
-    TCIP_CIL_START_TIME DESC;
+SO no with line item and top/bottom color has been added in PDO section. Kindly check and let me know if any other change is require.
