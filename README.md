@@ -1,16 +1,12 @@
-SELECT  
-    TCIP_INPUT_COIL,
-    SUM(TCPI_MEASUR_COIL_WT) AS Sum_PDO_Weight,
-    SUM(TCPI_MEASUR_COIL_WT) * 1.10 AS Total_PDO_Weight_With_10pct,
-    (
-        (SELECT TC_WEIGHT 
-         FROM T_COL_COT_PDI_L3 
-         WHERE TC_COIL_NUMBER = 'K541211100')
-        - (SUM(TCPI_MEASUR_COIL_WT) * 1.10)
-    ) AS PDI_Minus_PDO_Weight
-FROM 
-    T_COL_COIL_INFO_PDO 
-WHERE 
-    TCIP_INPUT_COIL = 'K541211100' 
-GROUP BY  
-    TCIP_INPUT_COIL;
+IF P_START_TIME_VAR IS NULL THEN
+    -- If not found, use the existing logic to calculate P_START_TIME
+    SELECT MAX(DATE_TIME)
+    INTO P_START_TIME
+    FROM T_EVENT_LOG
+    WHERE ID_APP_TAG = 'UNC_1_SELECTED' OR ID_APP_TAG = 'UNC_2_SELECTED';
+    if  sysdate-P_START_TIME  >60 then  
+     P_START_TIME:=P_START_TIME_VAR;
+    
+    ELSE
+    P_START_TIME:=P_START_TIME_VAR;
+  END IF;
