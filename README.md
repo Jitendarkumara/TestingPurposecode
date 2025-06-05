@@ -1,1 +1,1 @@
-SO no with line item and top/bottom color has been added in PDO section. Kindly check and let me know if any other change is require.
+select sum(TCPI_MEASUR_COIL_WT) ,TCIP_INPUT_COIL from T_COL_COIL_INFO_PDO  group by TCIP_INPUT_COIL order by TCIP_CIL_START_TIME desc
