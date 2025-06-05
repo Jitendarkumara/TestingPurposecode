@@ -1,1 +1,5 @@
-Currently, all tag data is being inserted into the MES table. Only the three columns mentioned below are being added to the MES table, and they will appear after the insertion
+SELECT  TCIP_PRODUCT_COIL as Coil_Id, TCIP_CIL_START_TIME as Start_Time,
+ TCIP_CIL_END_TIME as End_Time,CASE WHEN pdo_MAND_FLAG = 'Y' THEN 'Mandal'    WHEN pdo_MAND_FLAG = 'N' AND ALKALINE_TANK_LEVEL1 IS NOT NULL THEN 'Recoiler' 
+         WHEN ALKALINE_TANK_LEVEL1 IS NULL THEN 'menuall'   ELSE TO_CHAR(ALKALINE_TANK_LEVEL1)  END AS status FROM   T_COL_COIL_INFO_PDO 
+         where TCIP_CIL_END_TIME >sydate-1
+                     ORDER BY   TCIP_CIL_START_TIME DESC
