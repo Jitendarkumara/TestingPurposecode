@@ -1,4 +1,4 @@
-if (DateTime.Now - DateTime.Parse(dateTimeEndTime.Text) >= TimeSpan.FromMinutes(60))
-{
-    // Your logic here
-}
+V_NET_WEIGHT := ((V_INPUT_THICKNESS * ( TCPI_PROD_COIL_WDT +4) * 7.85 *  TCPI_PROD_COIL_LENGTH_V)/1000000);
+
+
+V_DAUGHTER_COIL_WEIGHT :=V_NET_WEIGHT +((V_NET_WEIGHT *0.38)/1000);
