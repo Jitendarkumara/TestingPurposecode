@@ -1,41 +1,41 @@
-public int CheckTimeDuration(DateTime StartTime,DateTime EndTime)
+public int CheckTimeDuration(DateTime StartTime, DateTime EndTime)
 {
-
     Db.DatabaseConnect();
-    string s = " select TCIP_PRODUCT_COIL, TCIP_CIL_START_TIME ,TCIP_CIL_END_TIME from T_COL_COIL_INFO_PDO where TCIP_CIL_START_TIME between :StartTime " +
-        "and :EndTime or TCIP_CIL_END_TIME between :StartTime and :EndTime ";
 
-    // Create the OracleCommand
-    DataTable dt = new DataTable();
-    string coilId, Start_Time, End_Time;
-  
+    string query = @"
+        SELECT TCIP_PRODUCT_COIL, TCIP_CIL_START_TIME, TCIP_CIL_END_TIME 
+        FROM T_COL_COIL_INFO_PDO 
+        WHERE 
+            (TCIP_CIL_START_TIME BETWEEN :StartTime AND :EndTime)
+            OR 
+            (TCIP_CIL_END_TIME BETWEEN :StartTime AND :EndTime)
+            OR 
+            (:StartTime BETWEEN TCIP_CIL_START_TIME AND TCIP_CIL_END_TIME)
+            OR 
+            (:EndTime BETWEEN TCIP_CIL_START_TIME AND TCIP_CIL_END_TIME)
+    ";
 
-    using (OracleCommand cmd = new OracleCommand(s, Db.Con))
+    using (OracleCommand cmd = new OracleCommand(query, Db.Con))
     {
-        // Create and bind the parameter
         cmd.Parameters.Add(new OracleParameter("StartTime", StartTime));
         cmd.Parameters.Add(new OracleParameter("EndTime", EndTime));
-        // Execute the command
-        OracleDataAdapter da = new OracleDataAdapter();
-       
-        da.Fill(dt);
-         coilId = dt.Rows[0][0].ToString();
-      Start_Time = dt.Rows[0][1].ToString();
-   End_Time = dt.Rows[0][2].ToString();
-        
-            
 
-        
+        using (OracleDataAdapter da = new OracleDataAdapter(cmd))
+        {
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+
+            if (dt.Rows.Count > 0)
+            {
+                string coilId = dt.Rows[0]["TCIP_PRODUCT_COIL"].ToString();
+                string start_time = dt.Rows[0]["TCIP_CIL_START_TIME"].ToString();
+                string end_time = dt.Rows[0]["TCIP_CIL_END_TIME"].ToString();
+
+                MessageBox.Show($"{coilId} already exists between {start_time} and {end_time}");
+                return 1;
+            }
+        }
     }
-    if(dt.Rows.Count > 0)
-    {
-        MessageBox.Show(coilId + "Aready exist between" + Start_Time + "And" + End_Time);
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-  
+
+    return 0;
 }
-K541541212	10-JUN-25 11.04.11.000000000 AM	10-JUN-25 11.11.07.000000000 AM
