@@ -1,3 +1,1 @@
-SELECT length 
-FROM T_PERIODIC_VALUE_LOG
-WHERE DATE_TIME BETWEEN (P_START_TIME + INTERVAL '1' MINUTE) AND P_END_TIME;
+According to me ,some cases are being failed kindly discuss and close it.
