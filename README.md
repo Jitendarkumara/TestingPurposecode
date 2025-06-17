@@ -3,21 +3,13 @@ private void FillDelayGridShift(string selectedShift, DateTime selectedDate)
     string query;
     bool isAllShifts = selectedShift.Equals("All", StringComparison.OrdinalIgnoreCase);
 
-    if (isAllShifts)
+    if (isAllShifts || selectedShift == "C")
     {
         query = @"SELECT DELAY_ID, SHIFT, COIL_NUMBER, LINE_STOP_TIME, LINE_START_TIME,
                          DELAY_DURATION, REASON_CODE, OPERATOR_ID, REASON_DESCRIPTION, REMARKS, AGENCY_CODE, TOM
                   FROM T_DELAY_SHEET_TEM
                   WHERE LINE_START_TIME BETWEEN :StartDateTime AND :EndDateTime
-                  ORDER BY LINE_STOP_TIME";
-    }
-    else if (selectedShift == "C")
-    {
-        query = @"SELECT DELAY_ID, SHIFT, COIL_NUMBER, LINE_STOP_TIME, LINE_START_TIME,
-                         DELAY_DURATION, REASON_CODE, OPERATOR_ID, REASON_DESCRIPTION, REMARKS, AGENCY_CODE, TOM
-                  FROM T_DELAY_SHEET_TEM
-                  WHERE SHIFT = :Shift AND
-                        LINE_START_TIME BETWEEN :StartDateTime AND :EndDateTime
+                  " + (isAllShifts ? "" : " AND SHIFT = :Shift ") + @"
                   ORDER BY LINE_STOP_TIME";
     }
     else
@@ -25,8 +17,7 @@ private void FillDelayGridShift(string selectedShift, DateTime selectedDate)
         query = @"SELECT DELAY_ID, SHIFT, COIL_NUMBER, LINE_STOP_TIME, LINE_START_TIME,
                          DELAY_DURATION, REASON_CODE, OPERATOR_ID, REASON_DESCRIPTION, REMARKS, AGENCY_CODE, TOM
                   FROM T_DELAY_SHEET_TEM
-                  WHERE SHIFT = :Shift AND 
-                        TRUNC(LINE_START_TIME) = TRUNC(:SelectedDate)
+                  WHERE SHIFT = :Shift AND TRUNC(LINE_START_TIME) = TRUNC(:SelectedDate)
                   ORDER BY LINE_STOP_TIME";
     }
 
@@ -38,20 +29,20 @@ private void FillDelayGridShift(string selectedShift, DateTime selectedDate)
         {
             if (isAllShifts)
             {
-                DateTime startDateTime = selectedDate.Date.AddHours(6); // 06:00 of selected date
-                DateTime endDateTime = selectedDate.Date.AddDays(1).AddHours(6); // 06:00 of next day
+                DateTime start = selectedDate.Date.AddHours(6);
+                DateTime end = selectedDate.AddDays(1).Date.AddHours(6);
 
-                da.SelectCommand.Parameters.Add("StartDateTime", OracleDbType.Date).Value = startDateTime;
-                da.SelectCommand.Parameters.Add("EndDateTime", OracleDbType.Date).Value = endDateTime;
+                da.SelectCommand.Parameters.Add("StartDateTime", OracleDbType.Date).Value = start;
+                da.SelectCommand.Parameters.Add("EndDateTime", OracleDbType.Date).Value = end;
             }
             else if (selectedShift == "C")
             {
-                DateTime startDateTime = selectedDate.Date.AddHours(22); // 10:00 PM
-                DateTime endDateTime = selectedDate.Date.AddDays(1).AddHours(6); // 06:00 AM next day
+                DateTime start = selectedDate.Date.AddHours(22); // 10 PM same day
+                DateTime end = selectedDate.AddDays(1).Date.AddHours(6); // 6 AM next day
 
+                da.SelectCommand.Parameters.Add("StartDateTime", OracleDbType.Date).Value = start;
+                da.SelectCommand.Parameters.Add("EndDateTime", OracleDbType.Date).Value = end;
                 da.SelectCommand.Parameters.Add("Shift", OracleDbType.Varchar2).Value = selectedShift;
-                da.SelectCommand.Parameters.Add("StartDateTime", OracleDbType.Date).Value = startDateTime;
-                da.SelectCommand.Parameters.Add("EndDateTime", OracleDbType.Date).Value = endDateTime;
             }
             else
             {
@@ -66,7 +57,7 @@ private void FillDelayGridShift(string selectedShift, DateTime selectedDate)
     }
     catch (Exception ex)
     {
-        MessageBox.Show("An error occurred: " + ex.Message);
+        MessageBox.Show("Error: " + ex.Message);
     }
     finally
     {
