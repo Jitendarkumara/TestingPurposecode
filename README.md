@@ -8,8 +8,7 @@ private void FillDelayGridShift(string selectedShift, DateTime selectedDate)
         query = @"SELECT DELAY_ID, SHIFT, COIL_NUMBER, LINE_STOP_TIME, LINE_START_TIME,
                          DELAY_DURATION, REASON_CODE, OPERATOR_ID, REASON_DESCRIPTION, REMARKS, AGENCY_CODE, TOM
                   FROM T_DELAY_SHEET_TEM
-                  WHERE LINE_START_TIME BETWEEN TO_DATE(:StartDateTime, 'DD-MON-YY HH24:MI:SS') 
-                                           AND TO_DATE(:EndDateTime, 'DD-MON-YY HH24:MI:SS')
+                  WHERE LINE_START_TIME BETWEEN :StartDateTime AND :EndDateTime
                   ORDER BY LINE_STOP_TIME";
     }
     else if (selectedShift == "C")
@@ -18,8 +17,7 @@ private void FillDelayGridShift(string selectedShift, DateTime selectedDate)
                          DELAY_DURATION, REASON_CODE, OPERATOR_ID, REASON_DESCRIPTION, REMARKS, AGENCY_CODE, TOM
                   FROM T_DELAY_SHEET_TEM
                   WHERE SHIFT = :Shift AND
-                        LINE_START_TIME BETWEEN TO_DATE(:StartDateTime, 'DD-MON-YY HH24:MI:SS') 
-                                             AND TO_DATE(:EndDateTime, 'DD-MON-YY HH24:MI:SS')
+                        LINE_START_TIME BETWEEN :StartDateTime AND :EndDateTime
                   ORDER BY LINE_STOP_TIME";
     }
     else
@@ -28,7 +26,7 @@ private void FillDelayGridShift(string selectedShift, DateTime selectedDate)
                          DELAY_DURATION, REASON_CODE, OPERATOR_ID, REASON_DESCRIPTION, REMARKS, AGENCY_CODE, TOM
                   FROM T_DELAY_SHEET_TEM
                   WHERE SHIFT = :Shift AND 
-                        TRUNC(LINE_START_TIME) = TRUNC(TO_DATE(:SelectedDate, 'DD-MON-YY'))
+                        TRUNC(LINE_START_TIME) = TRUNC(:SelectedDate)
                   ORDER BY LINE_STOP_TIME";
     }
 
@@ -40,24 +38,25 @@ private void FillDelayGridShift(string selectedShift, DateTime selectedDate)
         {
             if (isAllShifts)
             {
-                string startDateTime = selectedDate.ToString("dd-MMM-yy", CultureInfo.InvariantCulture).ToUpper() + " 06:00:00";
-                string endDateTime = selectedDate.AddDays(1).ToString("dd-MMM-yy", CultureInfo.InvariantCulture).ToUpper() + " 06:00:00";
-                da.SelectCommand.Parameters.Add("StartDateTime", OracleDbType.Varchar2).Value = startDateTime;
-                da.SelectCommand.Parameters.Add("EndDateTime", OracleDbType.Varchar2).Value = endDateTime;
+                DateTime startDateTime = selectedDate.Date.AddHours(6); // 06:00 of selected date
+                DateTime endDateTime = selectedDate.Date.AddDays(1).AddHours(6); // 06:00 of next day
+
+                da.SelectCommand.Parameters.Add("StartDateTime", OracleDbType.Date).Value = startDateTime;
+                da.SelectCommand.Parameters.Add("EndDateTime", OracleDbType.Date).Value = endDateTime;
             }
             else if (selectedShift == "C")
             {
-                string startDateTime = selectedDate.ToString("dd-MMM-yy", CultureInfo.InvariantCulture).ToUpper() + " 22:00:00";
-                string endDateTime = selectedDate.AddDays(1).ToString("dd-MMM-yy", CultureInfo.InvariantCulture).ToUpper() + " 06:00:00";
+                DateTime startDateTime = selectedDate.Date.AddHours(22); // 10:00 PM
+                DateTime endDateTime = selectedDate.Date.AddDays(1).AddHours(6); // 06:00 AM next day
+
                 da.SelectCommand.Parameters.Add("Shift", OracleDbType.Varchar2).Value = selectedShift;
-                da.SelectCommand.Parameters.Add("StartDateTime", OracleDbType.Varchar2).Value = startDateTime;
-                da.SelectCommand.Parameters.Add("EndDateTime", OracleDbType.Varchar2).Value = endDateTime;
+                da.SelectCommand.Parameters.Add("StartDateTime", OracleDbType.Date).Value = startDateTime;
+                da.SelectCommand.Parameters.Add("EndDateTime", OracleDbType.Date).Value = endDateTime;
             }
             else
             {
-                string selectedDateStr = selectedDate.ToString("dd-MMM-yy", CultureInfo.InvariantCulture).ToUpper();
                 da.SelectCommand.Parameters.Add("Shift", OracleDbType.Varchar2).Value = selectedShift;
-                da.SelectCommand.Parameters.Add("SelectedDate", OracleDbType.Varchar2).Value = selectedDateStr;
+                da.SelectCommand.Parameters.Add("SelectedDate", OracleDbType.Date).Value = selectedDate.Date;
             }
 
             dtshift = new DataTable();
