@@ -1,10 +1,23 @@
-    private void UpdateRemainingDuration()
-    {
-        double totalDuration = double.TryParse(txtTotalduration.Text, out var result) ? result : 0;
-        double usedDuration = panel2.Controls.OfType<Panel>()
-            .Sum(panel => panel.Controls.OfType<TextBox>()
-                .Where(tb => tb.ReadOnly) // Target duration boxes
-                .Sum(tb => double.TryParse(tb.Text.Split(' ')[0], out var duration) ? duration : 0));
+private void UpdateRemainingDuration()
+{
+    double totalDuration = double.TryParse(txtTotalduration.Text, out var result) ? result : 0;
 
-        txtRemainingDuration.Text = (totalDuration - usedDuration).ToString("0");
+    double usedDuration = 0;
+
+    // Go through each inner Panel inside panel2
+    foreach (Panel subPanel in panel2.Controls.OfType<Panel>())
+    {
+        // Look for the TextBox with Name = "txtDuration"
+        TextBox durationBox = subPanel.Controls
+            .OfType<TextBox>()
+            .FirstOrDefault(tb => tb.Name == "txtDuration");
+
+        if (durationBox != null && double.TryParse(durationBox.Text, out double dur))
+        {
+            usedDuration += dur;
+        }
     }
+
+    double remaining = totalDuration - usedDuration;
+    txtRemainingDuration.Text = remaining.ToString("0");
+}
