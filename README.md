@@ -151,10 +151,4 @@ BEGIN
     END IF;
 
     COMMIT;
-
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error occurred at step: ' || H_STM_ID);
-        DBMS_OUTPUT.PUT_LINE('Error message: ' || SQLERRM);
-        COMMIT;
-END PDO_GENERATION;
+    END PDO_GENERATION;
