@@ -1,1 +1,4 @@
-Since this morning, I’ve been feeling uneasy. If I don’t feel better by the evening, I may need to go home in case of an emergency.
+Dear All ,
+
+As I am not well and was admitted in health center in tata steel khopoli due to heavy fever and weakness
+By latest train I am going to my Home .
