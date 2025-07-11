@@ -1,1 +1,1 @@
-Suddenly from morning I am feeling uneasy ,if I not feel well till evening it maybe I can go to home in emergency case.
+Since this morning, I’ve been feeling uneasy. If I don’t feel better by the evening, I may need to go home in case of an emergency.
