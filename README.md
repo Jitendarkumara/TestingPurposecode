@@ -1,4 +1,4 @@
-I am currently unwell and was admitted to the health center at Tata Steel, Khopoli, due to high fever and weakness.
-I will be traveling home by the next available train for further rest and recovery.
+As discussed on Thursday we have to complete GP2 task , so some changes are require to complete 
+The task , kindly call me to discuss and final it before 10 am so that I could complete it before the Time limit. 
 
-Thank you for your understanding.
+All point I will explain in call .
