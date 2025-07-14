@@ -1,1 +1,2 @@
-As discussed on Thursday, we need to complete the GP2 task. Some changes are required to complete it. Kindly call me to discuss and finalize the details before 10 AM, so that I can complete it within the time limit. I will explain all the points during the call.
+SELECT P.CGD_ID_COIL, P.CGD_ID_COIL_MTHR, P.CGD_SEC1_COIL,P.CGD_WIDTH,P.CGD_MS_ACTL, P.L3_READ_FLAG,M.CGD_TRANSFER_REMARKS FROM T_PDO_INFO P left join DBPROD.T_RM_GP2_PDO_INT@DB_L3L2_GP02_PRD1 M on P.CGD_ID_COIL=M.CGD_ID_COIL
+ WHERE CGD_TS_END>= '13-Jul-25 02.06.43.000000000 PM'
