@@ -1,4 +1,1 @@
-As discussed on Thursday we have to complete GP2 task , so some changes are require to complete 
-The task , kindly call me to discuss and final it before 10 am so that I could complete it before the Time limit. 
-
-All point I will explain in call .
+As discussed on Thursday, we need to complete the GP2 task. Some changes are required to complete it. Kindly call me to discuss and finalize the details before 10 AM, so that I can complete it within the time limit. I will explain all the points during the call.
