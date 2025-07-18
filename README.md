@@ -1,2 +1,1 @@
-Discussed points data is showing in level 2 as mentioned in mail,
-Kindly check and confirm .
+> The data for the discussed points is appearing under Level 2, as mentioned in the email. Kindly check and confirm.
