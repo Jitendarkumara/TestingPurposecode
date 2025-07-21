@@ -1,22 +1,62 @@
-Subject: Request for Remote Connection Access
+        public (WriteValueCollection,StatusCodeCollection) WriteNodes(ISession session,string[] idPlcs,object[] values)
+        {
+            StatusCodeCollection results = null;
+            //Write the configured nodes
+            WriteValueCollection nodesToWrite = new WriteValueCollection();
 
-Dear Sir,
+            if (session == null || session.Connected == false)
+            {
+                Trace.WriteLine("Session not connected!");
+                return (nodesToWrite,results);
+            }
 
-My PC details are as follows:
-Asset ID: TDK1900566
-IP Address: 132.145.32.64
+            try
+            {
+               
+                // Int32 Node - Objects\CTT\Scalar\Scalar_Static\Int32
+                for (int i = 0; i < idPlcs.Count(); i++)
+                {
+                    try
+                    {
+                        var rv = session.ReadValue(new NodeId(idPlcs[i]));
+                        WriteValue intWriteVal = new WriteValue();
+                        intWriteVal.NodeId = new NodeId(idPlcs[i]);
+                        intWriteVal.AttributeId = Attributes.Value;
+                        intWriteVal.Value = new DataValue();
+                        intWriteVal.Value.Value = ChangeType(values[i], rv.WrappedValue.TypeInfo);// Convert.ChangeType(values[i],TypeCode.Double .GetType(rv.WrappedValue.TypeInfo.ToString()));
+                        nodesToWrite.Add(intWriteVal);
+                    }
+                    catch (Exception EX1)
+                    {
 
-I need to connect remotely to the following systems:
+                       Trace.WriteLine($"Writing Error idplc : {idPlcs[i]} value : {values[i]} | {EX1.Message}");
+                    }
+                    
+                }
 
-1. WIN-KF9ADSK29HU – IP: 10.112.6.80
+                // Write the node attributes
+                
+                DiagnosticInfoCollection diagnosticInfos;
+                // Call Write Service
+                session.Write(null,
+                                nodesToWrite,
+                                out results,
+                                out diagnosticInfos);
+
+                // Validate the response
+                m_validateResponse(results, nodesToWrite);
 
 
-2. WIN-RQOMARKTND7 – IP: 132.145.5.43
-
-
-
-Kindly assist me in establishing a remote connection to these systems from my PC.
-
-Regards,
-Jitendar Kumar
-Contact: 8789226053
+                foreach (StatusCode writeResult in results)
+                {
+                    Trace.WriteLine($" writeResult : {writeResult}");
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log Error
+                Trace.WriteLine($" Write Nodes Error : {ex.Message}.");
+            }
+            return (nodesToWrite, results);
+        }
