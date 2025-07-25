@@ -60,3 +60,18 @@
             }
             return (nodesToWrite, results);
         }
+Opc.Ua.ServiceResultException
+  HResult=0x80131500
+  Message=BadSessionIdInvalid
+  Source=Opc.Ua.Core
+  StackTrace:
+   at Opc.Ua.ClientBase.ValidateResponse(ResponseHeader header)
+   at Opc.Ua.SessionClient.Read(RequestHeader requestHeader, Double maxAge, TimestampsToReturn timestampsToReturn, ReadValueIdCollection nodesToRead, DataValueCollection& results, DiagnosticInfoCollection& diagnosticInfos)
+   at Opc.Ua.SessionClientBatched.Read(RequestHeader requestHeader, Double maxAge, TimestampsToReturn timestampsToReturn, ReadValueIdCollection nodesToRead, DataValueCollection& results, DiagnosticInfoCollection& diagnosticInfos)
+   at Opc.Ua.Client.Session.ReadValue(NodeId nodeId)
+   at Opc.Ua.Client.TraceableSession.ReadValue(NodeId nodeId)
+   at OPCUAClientLib.ClientUtils.WriteNodes(ISession session, String[] idPlcs, Object[] values) in C:\Users\Administrator\Desktop\GP1_Application\TataOPCUANet\TataOPCUANet\OPCUAClientNetLib\ClientUtil.cs:line 247
+
+  This exception was originally thrown at this call stack:
+    [External Code]
+    OPCUAClientLib.ClientUtils.WriteNodes(Opc.Ua.Client.ISession, string[], object[]) in ClientUtil.cs
