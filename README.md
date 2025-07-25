@@ -1,77 +1,68 @@
-        public (WriteValueCollection,StatusCodeCollection) WriteNodes(ISession session,string[] idPlcs,object[] values)
+public (WriteValueCollection, StatusCodeCollection) WriteNodes(ISession session, string[] idPlcs, object[] values)
+{
+    StatusCodeCollection results = null;
+    WriteValueCollection nodesToWrite = new WriteValueCollection();
+
+    if (session == null || !session.Connected)
+    {
+        Trace.WriteLine("WriteNodes Error: OPC UA session is not connected or is null.");
+        return (nodesToWrite, results);
+    }
+
+    try
+    {
+        for (int i = 0; i < idPlcs.Length; i++)
         {
-            StatusCodeCollection results = null;
-            //Write the configured nodes
-            WriteValueCollection nodesToWrite = new WriteValueCollection();
-
-            if (session == null || session.Connected == false)
-            {
-                Trace.WriteLine("Session not connected!");
-                return (nodesToWrite,results);
-            }
-
             try
             {
-               
-                // Int32 Node - Objects\CTT\Scalar\Scalar_Static\Int32
-                for (int i = 0; i < idPlcs.Count(); i++)
+                NodeId nodeId = new NodeId(idPlcs[i]);
+
+                // Ensure the node exists and get its TypeInfo
+                var readValue = session.ReadValue(nodeId);
+
+                WriteValue writeValue = new WriteValue
                 {
-                    try
+                    NodeId = nodeId,
+                    AttributeId = Attributes.Value,
+                    Value = new DataValue
                     {
-                        var rv = session.ReadValue(new NodeId(idPlcs[i]));
-                        WriteValue intWriteVal = new WriteValue();
-                        intWriteVal.NodeId = new NodeId(idPlcs[i]);
-                        intWriteVal.AttributeId = Attributes.Value;
-                        intWriteVal.Value = new DataValue();
-                        intWriteVal.Value.Value = ChangeType(values[i], rv.WrappedValue.TypeInfo);// Convert.ChangeType(values[i],TypeCode.Double .GetType(rv.WrappedValue.TypeInfo.ToString()));
-                        nodesToWrite.Add(intWriteVal);
+                        Value = ChangeType(values[i], readValue.WrappedValue.TypeInfo)
                     }
-                    catch (Exception EX1)
-                    {
+                };
 
-                       Trace.WriteLine($"Writing Error idplc : {idPlcs[i]} value : {values[i]} | {EX1.Message}");
-                    }
-                    
-                }
-
-                // Write the node attributes
-                
-                DiagnosticInfoCollection diagnosticInfos;
-                // Call Write Service
-                session.Write(null,
-                                nodesToWrite,
-                                out results,
-                                out diagnosticInfos);
-
-                // Validate the response
-                m_validateResponse(results, nodesToWrite);
-
-
-                foreach (StatusCode writeResult in results)
-                {
-                    Trace.WriteLine($" writeResult : {writeResult}");
-                    
-                }
+                nodesToWrite.Add(writeValue);
             }
-            catch (Exception ex)
+            catch (Exception exInner)
             {
-                // Log Error
-                Trace.WriteLine($" Write Nodes Error : {ex.Message}.");
+                Trace.WriteLine($"[WriteNodes] Skipping node {idPlcs[i]} due to error: {exInner.Message}");
             }
+        }
+
+        if (nodesToWrite.Count == 0)
+        {
+            Trace.WriteLine("[WriteNodes] No valid nodes to write.");
             return (nodesToWrite, results);
         }
-Opc.Ua.ServiceResultException
-  HResult=0x80131500
-  Message=BadSessionIdInvalid
-  Source=Opc.Ua.Core
-  StackTrace:
-   at Opc.Ua.ClientBase.ValidateResponse(ResponseHeader header)
-   at Opc.Ua.SessionClient.Read(RequestHeader requestHeader, Double maxAge, TimestampsToReturn timestampsToReturn, ReadValueIdCollection nodesToRead, DataValueCollection& results, DiagnosticInfoCollection& diagnosticInfos)
-   at Opc.Ua.SessionClientBatched.Read(RequestHeader requestHeader, Double maxAge, TimestampsToReturn timestampsToReturn, ReadValueIdCollection nodesToRead, DataValueCollection& results, DiagnosticInfoCollection& diagnosticInfos)
-   at Opc.Ua.Client.Session.ReadValue(NodeId nodeId)
-   at Opc.Ua.Client.TraceableSession.ReadValue(NodeId nodeId)
-   at OPCUAClientLib.ClientUtils.WriteNodes(ISession session, String[] idPlcs, Object[] values) in C:\Users\Administrator\Desktop\GP1_Application\TataOPCUANet\TataOPCUANet\OPCUAClientNetLib\ClientUtil.cs:line 247
 
-  This exception was originally thrown at this call stack:
-    [External Code]
-    OPCUAClientLib.ClientUtils.WriteNodes(Opc.Ua.Client.ISession, string[], object[]) in ClientUtil.cs
+        // Call Write Service
+        session.Write(null, nodesToWrite, out results, out DiagnosticInfoCollection diagnosticInfos);
+
+        // Validate the response
+        m_validateResponse(results, nodesToWrite);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Trace.WriteLine($"[WriteNodes] Node: {idPlcs[i]} - Write Result: {results[i]}");
+        }
+    }
+    catch (ServiceResultException srex)
+    {
+        Trace.WriteLine($"[WriteNodes] ServiceResultException: {srex.Message}");
+    }
+    catch (Exception ex)
+    {
+        Trace.WriteLine($"[WriteNodes] General Exception: {ex.Message}");
+    }
+
+    return (nodesToWrite, results);
+}
