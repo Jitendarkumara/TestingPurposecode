@@ -17,16 +17,13 @@ public (WriteValueCollection, StatusCodeCollection) WriteNodes(ISession session,
             {
                 NodeId nodeId = new NodeId(idPlcs[i]);
 
-                // Ensure the node exists and get its TypeInfo
-                var readValue = session.ReadValue(nodeId);
-
                 WriteValue writeValue = new WriteValue
                 {
                     NodeId = nodeId,
                     AttributeId = Attributes.Value,
                     Value = new DataValue
                     {
-                        Value = ChangeType(values[i], readValue.WrappedValue.TypeInfo)
+                        Value = values[i]
                     }
                 };
 
@@ -47,7 +44,6 @@ public (WriteValueCollection, StatusCodeCollection) WriteNodes(ISession session,
         // Call Write Service
         session.Write(null, nodesToWrite, out results, out DiagnosticInfoCollection diagnosticInfos);
 
-        // Validate the response
         m_validateResponse(results, nodesToWrite);
 
         for (int i = 0; i < results.Count; i++)
