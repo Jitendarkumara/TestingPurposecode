@@ -1,64 +1,31 @@
-public (WriteValueCollection, StatusCodeCollection) WriteNodes(ISession session, string[] idPlcs, object[] values)
+public List<Tuple<DateTime, DateTime>> GetDaughterCoilTimestamps(string coil_id)
 {
-    StatusCodeCollection results = null;
-    WriteValueCollection nodesToWrite = new WriteValueCollection();
+    var events = DBConnectivity.GetDataTable($@"
+        SELECT DATE_TIME, ID_APP_TAG 
+        FROM T_EVENT_LOG 
+        WHERE ID_APP_TAG IN ('L1_COIL_START', 'EXIT_SHEAR') 
+        AND VALUE = 1 AND COIL_ID = '{coil_id}'
+        ORDER BY DATE_TIME");
 
-    if (session == null || !session.Connected)
+    List<Tuple<DateTime, DateTime>> daughterTimestamps = new();
+    DateTime startTime = DateTime.MinValue;
+
+    foreach (DataRow row in events.Rows)
     {
-        Trace.WriteLine("WriteNodes Error: OPC UA session is not connected or is null.");
-        return (nodesToWrite, results);
-    }
+        string tag = row["ID_APP_TAG"].ToString();
+        DateTime time = Convert.ToDateTime(row["DATE_TIME"]);
 
-    try
-    {
-        for (int i = 0; i < idPlcs.Length; i++)
+        if (tag == "L1_COIL_START")
         {
-            try
-            {
-                NodeId nodeId = new NodeId(idPlcs[i]);
-
-                WriteValue writeValue = new WriteValue
-                {
-                    NodeId = nodeId,
-                    AttributeId = Attributes.Value,
-                    Value = new DataValue
-                    {
-                        Value = values[i]
-                    }
-                };
-
-                nodesToWrite.Add(writeValue);
-            }
-            catch (Exception exInner)
-            {
-                Trace.WriteLine($"[WriteNodes] Skipping node {idPlcs[i]} due to error: {exInner.Message}");
-            }
+            startTime = time; // First mother coil start
         }
-
-        if (nodesToWrite.Count == 0)
+        else if (tag == "EXIT_SHEAR" && startTime != DateTime.MinValue)
         {
-            Trace.WriteLine("[WriteNodes] No valid nodes to write.");
-            return (nodesToWrite, results);
-        }
-
-        // Call Write Service
-        session.Write(null, nodesToWrite, out results, out DiagnosticInfoCollection diagnosticInfos);
-
-        m_validateResponse(results, nodesToWrite);
-
-        for (int i = 0; i < results.Count; i++)
-        {
-            Trace.WriteLine($"[WriteNodes] Node: {idPlcs[i]} - Write Result: {results[i]}");
+            // Create a daughter coil time window
+            daughterTimestamps.Add(new Tuple<DateTime, DateTime>(startTime, time));
+            startTime = time; // Next daughter coil starts right after this
         }
     }
-    catch (ServiceResultException srex)
-    {
-        Trace.WriteLine($"[WriteNodes] ServiceResultException: {srex.Message}");
-    }
-    catch (Exception ex)
-    {
-        Trace.WriteLine($"[WriteNodes] General Exception: {ex.Message}");
-    }
 
-    return (nodesToWrite, results);
+    return daughterTimestamps;
 }
