@@ -1,2 +1,2 @@
-We have implemented it in CCL and verified it. I tried to contact you, but did not receive the tolerance data from your side.
-Please provide the tolerance in weight so that we can avoid this kind of issue in the future.
+as per operation Team 10% tolrance has been implemented in weight kindly check 
+and let me know if you get any issue
