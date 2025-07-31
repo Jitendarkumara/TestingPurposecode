@@ -1,2 +1,1 @@
-as per operation Team 10% tolrance has been implemented in weight kindly check 
-and let me know if you get any issue
+As per the Operations team, a 10% tolerance has been implemented in the weight. Kindly check and let me know if you encounter any issues
