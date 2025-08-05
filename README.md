@@ -46,3 +46,54 @@ EXCEPTION
      COMMIT;
      COMMIT;
 END P_PROCESS_DATA_INSERT;
+-------C# code-----
+   public bool PDOgeneration(string Coil_id, string Min_RUNID, string Max_RUNID)
+   {
+       bool IssucessPDO;
+       bool IsScuessData;
+       try
+       {
+           using (OracleConnection oc = new OracleConnection())
+           {
+               //App.config Data Source
+               oc.ConnectionString = Constr.ConnectionString;// "User ID=bindb; Password=bindb; Data Source=MyDataSource;";
+
+               oc.Open();
+
+               using (OracleCommand cmd = new OracleCommand("P_PROCESS_DATA_INSERT", oc))
+               {
+                   cmd.Parameters.Add("P_COIL_ID", OracleDbType.Varchar2).Value = Coil_id;
+                   cmd.Parameters.Add("MIN_RUNID", OracleDbType.Varchar2).Value = Min_RUNID;
+                   cmd.Parameters.Add("MAX_RUNID", OracleDbType.Varchar2).Value = Max_RUNID;
+                   OracleParameter outParams = new OracleParameter("ISSUCESS", OracleDbType.Varchar2, 10);
+                   outParams.Direction = ParameterDirection.Output;
+                   cmd.CommandType = CommandType.StoredProcedure;
+                   cmd.CommandType = CommandType.StoredProcedure;
+                   cmd.Parameters.Add(outParams);
+                   cmd.ExecuteNonQuery();
+                   string sucess = outParams.Value.ToString();
+                   if (sucess.ToUpper() == "S")
+                   {
+                       IsScuessData = true;
+                       LogWriter.WriteLine("Process data Inserted");
+
+                   }
+                   else
+                   {
+                       IsScuessData = false;
+                       LogWriter.WriteLine("Failed to enter Process Data");
+                   }
+
+
+               }
+           }
+           return IsScuessData;
+       }
+       catch (Exception ex)
+       {
+           LogWriter.WriteLine(ex.ToString());
+           return false;
+
+       }
+   }
+      
