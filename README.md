@@ -1,11 +1,12 @@
 DECLARE
-  V_SUCCESS VARCHAR2(10);
+    V_SUCCESS VARCHAR2(20);
 BEGIN
-  P_PROCESS_DATA_INSERT(
-    P_I_COIL_ID    => 'YourCoilIdHere',
-    P_I_MIN_RUNID  => '20250805124426',
-    P_I_MAX_RUNID  => '20250805124456',
-    P_O_SUCCESS    => V_SUCCESS
-  );
-  DBMS_OUTPUT.PUT_LINE('Success = ' || V_SUCCESS);
+    P_PROCESS_DATA_INSERT(
+        'KP203',                   -- P_COIL_ID
+        '20250805124426',          -- MIN_RUNID
+        '20250805124456',          -- MAX_RUNID
+        V_SUCCESS                  -- ISUCCESS OUT
+    );
+
+    DBMS_OUTPUT.PUT_LINE('Success = ' || V_SUCCESS);
 END;
