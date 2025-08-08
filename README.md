@@ -1,1 +1,1 @@
-It is found that in the mention data width of coil is 600 mm but we don't have master data for 600 so eighter provide master data for 600 or send minimum 700 mm width. 
+It has been found that the mentioned coil width is 600 mm, but we do not have master data for 600 mm. Therefore, either provide the master data for 600 mm or send coils with a minimum width of 700 mm
