@@ -1,1 +1,1 @@
-It has been found that the mentioned coil width is 600 mm, but we do not have master data for 600 mm. Therefore, either provide the master data for 600 mm or send coils with a minimum width of 700 mm
+select *  FROM T_PERIODIC_VALUE_LOG order by date_time desc fetch first 1 row only 
