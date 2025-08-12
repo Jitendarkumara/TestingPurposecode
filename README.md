@@ -1,1 +1,6 @@
-select *  FROM T_PERIODIC_VALUE_LOG order by date_time desc fetch first 1 row only 
+SELECT *
+FROM T_PERIODIC_VALUE_LOG
+WHERE date_time = (
+    SELECT MAX(date_time)
+    FROM T_PERIODIC_VALUE_LOG
+);
