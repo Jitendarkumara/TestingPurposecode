@@ -1,51 +1,9 @@
-string connectionString = Db.ConnectionString; // Use your database connection string
-
-using (OracleConnection connection = new OracleConnection(connectionString))
+DateTime startDate = dateTimePickerFromDt.Value;
+DateTime endDate = dateTimePickerToDt.Value;
+        
+// Check if the end date is greater than or equal to the start date
+if (startDate > endDate)
 {
-    try
-    {
-        connection.Open();
-
-        string query = @"
-            SELECT CGD_ID_COIL,
-                   CGD_MK_CUSTOMER,
-                   CGD_TS_START,
-                   CGD_TS_END,
-                   CGD_WORK_DUR,
-                   CGD_ID_COIL_MTHR,
-                   CGD_TDC_NO,
-                   CGD_CD_GRADE,
-                   CGD_CD_QLTY,
-                   CGD_IDIA,
-                   CGD_ODIA,
-                   CGD_MS_ACTL,
-                   CGD_MS_CAL
-            FROM T_PDO_INFO
-            WHERE CGD_ID_COIL_MTHR = :CoilID";
-
-        using (OracleCommand command = new OracleCommand(query, connection))
-        {
-            command.Parameters.Add(new OracleParameter("CoilID", CoilID));
-
-            using (OracleDataAdapter da = new OracleDataAdapter(command))
-            {
-                DataTable DtPDO = new DataTable();
-                da.Fill(DtPDO);
-
-                dataGridView.DataSource = DtPDO;
-
-                // Adjust header and column settings
-                dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-                dataGridView.AllowUserToResizeColumns = true;
-
-                // Refresh to apply changes
-                dataGridView.Refresh();
-            }
-        }
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show($"Error loading data: {ex.Message}");
-    }
+    MessageBox.Show("End date cannot be earlier than start date.");
+    return;
 }
