@@ -1,17 +1,13 @@
-1.How has this team gone above and beyond their normal job duties, thus leading to cost effectiveness?
-
-Ans :
-
-2.How is/was this team effective in accomplishing its goal(s)?
-
-Ans:
-
-3.Were there any unique innovations incorporated into the project/assignment?
-
-Ans:
-
-4.In what ways is team's customer service exemplary?
-
-Ans:
-
-5.Provide any other information that demonstrates this team’s exceptional qualities.
+ private void Delay_Timer_Tick(object sender, EventArgs e)
+ {
+     Db.DatabaseConnect();
+     string s = "SELECT L3_READ_FLAG,AGENCY_CODE,LINE_STOP_TIME,REMARKS FROM T_DELAY_SHEET_TEM  where REMARKS != 'R' and LINE_STOP_TIME> sysdate-7  order by LINE_STOP_TIME desc";
+     OracleDataAdapter da = new OracleDataAdapter(s, Db.Con);
+     DataTable dtDelay = new DataTable();
+     da.Fill(dtDelay);
+     Db.ConClose();
+     if(dtDelay.Rows.Count>0)
+     {
+         MessageBox.Show("Kinldy Send delay data to MES");
+     }
+ }
