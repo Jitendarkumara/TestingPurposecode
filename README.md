@@ -1,85 +1,17 @@
-using System;
-using System.Data;
-using System.Windows.Forms;
-using Oracle.ManagedDataAccess.Client; // ODP.NET Managed Driver
+1.How has this team gone above and beyond their normal job duties, thus leading to cost effectiveness?
 
-public partial class YourForm : Form
-{
-    public YourForm()
-    {
-        InitializeComponent();
+Ans :
 
-        // Force DateTimePickers to only show date
-        dateTimePickerFromDt.Format = DateTimePickerFormat.Short;
-        dateTimePickerToDt.Format = DateTimePickerFormat.Short;
-    }
+2.How is/was this team effective in accomplishing its goal(s)?
 
-    private void btnLoadData_Click(object sender, EventArgs e)
-    {
-        DateTime startDate = dateTimePickerFromDt.Value.Date;
-        DateTime endDate = dateTimePickerToDt.Value.Date;
+Ans:
 
-        // Compare only the date part
-        if (startDate > endDate)
-        {
-            MessageBox.Show("End date cannot be earlier than start date.");
-            return;
-        }
+3.Were there any unique innovations incorporated into the project/assignment?
 
-        string connectionString = Db.ConnectionString; // Your database connection string
+Ans:
 
-        using (OracleConnection connection = new OracleConnection(connectionString))
-        {
-            try
-            {
-                connection.Open();
+4.In what ways is team's customer service exemplary?
 
-                string query = @"
-                    SELECT CGD_ID_COIL,
-                           CGD_MK_CUSTOMER,
-                           CGD_TS_START,
-                           CGD_TS_END,
-                           CGD_WORK_DUR,
-                           CGD_ID_COIL_MTHR,
-                           CGD_TDC_NO,
-                           CGD_CD_GRADE,
-                           CGD_CD_QLTY,
-                           CGD_IDIA,
-                           CGD_ODIA,
-                           CGD_MS_ACTL,
-                           CGD_MS_CAL
-                    FROM T_PDO_INFO
-                    WHERE CGD_ID_COIL_MTHR = :CoilID
-                      AND TRUNC(CGD_TS_START) BETWEEN :StartDate AND :EndDate";
+Ans:
 
-                using (OracleCommand command = new OracleCommand(query, connection))
-                {
-                    // Parameters
-                    command.Parameters.Add(new OracleParameter("CoilID", CoilID));
-                    command.Parameters.Add(new OracleParameter("StartDate", startDate));
-                    command.Parameters.Add(new OracleParameter("EndDate", endDate));
-
-                    using (OracleDataAdapter da = new OracleDataAdapter(command))
-                    {
-                        DataTable DtPDO = new DataTable();
-                        da.Fill(DtPDO);
-
-                        dataGridView.DataSource = DtPDO;
-
-                        // Adjust header and column settings
-                        dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                        dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-                        dataGridView.AllowUserToResizeColumns = true;
-
-                        // Refresh to apply changes
-                        dataGridView.Refresh();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading data: {ex.Message}");
-            }
-        }
-    }
-}
+5.Provide any other information that demonstrates this team’s exceptional qualities.
