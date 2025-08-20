@@ -1,2 +1,2 @@
-Dear mam,
-I would like to inform you that I will be on leave from 22nd September to 1st October 2025. Please let me know if you need any further details
+GP02KL2
+Warning(1,1): PLW-05018: unit TRANSFER_TO_MES_DELAY omitted optional AUTHID clause; default value DEFINER used
