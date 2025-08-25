@@ -2,30 +2,34 @@ public void millStartStop()
 {
     if (Global.MillRunningSts)
     {
-        // Attach once only
-        SpinTimer.Tick -= TimerEventProcessor;
-        SpinTimer.Tick += TimerEventProcessor;
+        // Start only if not already running
+        if (!SpinTimer.Enabled)
+        {
+            SpinTimer.Interval = 1;
+            SpinTimer.Start();
+        }
 
-        SpinTimer.Interval = 1;
-        SpinTimer.Enabled = true;
-        SpinTimer.Start();
+        if (!timer1.Enabled)
+        {
+            timer1.Start();
+        }
 
-        timer1.Start();
-
-        RecoilTimer.Elapsed -= RecoilerTick;
-        RecoilTimer.Elapsed += RecoilerTick;
-        RecoilTimer.AutoReset = true;
-        RecoilTimer.Enabled = true;
+        if (!RecoilTimer.Enabled)
+        {
+            RecoilTimer.AutoReset = true;
+            RecoilTimer.Start();
+        }
     }
     else
     {
-        SpinTimer.Stop();
-        timer1.Stop();
+        // Stop only if running
+        if (SpinTimer.Enabled)
+            SpinTimer.Stop();
 
-        // Detach handlers when stopping
-        SpinTimer.Tick -= TimerEventProcessor;
+        if (timer1.Enabled)
+            timer1.Stop();
 
-        RecoilTimer.Elapsed -= RecoilerTick;
-        RecoilTimer.Stop();
+        if (RecoilTimer.Enabled)
+            RecoilTimer.Stop();
     }
 }
