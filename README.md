@@ -1,204 +1,108 @@
- public void FetchAllTextValues()
- {
-     try
-     {
-         Db.DatabaseConnect();
-         //string s = "SELECT CHEM_DRYER_TEMP_ACT, FIN_OVN_TEMP_Z1_ACT, FIN_OVN_TEMP_Z2_ACT, FIN_OVN_TEMP_Z3_ACT, FIN_OVN_TEMP_Z4_ACT," +
-         //           " PRIME_OVN_TEMP_Z1_ACT, PRIME_OVN_TEMP_Z2_ACT, PRIME_OVN_TEMP_Z3_ACT, TLL_TENSION_ACT, BRUSH_TANK_TEMP," +
-         //           " BRUSH_TANK_CONDUCTIVITY, ALKALI_TANK_WATER_LVL, HOT_AIR_DRY_1_TEMP_SCL, HOT_AIR_DRY_2_TEMP_SCL, HOT_AIR_DRY_3_TEMP_SCL " +
-         //           " FROM t_periodic_value_log WHERE DATE_TIME = (SELECT MAX(DATE_TIME) FROM T_PERIODIC_VALUE_LOG)";
-         string s = "SELECT ENTRY_ACCUMULATOR_POS_PERCENT,PROCESS_LINE_SPEED_ACT, CHEM_DRYER_TEMP_ACT, FIN_OVN_TEMP_Z1_ACT, FIN_OVN_TEMP_Z2_ACT, FIN_OVN_TEMP_Z3_ACT, FIN_OVN_TEMP_Z4_ACT," +
-                    " PRIME_OVN_TEMP_Z1_ACT, PRIME_OVN_TEMP_Z2_ACT, PRIME_OVN_TEMP_Z3_ACT, TLL_TENSION_ACT, BRUSH_TANK_TEMP," +
-                    " BRUSH_TANK_CONDUCTIVITY, ALKALI_TANK_WATER_LVL, HOT_AIR_DRY_1_TEMP_SCL, HOT_AIR_DRY_2_TEMP_SCL, HOT_AIR_DRY_3_TEMP_SCL " +
-                    " FROM  V_LATEST_PERIODIC_VALUE";
-         OracleDataAdapter da = new OracleDataAdapter(s, Db.Con);
-         DataTable dtTrack = new DataTable();
-         da.Fill(dtTrack);
-         Db.ConClose();
-
-         if (dtTrack.Rows.Count > 0)
-         {
-             // Assign values to textboxes
-             textBoxChemDryTemp.Text = dtTrack.Rows[0]["CHEM_DRYER_TEMP_ACT"].ToString();
-             textBoxFOZ1.Text = dtTrack.Rows[0]["FIN_OVN_TEMP_Z1_ACT"].ToString();
-             textBoxFOZ2.Text = dtTrack.Rows[0]["FIN_OVN_TEMP_Z2_ACT"].ToString();
-             textBoxFOZ3.Text = dtTrack.Rows[0]["FIN_OVN_TEMP_Z3_ACT"].ToString();
-             textBoxFOZ4.Text = dtTrack.Rows[0]["FIN_OVN_TEMP_Z4_ACT"].ToString();
-             textBoxPOZ1.Text = dtTrack.Rows[0]["PRIME_OVN_TEMP_Z1_ACT"].ToString();
-             textBoxPOZ2.Text = dtTrack.Rows[0]["PRIME_OVN_TEMP_Z2_ACT"].ToString();
-             textBoxPOZ3.Text = dtTrack.Rows[0]["PRIME_OVN_TEMP_Z3_ACT"].ToString();
-             textBoxTLLTEN.Text = dtTrack.Rows[0]["TLL_TENSION_ACT"].ToString();
-             textBoxBrushTankTemp.Text = dtTrack.Rows[0]["BRUSH_TANK_TEMP"].ToString();
-             textBoxBrushTankCond.Text = dtTrack.Rows[0]["BRUSH_TANK_CONDUCTIVITY"].ToString();
-             textBoxAlkaliLevel.Text = dtTrack.Rows[0]["ALKALI_TANK_WATER_LVL"].ToString();
-             textBoxblower1.Text = dtTrack.Rows[0]["HOT_AIR_DRY_1_TEMP_SCL"].ToString();
-             textBoxblower2.Text = dtTrack.Rows[0]["HOT_AIR_DRY_2_TEMP_SCL"].ToString();
-             textBoxblower3.Text = dtTrack.Rows[0]["HOT_AIR_DRY_3_TEMP_SCL"].ToString();
-         }
-         else
-         {
-             MessageBox.Show("No data found!");
-         }
-
-     }
-     catch (Exception ex) { }
-    
-
- }
-
- public void EtryExitAccumulator()
+public void FetchAndUpdateUI()
 {
     try
     {
         Db.DatabaseConnect();
-        string query = "select  ENTRY_ACCUMULATOR_POS_PERCENT FROM V_LATEST_PERIODIC_VALUE";
-        OracleDataAdapter oda = new OracleDataAdapter(query, Db.Con);
-        DataTable dtActual = new DataTable();
-        oda.Fill(dtActual);
-        if (dtActual.Rows.Count > 0)
+
+        if (Db.Con == null || Db.Con.State != ConnectionState.Open)
+            throw new Exception("Database connection is not available.");
+
+        string query = @"SELECT ENTRY_ACCUMULATOR_POS_PERCENT,
+                                EXIT_ACCUMULATOR_POS_PERCENT,
+                                PROCESS_LINE_SPEED_ACT,
+                                CHEM_DRYER_TEMP_ACT,
+                                FIN_OVN_TEMP_Z1_ACT, FIN_OVN_TEMP_Z2_ACT, FIN_OVN_TEMP_Z3_ACT, FIN_OVN_TEMP_Z4_ACT,
+                                PRIME_OVN_TEMP_Z1_ACT, PRIME_OVN_TEMP_Z2_ACT, PRIME_OVN_TEMP_Z3_ACT,
+                                TLL_TENSION_ACT, BRUSH_TANK_TEMP, BRUSH_TANK_CONDUCTIVITY,
+                                ALKALI_TANK_WATER_LVL,
+                                HOT_AIR_DRY_1_TEMP_SCL, HOT_AIR_DRY_2_TEMP_SCL, HOT_AIR_DRY_3_TEMP_SCL
+                         FROM V_LATEST_PERIODIC_VALUE";
+
+        DataTable dt = new DataTable();
+        using (OracleDataAdapter da = new OracleDataAdapter(query, Db.Con))
         {
-            if (Convert.ToInt32(dtActual.Rows[0].ItemArray[0]) >= 100)
-            {
-                // txtActual.Text = dtActual.Rows[0].ItemArray[0].ToString();
-                progressBarEntry.Value = 100;
-            }
-            else {
-                // txtActual.Text = dtActual.Rows[0].ItemArray[0].ToString();
-                progressBarEntry.Value = Convert.ToInt32(dtActual.Rows[0].ItemArray[0]);
-            }
-           
+            da.Fill(dt);
         }
 
+        if (dt.Rows.Count == 0)
+        {
+            MessageBox.Show("⚠️ No data found in V_LATEST_PERIODIC_VALUE.");
+            return;
+        }
 
-        ////progressBarEntry.Increment(7);
-        //Random rnd = new Random();
+        DataRow row = dt.Rows[0];
 
-        //for (int i = 0; i < 5; i++)
-        //{
-        //    progressBarEntry.Value = rnd.Next(1, 99);
+        // --- Update TextBoxes (Temperature, Tension, etc.)
+        textBoxChemDryTemp.Text    = row["CHEM_DRYER_TEMP_ACT"].ToString();
+        textBoxFOZ1.Text           = row["FIN_OVN_TEMP_Z1_ACT"].ToString();
+        textBoxFOZ2.Text           = row["FIN_OVN_TEMP_Z2_ACT"].ToString();
+        textBoxFOZ3.Text           = row["FIN_OVN_TEMP_Z3_ACT"].ToString();
+        textBoxFOZ4.Text           = row["FIN_OVN_TEMP_Z4_ACT"].ToString();
+        textBoxPOZ1.Text           = row["PRIME_OVN_TEMP_Z1_ACT"].ToString();
+        textBoxPOZ2.Text           = row["PRIME_OVN_TEMP_Z2_ACT"].ToString();
+        textBoxPOZ3.Text           = row["PRIME_OVN_TEMP_Z3_ACT"].ToString();
+        textBoxTLLTEN.Text         = row["TLL_TENSION_ACT"].ToString();
+        textBoxBrushTankTemp.Text  = row["BRUSH_TANK_TEMP"].ToString();
+        textBoxBrushTankCond.Text  = row["BRUSH_TANK_CONDUCTIVITY"].ToString();
+        textBoxAlkaliLevel.Text    = row["ALKALI_TANK_WATER_LVL"].ToString();
+        textBoxblower1.Text        = row["HOT_AIR_DRY_1_TEMP_SCL"].ToString();
+        textBoxblower2.Text        = row["HOT_AIR_DRY_2_TEMP_SCL"].ToString();
+        textBoxblower3.Text        = row["HOT_AIR_DRY_3_TEMP_SCL"].ToString();
 
-        //}
-
-
-
-        // lblEntryAccu.Text = progressBarEntry.Value.ToString() + "%";
-        label72.Text = progressBarEntry.Value.ToString() + "%";
-        // pictEntAccu.Height = 200 - progressBarEntry.Value * 2;
+        // --- Update Entry Accumulator ProgressBar
+        int entryPercent = Convert.ToInt32(row["ENTRY_ACCUMULATOR_POS_PERCENT"]);
+        progressBarEntry.Value = Math.Min(entryPercent, 100);
+        label72.Text = progressBarEntry.Value + "%";
         pictureBox45.Height = 200 - progressBarEntry.Value * 2;
-        
-        //txtSet.Text = progressBarEntry.Value.ToString();
 
-        //progressBar Exit;
-
-        string query1 = "select  EXIT_ACCUMULATOR_POS_PERCENT FROM T_PERIODIC_VALUE_LOG  ORDER BY DATE_TIME DESC  fetch first 1 row only";
-        OracleDataAdapter oda1 = new OracleDataAdapter(query1, Db.Con);
-        DataTable dtActual1 = new DataTable();
-        oda1.Fill(dtActual1);
-        if (dtActual1.Rows.Count > 0)
-        {
-            if (Convert.ToInt32(dtActual1.Rows[0].ItemArray[0]) >= 100)
-            {
-                // txtActual.Text = dtActual.Rows[0].ItemArray[0].ToString();
-                progressBarExit.Value = 100;
-            }
-            else
-            {
-                // txtActual.Text = dtActual.Rows[0].ItemArray[0].ToString();
-                progressBarExit.Value = Convert.ToInt32(dtActual1.Rows[0].ItemArray[0]);
-
-            }
-            
-        }
-
-
-
-
-        //Random rnd1 = new Random();
-
-        //for (int i = 0; i < 8; i++)
-        //{
-        //    progressBarExit.Value = rnd1.Next(1, 99);
-        //}
-        // lblExitAccu.Text = progressBarExit.Value.ToString() + "%";
-        label73.Text = progressBarExit.Value.ToString() + "%";
-        
-        //txtActual.Text = (progressBarExit.Value + 1).ToString();
+        // --- Update Exit Accumulator ProgressBar
+        int exitPercent = Convert.ToInt32(row["EXIT_ACCUMULATOR_POS_PERCENT"]);
+        progressBarExit.Value = Math.Min(exitPercent, 100);
+        label73.Text = progressBarExit.Value + "%";
         pictureBox47.Height = 200 - progressBarExit.Value * 2;
+
+        // --- Update Mill Speed and Timers
+        string speedStr = row["PROCESS_LINE_SPEED_ACT"].ToString();
+        txtSpeed.Text = speedStr;
+
+        if (speedStr == "0")
+        {
+            Por1timer.Stop();
+            Por2timer.Stop();
+            Recoiler1_Timer.Stop();
+            Recoiler2_Timer.Stop();
+        }
+        else
+        {
+            // fetch uncoupler selector (only when running)
+            string uncoilerQuery = "SELECT * FROM T_UNCOILER_SEL ORDER BY WRITE_TIMESTAMP DESC FETCH FIRST 1 ROW ONLY";
+            DataTable dtUncoiler = new DataTable();
+            using (OracleDataAdapter daUnc = new OracleDataAdapter(uncoilerQuery, Db.Con))
+            {
+                daUnc.Fill(dtUncoiler);
+            }
+
+            if (dtUncoiler.Rows.Count > 0)
+            {
+                if (dtUncoiler.Rows[0][0].ToString() == "UNC_1_SELECTED")
+                {
+                    Por1timer.Start();
+                    Por2timer.Stop();
+                }
+                else
+                {
+                    Por2timer.Start();
+                    Por1timer.Stop();
+                }
+            }
+        }
     }
     catch (Exception ex)
     {
-        MessageBox.Show(ex.Message);
+        MessageBox.Show("Error in FetchAndUpdateUI: " + ex.Message);
+    }
+    finally
+    {
+        Db.ConClose();
     }
 }
-  public void MillActualValue()
-  {
-      Db.DatabaseConnect();
-      string query = "select  PROCESS_LINE_SPEED_ACT FROM V_LATEST_PERIODIC_VALUE";
-      OracleDataAdapter oda = new OracleDataAdapter(query, Db.Con);
-      DataTable dtActual = new DataTable();
-      oda.Fill(dtActual);
-      if (dtActual.Rows.Count > 0)
-      {
-          txtSpeed.Text = dtActual.Rows[0].ItemArray[0].ToString();
-
-          if(txtSpeed.Text=="0")
-          {
-              Por1timer.Stop();
-              Por2timer.Stop();
-              Recoiler1_Timer.Stop();
-              Recoiler2_Timer.Stop();
-          }
-          else
-          {
-
-              Db.DatabaseConnect();
-              string queryT_UNCOILER_SEL = "select * from T_UNCOILER_SEL FETCH order by WRITE_TIMESTAMP DESC fetch first 1 row only";
-              OracleDataAdapter odaT_UNCOILER_SEL = new OracleDataAdapter(queryT_UNCOILER_SEL, Db.Con);
-              DataTable dtT_UNCOILER_SEL = new DataTable();
-              odaT_UNCOILER_SEL.Fill(dtT_UNCOILER_SEL);
-              if(dtT_UNCOILER_SEL.Rows.Count > 0)
-              {
-                  if (dtT_UNCOILER_SEL.Rows[0][0].ToString()== "UNC_1_SELECTED")
-                  {
-
-                      Por1timer.Start();
-                      Por2timer.Stop();
-
-                  }
-                  else
-                  {
-
-                      Por2timer.Start();
-                      Por1timer.Stop();
-                  }
-              }
-
-              //string queryT_RECOILER_SEL = "select * from T_RECOILER_SEL FETCH order by WRITE_TIMESTAMP DESC fetch first 1 row only";
-              //OracleDataAdapter odaT_RECOILER_SEL = new OracleDataAdapter(queryT_RECOILER_SEL, Db.Con);
-              //DataTable dtT_RECOILER_SEL = new DataTable();
-              //odaT_RECOILER_SEL.Fill(dtT_RECOILER_SEL);
-              //if (dtT_RECOILER_SEL.Rows.Count > 0)
-              //{
-              //    if (dtT_RECOILER_SEL.Rows[0][0].ToString() == "RNC_1_SELECTED")
-              //    {
-
-              //        Recoiler1_Timer.Start();
-              //        Recoiler2_Timer.Stop();
-
-              //    }
-              //    else
-              //    {
-              //        Recoiler2_Timer.Start();
-              //        Recoiler1_Timer.Stop();
-
-              //    }
-              //}
-              Db.ConClose();
-
-
-
-
-          }
-       ;
-      }
-  }
