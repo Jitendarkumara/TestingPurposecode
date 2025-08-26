@@ -1,1 +1,6 @@
-Create view  as    select * from T_periodic_value_log order by DATE_TIME desc fetch  first row only
+CREATE VIEW my_view AS
+SELECT *
+FROM T_periodic_value_log t
+WHERE t.DATE_TIME = (
+    SELECT MAX(DATE_TIME) FROM T_periodic_value_log
+);
