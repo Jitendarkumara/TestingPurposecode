@@ -1,86 +1,94 @@
-// Put this on your Form (works for both Form and any Control)
-private void SafeInvokeUI(Action action)
-{
-    if (this.InvokeRequired) this.Invoke(action);
-    else action();
-}
+ public void FetchAndUpdateUI()
+ {
+     try
+     {
+         string query = @"
+     SELECT ENTRY_ACCUMULATOR_POS_PERCENT,
+            EXIT_ACCUMULATOR_POS_PERCENT,
+            PROCESS_LINE_SPEED_ACT,
+            CHEM_DRYER_TEMP_ACT,
+            FIN_OVN_TEMP_Z1_ACT, FIN_OVN_TEMP_Z2_ACT, FIN_OVN_TEMP_Z3_ACT, FIN_OVN_TEMP_Z4_ACT,
+            PRIME_OVN_TEMP_Z1_ACT, PRIME_OVN_TEMP_Z2_ACT, PRIME_OVN_TEMP_Z3_ACT,
+            TLL_TENSION_ACT, BRUSH_TANK_TEMP, BRUSH_TANK_CONDUCTIVITY,
+            ALKALI_TANK_WATER_LVL,
+            HOT_AIR_DRY_1_TEMP_SCL, HOT_AIR_DRY_2_TEMP_SCL, HOT_AIR_DRY_3_TEMP_SCL
+     FROM V_LATEST_PERIODIC_VALUE";
 
-public void RecoilerSaddleFill()
-{
-    try
-    {
-        // --- queries
-        const string coilQuery = @"
-            SELECT TCIP_PRODUCT_COIL
-            FROM T_COL_COIL_INFO_PDO
-            ORDER BY TCIP_CIL_END_TIME DESC
-            FETCH FIRST 6 ROWS ONLY";
+         DataTable dt = Db.ExecuteQuery(query);
 
-        const string recQuery = @"
-            SELECT RECOILER_1_SPEED_ACT, RECOILER_2_SPEED_ACT, date_time
-            FROM V_latest_Periodic_value_log";
+         if (dt.Rows.Count == 0) return;
 
-        // --- fetch data with fresh connections (NO Db.Con)
-        DataTable dtRecoile = Db.ExecuteQuery(coilQuery);
-        DataTable recDt     = Db.ExecuteQuery(recQuery);
+         DataRow row = dt.Rows[0];
 
-        // --- parse speeds
-        int rec1Speed = 0, rec2Speed = 0;
-        if (recDt.Rows.Count > 0)
-        {
-            int.TryParse(Convert.ToString(recDt.Rows[0]["RECOILER_1_SPEED_ACT"]), out rec1Speed);
-            int.TryParse(Convert.ToString(recDt.Rows[0]["RECOILER_2_SPEED_ACT"]), out rec2Speed);
-        }
+         // --- Update TextBoxes
+         textBoxChemDryTemp.Text = row["CHEM_DRYER_TEMP_ACT"].ToString();
+         textBoxFOZ1.Text = row["FIN_OVN_TEMP_Z1_ACT"].ToString();
+         textBoxFOZ2.Text = row["FIN_OVN_TEMP_Z2_ACT"].ToString();
+         textBoxFOZ3.Text = row["FIN_OVN_TEMP_Z3_ACT"].ToString();
+         textBoxFOZ4.Text = row["FIN_OVN_TEMP_Z4_ACT"].ToString();
+         textBoxPOZ1.Text = row["PRIME_OVN_TEMP_Z1_ACT"].ToString();
+         textBoxPOZ2.Text = row["PRIME_OVN_TEMP_Z2_ACT"].ToString();
+         textBoxPOZ3.Text = row["PRIME_OVN_TEMP_Z3_ACT"].ToString();
+         textBoxTLLTEN.Text = row["TLL_TENSION_ACT"].ToString();
+         textBoxBrushTankTemp.Text = row["BRUSH_TANK_TEMP"].ToString();
+         textBoxBrushTankCond.Text = row["BRUSH_TANK_CONDUCTIVITY"].ToString();
+         textBoxAlkaliLevel.Text = row["ALKALI_TANK_WATER_LVL"].ToString();
+         textBoxblower1.Text = row["HOT_AIR_DRY_1_TEMP_SCL"].ToString();
+         textBoxblower2.Text = row["HOT_AIR_DRY_2_TEMP_SCL"].ToString();
+         textBoxblower3.Text = row["HOT_AIR_DRY_3_TEMP_SCL"].ToString();
 
-        // --- read coil IDs safely
-        string c0 = dtRecoile.Rows.Count > 0 ? Convert.ToString(dtRecoile.Rows[0]["TCIP_PRODUCT_COIL"]) : "";
-        string c1 = dtRecoile.Rows.Count > 1 ? Convert.ToString(dtRecoile.Rows[1]["TCIP_PRODUCT_COIL"]) : "";
-        string c2 = dtRecoile.Rows.Count > 2 ? Convert.ToString(dtRecoile.Rows[2]["TCIP_PRODUCT_COIL"]) : "";
-        string c3 = dtRecoile.Rows.Count > 3 ? Convert.ToString(dtRecoile.Rows[3]["TCIP_PRODUCT_COIL"]) : "";
-        string c4 = dtRecoile.Rows.Count > 4 ? Convert.ToString(dtRecoile.Rows[4]["TCIP_PRODUCT_COIL"]) : "";
-        string c5 = dtRecoile.Rows.Count > 5 ? Convert.ToString(dtRecoile.Rows[5]["TCIP_PRODUCT_COIL"]) : "";
+         // --- Entry Accumulator
+         int entryPercent = Convert.ToInt32(row["ENTRY_ACCUMULATOR_POS_PERCENT"]);
+         progressBarEntry.Value = Math.Min(entryPercent, 100);
+         label72.Text = progressBarEntry.Value + "%";
+         pictureBox45.Height = 200 - progressBarEntry.Value * 2;
 
-        // --- update UI on UI thread (one Invoke)
-        SafeInvokeUI(() =>
-        {
-            // last 5 coils
-            textBox20.Text = c1;
-            textBox23.Text = c2;
-            textBox21.Text = c3;
-            textBox24.Text = c4;
-            textBox22.Text = c5;
+         // --- Exit Accumulator
+         int exitPercent = Convert.ToInt32(row["EXIT_ACCUMULATOR_POS_PERCENT"]);
+         progressBarExit.Value = Math.Min(exitPercent, 100);
+         label73.Text = progressBarExit.Value + "%";
+         pictureBox47.Height = 200 - progressBarExit.Value * 2;
 
-            // timers + active coil display
-            if (rec1Speed > 0)
-            {
-                textBoxRecoiler2.Text = c0;
-                textBoxRecoiler1.Text = "";
-                if (!Recoiler1_Timer.Enabled) Recoiler1_Timer.Start();
-                if (Recoiler2_Timer.Enabled)  Recoiler2_Timer.Stop();
-            }
-            else if (rec2Speed > 0)
-            {
-                textBoxRecoiler1.Text = c0;
-                textBoxRecoiler2.Text = "";
-                if (!Recoiler2_Timer.Enabled) Recoiler2_Timer.Start();
-                if (Recoiler1_Timer.Enabled)  Recoiler1_Timer.Stop();
-            }
-            else
-            {
-                textBoxRecoiler1.Text = "";
-                textBoxRecoiler2.Text = "";
-                if (Recoiler1_Timer.Enabled) Recoiler1_Timer.Stop();
-                if (Recoiler2_Timer.Enabled) Recoiler2_Timer.Stop();
-            }
-        });
-    }
-    catch (Exception ex)
-    {
-        // avoid popup storms in timers; prefer a status label or log
-        SafeInvokeUI(() =>
-        {
-            // MessageBox.Show("RecoilerSaddleFill error: " + ex.Message);
-            statusLabel.Text = "RecoilerSaddleFill error: " + ex.Message; // use a label if you have one
-        });
-    }
-}
+         // --- Mill Speed
+         string speedStr = row["PROCESS_LINE_SPEED_ACT"].ToString();
+         txtSpeed.Text = speedStr;
+
+         if (speedStr == "0")
+         {
+             Por1timer.Stop();
+             Por2timer.Stop();
+             Recoiler1_Timer.Stop();
+             Recoiler2_Timer.Stop();
+         }
+         else
+         {
+             // Fetch uncoupler selector (only when running)
+             string uncoilerQuery = "SELECT * FROM T_UNCOILER_SEL ORDER BY WRITE_TIMESTAMP DESC FETCH FIRST 1 ROW ONLY";
+             DataTable dtUncoiler = Db.ExecuteQuery(uncoilerQuery);
+
+             if (dtUncoiler.Rows.Count > 0)
+             {
+                 if (dtUncoiler.Rows[0][0].ToString() == "UNC_1_SELECTED")
+                 {
+                     if(!Por1timer.Enabled)
+                     Por1timer.Start();
+
+                     if (Por2timer.Enabled)
+                         Por2timer.Stop();
+                 }
+                 else
+                 {
+                     if (!Por2timer.Enabled)
+                         Por2timer.Start();
+
+                     if (!Por1timer.Enabled)
+                         Por1timer.Stop();
+                 }
+             }
+         }
+     }
+     catch (Exception ex)
+     {
+         MessageBox.Show("Error in FetchAndUpdateUI: " + ex.Message);
+     }
+ }
