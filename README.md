@@ -1,100 +1,154 @@
-using System;
-using System.Configuration;
-using System.Data;
-using Oracle.ManagedDataAccess.Client; // Make sure you have Oracle.ManagedDataAccess installed
-using System.IO;
-
-public class DBhelper
+public void ProcessEventTracking()
 {
-    private readonly string ConnectionString;
-
-    public DBhelper()
+    try
     {
-        ConnectionString = ConfigurationManager.ConnectionStrings["ServiceURL"].ToString();
-    }
+        string query = "SELECT ID_APP_TAG_EVENT, COIL_ID FROM T_EVENT_TRACKING";
+        DataTable dtTrack = Db.ExecuteQuery(query);
 
-    // 🔹 Fetch data into DataTable
-    public DataTable ExecuteQuery(string query)
-    {
-        DataTable dt = new DataTable();
+        if (dtTrack.Rows.Count == 0) return;
 
-        try
+        // --- UNC Selected
+        var uncRow = dtTrack.AsEnumerable()
+            .FirstOrDefault(r => r["ID_APP_TAG_EVENT"].ToString() == "UNC_SELECTED");
+
+        if (uncRow != null)
         {
-            using (OracleConnection con = new OracleConnection(ConnectionString))
+            string coilId = uncRow["COIL_ID"].ToString();
+
+            if (!string.IsNullOrEmpty(textBox17.Text))
             {
-                con.Open();
-                using (OracleDataAdapter da = new OracleDataAdapter(query, con))
+                if (coilId == textBox17.Text)
                 {
-                    da.Fill(dt);
+                    btnPor1.BackColor = Color.Red;
+                    btnPor1.Text = "Processing";
+                    btnPor1End.Enabled = false;
+
+                    btnPor2.BackColor = Color.FromArgb(59, 89, 152);
+                    btnPor2.Enabled = false;
+                    btnEnd.Enabled = false;
+
+                    timerEntry.Start();
+                    dat = DateTime.Now;
+                }
+                else
+                {
+                    btnPor1.BackColor = Color.FromArgb(59, 89, 152);
+                    btnPor1.Text = "START";
+                }
+            }
+            else if (!string.IsNullOrEmpty(textBox16.Text))
+            {
+                if (coilId == textBox16.Text)
+                {
+                    btnPor2.BackColor = Color.Red;
+                    btnPor2.Text = "Processing";
+                    btnEnd.Enabled = false;
+
+                    btnPor1.BackColor = Color.FromArgb(59, 89, 152);
+                    btnPor1.Enabled = false;
+                    btnPor1End.Enabled = false;
+
+                    Por2timer.Start();
+                    timerEntry.Start();
+                    dat = DateTime.Now;
+                }
+                else
+                {
+                    Por2timer.Stop();
+                    btnPor2.BackColor = Color.FromArgb(59, 89, 152);
+                    btnPor2.Text = "START";
                 }
             }
         }
-        catch (Exception ex)
+
+        // --- RECOILER Coil
+        var recoilRow = dtTrack.AsEnumerable()
+            .FirstOrDefault(r => r["ID_APP_TAG_EVENT"].ToString() == "RECOILER");
+
+        if (recoilRow != null && recoilRow["COIL_ID"] != DBNull.Value)
         {
-            LogErrorToFile(ex.ToString(), "ExecuteQuery");
-            throw;
+            RecoilerSaddleFill();
+        }
+        else
+        {
+            txtRecoiller.Text = "";
         }
 
-        return dt;
-    }
-
-    // 🔹 Execute INSERT/UPDATE/DELETE
-    public int ExecuteNonQuery(string query)
-    {
-        try
+        // --- POR1 Auto Color
+        if (btnPor1.Text == "Processing")
         {
-            using (OracleConnection con = new OracleConnection(ConnectionString))
+            string por1Coil = txtPor1.Text;
+
+            if (dtTrack.Rows.Count > 1 && dtTrack.Rows[1][1].ToString() == por1Coil)
             {
-                con.Open();
-                using (OracleCommand cmd = new OracleCommand(query, con))
-                {
-                    return cmd.ExecuteNonQuery();
-                }
+                diagonal1.BackLineColor = Color.Red;
+                pict1.BackColor = Color.Red;
+                diagonalSep1.backLineColorSep = Color.Red;
+                pict3.BackColor = Color.Red;
+                diagonal3.BackLineColor = Color.Red;
+                pict5.BackColor = Color.Red;
+                pict6.BackColor = Color.Red;
+                diagonal4.BackLineColor = Color.Red;
+                pict7.BackColor = Color.Red;
+                diagonalSep2.backLineColorSep = Color.Red;
+                pict8.BackColor = Color.Red;
+                pict9.BackColor = Color.Red;
+                pict10.BackColor = Color.Red;
+                pict11.BackColor = Color.Red;
             }
+            if (dtTrack.Rows.Count > 2 && dtTrack.Rows[2][1].ToString() == por1Coil)
+                ColorTllT0BR6();
+            if (dtTrack.Rows.Count > 3 && dtTrack.Rows[3][1].ToString() == por1Coil)
+                ColorBr6ToStr6();
+            if (dtTrack.Rows.Count > 4 && dtTrack.Rows[4][1].ToString() == por1Coil)
+            {
+                ColorStr6ToBr9();
+                btnPor1End.Enabled = true;
+            }
+            if (dtTrack.Rows.Count > 5 && dtTrack.Rows[5][1].ToString() == por1Coil)
+                ColorBr9ToRecoil();
+
+            if (btnPor1.Text == "START")
+                PorColorBlack();
         }
-        catch (Exception ex)
+
+        // --- POR2 Auto Color
+        if (btnPor2.Text == "Processing")
         {
-            LogErrorToFile(ex.ToString(), "ExecuteNonQuery");
-            throw;
+            string por2Coil = txtPor2.Text;
+
+            if (dtTrack.Rows.Count > 1 && dtTrack.Rows[1][1].ToString() == por2Coil)
+            {
+                pict3.BackColor = Color.Red;
+                diagonal3.BackLineColor = Color.Red;
+                pict5.BackColor = Color.Red;
+                pict6.BackColor = Color.Red;
+                diagonal4.BackLineColor = Color.Red;
+                pict7.BackColor = Color.Red;
+                diagonalSep2.backLineColorSep = Color.Red;
+                pict8.BackColor = Color.Red;
+                pict9.BackColor = Color.Red;
+                pict10.BackColor = Color.Red;
+                pict11.BackColor = Color.Red;
+            }
+            if (dtTrack.Rows.Count > 2 && dtTrack.Rows[2][1].ToString() == por2Coil)
+                ColorTllT0BR6();
+            if (dtTrack.Rows.Count > 3 && dtTrack.Rows[3][1].ToString() == por2Coil)
+                ColorBr6ToStr6();
+            if (dtTrack.Rows.Count > 4 && dtTrack.Rows[4][1].ToString() == por2Coil)
+            {
+                ColorStr6ToBr9();
+                btnEnd.Enabled = true;
+            }
+            if (dtTrack.Rows.Count > 5 && dtTrack.Rows[5][1].ToString() == por2Coil)
+                ColorBr9ToRecoil();
+
+            if (btnPor2.Text == "START")
+                PorColorBlack();
         }
     }
-
-    // 🔹 Check if DB is reachable
-    public bool DatabaseConnectCheck()
+    catch (Exception ex)
     {
-        try
-        {
-            using (OracleConnection con = new OracleConnection(ConnectionString))
-            {
-                con.Open();
-                return true;
-            }
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    // 🔹 Log errors to file
-    private void LogErrorToFile(string errorMessage, string method)
-    {
-        try
-        {
-            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string logFilePath = Path.Combine(desktopPath, "DatabaseErrorLog.txt");
-
-            if (!File.Exists(logFilePath))
-            {
-                string header = $"Database Error Log\nCreated on: {DateTime.Now}\n\n";
-                File.WriteAllText(logFilePath, header);
-            }
-
-            File.AppendAllText(logFilePath, $"Error: {errorMessage}\nMethod: {method}\nTime: {DateTime.Now}\n\n");
-        }
-        catch
-        {
-            // Swallow logging errors silently
-        }
+        MessageBox.Show("Error in ProcessEventTracking: " + ex.Message);
     }
 }
