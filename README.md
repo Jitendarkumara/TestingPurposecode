@@ -1,154 +1,81 @@
-public void ProcessEventTracking()
-{
-    try
-    {
-        string query = "SELECT ID_APP_TAG_EVENT, COIL_ID FROM T_EVENT_TRACKING";
-        DataTable dtTrack = Db.ExecuteQuery(query);
+   public void RecoilerSaddleFill()
+   {
+       try
+       {
+           Db.DatabaseConnect();
 
-        if (dtTrack.Rows.Count == 0) return;
+           // 🔹 Query last 6 coils
+           string s = @"SELECT TCIP_PRODUCT_COIL 
+                FROM T_COL_COIL_INFO_PDO 
+                ORDER BY TCIP_CIL_END_TIME DESC 
+                FETCH FIRST 6 ROWS ONLY";
 
-        // --- UNC Selected
-        var uncRow = dtTrack.AsEnumerable()
-            .FirstOrDefault(r => r["ID_APP_TAG_EVENT"].ToString() == "UNC_SELECTED");
+           
+           using (OracleDataAdapter da = new OracleDataAdapter(s, Db.Con))
+           {
+               da.Fill(dtRecoile);
+           }
 
-        if (uncRow != null)
-        {
-            string coilId = uncRow["COIL_ID"].ToString();
+           // 🔹 Query recoiler speeds
+           string Rec_Query = @"SELECT RECOILER_1_SPEED_ACT, RECOILER_2_SPEED_ACT, date_time 
+                        FROM V_latest_Periodic_value_log";
 
-            if (!string.IsNullOrEmpty(textBox17.Text))
-            {
-                if (coilId == textBox17.Text)
-                {
-                    btnPor1.BackColor = Color.Red;
-                    btnPor1.Text = "Processing";
-                    btnPor1End.Enabled = false;
+           
+           using (OracleDataAdapter rec_da = new OracleDataAdapter(Rec_Query, Db.Con))
+           {
+               rec_da.Fill(Rec_dt);
+           }
 
-                    btnPor2.BackColor = Color.FromArgb(59, 89, 152);
-                    btnPor2.Enabled = false;
-                    btnEnd.Enabled = false;
+           Db.ConClose();
 
-                    timerEntry.Start();
-                    dat = DateTime.Now;
-                }
-                else
-                {
-                    btnPor1.BackColor = Color.FromArgb(59, 89, 152);
-                    btnPor1.Text = "START";
-                }
-            }
-            else if (!string.IsNullOrEmpty(textBox16.Text))
-            {
-                if (coilId == textBox16.Text)
-                {
-                    btnPor2.BackColor = Color.Red;
-                    btnPor2.Text = "Processing";
-                    btnEnd.Enabled = false;
+           if (Rec_dt.Rows.Count == 0 || dtRecoile.Rows.Count < 6)
+           {
+               // No valid data
+               textBoxRecoiler1.Text = "";
+               textBoxRecoiler2.Text = "";
+               return;
+           }
 
-                    btnPor1.BackColor = Color.FromArgb(59, 89, 152);
-                    btnPor1.Enabled = false;
-                    btnPor1End.Enabled = false;
+           // 🔹 Safe speed parsing
+           int rec1Speed = 0, rec2Speed = 0;
+           int.TryParse(Rec_dt.Rows[0]["RECOILER_1_SPEED_ACT"]?.ToString(), out rec1Speed);
+           int.TryParse(Rec_dt.Rows[0]["RECOILER_2_SPEED_ACT"]?.ToString(), out rec2Speed);
 
-                    Por2timer.Start();
-                    timerEntry.Start();
-                    dat = DateTime.Now;
-                }
-                else
-                {
-                    Por2timer.Stop();
-                    btnPor2.BackColor = Color.FromArgb(59, 89, 152);
-                    btnPor2.Text = "START";
-                }
-            }
-        }
+           // 🔹 Update last 5 coils in textboxes (check indexes safely)
+           textBox20.Text = dtRecoile.Rows.Count > 1 ? dtRecoile.Rows[1]["TCIP_PRODUCT_COIL"].ToString() : "";
+           textBox23.Text = dtRecoile.Rows.Count > 2 ? dtRecoile.Rows[2]["TCIP_PRODUCT_COIL"].ToString() : "";
+           textBox21.Text = dtRecoile.Rows.Count > 3 ? dtRecoile.Rows[3]["TCIP_PRODUCT_COIL"].ToString() : "";
+           textBox24.Text = dtRecoile.Rows.Count > 4 ? dtRecoile.Rows[4]["TCIP_PRODUCT_COIL"].ToString() : "";
+           textBox22.Text = dtRecoile.Rows.Count > 5 ? dtRecoile.Rows[5]["TCIP_PRODUCT_COIL"].ToString() : "";
 
-        // --- RECOILER Coil
-        var recoilRow = dtTrack.AsEnumerable()
-            .FirstOrDefault(r => r["ID_APP_TAG_EVENT"].ToString() == "RECOILER");
+           // 🔹 Control recoiler timers & assign active coil
+           if (rec1Speed > 0)
+           {
+               Recoiler1_Timer.Start();
+               Recoiler2_Timer.Stop();
 
-        if (recoilRow != null && recoilRow["COIL_ID"] != DBNull.Value)
-        {
-            RecoilerSaddleFill();
-        }
-        else
-        {
-            txtRecoiller.Text = "";
-        }
+               textBoxRecoiler2.Text = dtRecoile.Rows[0]["TCIP_PRODUCT_COIL"].ToString();
+               textBoxRecoiler1.Text = "";
+           }
+           else if (rec2Speed > 0)
+           {
+               Recoiler2_Timer.Start();
+               Recoiler1_Timer.Stop();
 
-        // --- POR1 Auto Color
-        if (btnPor1.Text == "Processing")
-        {
-            string por1Coil = txtPor1.Text;
-
-            if (dtTrack.Rows.Count > 1 && dtTrack.Rows[1][1].ToString() == por1Coil)
-            {
-                diagonal1.BackLineColor = Color.Red;
-                pict1.BackColor = Color.Red;
-                diagonalSep1.backLineColorSep = Color.Red;
-                pict3.BackColor = Color.Red;
-                diagonal3.BackLineColor = Color.Red;
-                pict5.BackColor = Color.Red;
-                pict6.BackColor = Color.Red;
-                diagonal4.BackLineColor = Color.Red;
-                pict7.BackColor = Color.Red;
-                diagonalSep2.backLineColorSep = Color.Red;
-                pict8.BackColor = Color.Red;
-                pict9.BackColor = Color.Red;
-                pict10.BackColor = Color.Red;
-                pict11.BackColor = Color.Red;
-            }
-            if (dtTrack.Rows.Count > 2 && dtTrack.Rows[2][1].ToString() == por1Coil)
-                ColorTllT0BR6();
-            if (dtTrack.Rows.Count > 3 && dtTrack.Rows[3][1].ToString() == por1Coil)
-                ColorBr6ToStr6();
-            if (dtTrack.Rows.Count > 4 && dtTrack.Rows[4][1].ToString() == por1Coil)
-            {
-                ColorStr6ToBr9();
-                btnPor1End.Enabled = true;
-            }
-            if (dtTrack.Rows.Count > 5 && dtTrack.Rows[5][1].ToString() == por1Coil)
-                ColorBr9ToRecoil();
-
-            if (btnPor1.Text == "START")
-                PorColorBlack();
-        }
-
-        // --- POR2 Auto Color
-        if (btnPor2.Text == "Processing")
-        {
-            string por2Coil = txtPor2.Text;
-
-            if (dtTrack.Rows.Count > 1 && dtTrack.Rows[1][1].ToString() == por2Coil)
-            {
-                pict3.BackColor = Color.Red;
-                diagonal3.BackLineColor = Color.Red;
-                pict5.BackColor = Color.Red;
-                pict6.BackColor = Color.Red;
-                diagonal4.BackLineColor = Color.Red;
-                pict7.BackColor = Color.Red;
-                diagonalSep2.backLineColorSep = Color.Red;
-                pict8.BackColor = Color.Red;
-                pict9.BackColor = Color.Red;
-                pict10.BackColor = Color.Red;
-                pict11.BackColor = Color.Red;
-            }
-            if (dtTrack.Rows.Count > 2 && dtTrack.Rows[2][1].ToString() == por2Coil)
-                ColorTllT0BR6();
-            if (dtTrack.Rows.Count > 3 && dtTrack.Rows[3][1].ToString() == por2Coil)
-                ColorBr6ToStr6();
-            if (dtTrack.Rows.Count > 4 && dtTrack.Rows[4][1].ToString() == por2Coil)
-            {
-                ColorStr6ToBr9();
-                btnEnd.Enabled = true;
-            }
-            if (dtTrack.Rows.Count > 5 && dtTrack.Rows[5][1].ToString() == por2Coil)
-                ColorBr9ToRecoil();
-
-            if (btnPor2.Text == "START")
-                PorColorBlack();
-        }
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show("Error in ProcessEventTracking: " + ex.Message);
-    }
-}
+               textBoxRecoiler1.Text = dtRecoile.Rows[0]["TCIP_PRODUCT_COIL"].ToString();
+               textBoxRecoiler2.Text = "";
+           }
+           else
+           {
+               textBoxRecoiler1.Text = "";
+               textBoxRecoiler2.Text = "";
+               Recoiler1_Timer.Stop();
+               Recoiler2_Timer.Stop();
+           }
+       }
+       catch (Exception ex)
+       {
+           Db.ConClose(); // ensure connection is closed on error
+           MessageBox.Show("Error in RecoilerSaddleFill: " + ex.Message);
+       }
+   }
