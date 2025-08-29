@@ -1,7 +1,23 @@
-Worked on RM1, RM2 application  made ready server to run the application RM1 
+Here’s your corrected version with grammar and readability improvements:
 
-Worked on RM1 server made connect with RM1 pc and instaaled required software.
-Worked GP1 application to run the apllication  smoth and fast also chaged the procedure to handle NULL value of PDI weight
-Made the server to work in PIckiling application installed required software also made ready one PC for HRS application 
-worked on CCL pulpit server to make ready pickling  PCand HRS2 PC installed required software and created schema for Pickling and HRS2 database .
-connected sever to Pickling pc and HRS pc using lan connectivity made run pickling application .
+
+---
+
+Worked on RM1 and RM2 applications; prepared the server to run the RM1 application.
+
+Configured the RM1 server, connected it with the RM1 PC, and installed the required software.
+
+Worked on the GP1 application to ensure smooth and fast performance; also modified the procedure to handle NULL values of PDI weight.
+
+Prepared the server for the Pickling application, installed the required software, and set up one PC for the HRS application.
+
+Worked on the CCL pulpit server to prepare the Pickling PC and HRS2 PC; installed the required software and created schemas for the Pickling and HRS2 databases.
+
+Connected the server to the Pickling PC and HRS PC using LAN connectivity, and successfully ran the Pickling application.
+
+
+
+---
+
+Would you like me to polish this further into a professional resume-style bullet list so it looks strong for job applications?
+
