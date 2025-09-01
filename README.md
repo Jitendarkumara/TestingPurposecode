@@ -1,23 +1,31 @@
-Here’s your corrected version with grammar and readability improvements:
+Sure 🙂. Here’s a formal English version of the letter you can use for your HR/Manager:
 
 
 ---
 
-Worked on RM1 and RM2 applications; prepared the server to run the RM1 application.
+To,
+[Manager/HR’s Name]
+[Department Name]
+[Company Name]
 
-Configured the RM1 server, connected it with the RM1 PC, and installed the required software.
+Subject: Request for Compensatory Off
 
-Worked on the GP1 application to ensure smooth and fast performance; also modified the procedure to handle NULL values of PDI weight.
+Respected Sir/Madam,
 
-Prepared the server for the Pickling application, installed the required software, and set up one PC for the HRS application.
+I would like to bring to your kind notice that I had worked on 15th August 2025 (Independence Day) and 27th August 2025, which were official holidays. As per the company policy, I was eligible to receive compensatory off for these working days.
 
-Worked on the CCL pulpit server to prepare the Pickling PC and HRS2 PC; installed the required software and created schemas for the Pickling and HRS2 databases.
+However, I could not apply for the compensatory off in time due to unavoidable reasons. I kindly request you to consider my case and grant me the compensatory off for the above-mentioned days.
 
-Connected the server to the Pickling PC and HRS PC using LAN connectivity, and successfully ran the Pickling application.
+I shall be grateful for your kind support and consideration.
 
+Thanking you,
+Yours sincerely,
+[Your Full Name]
+[Employee ID]
+[Department]
 
 
 ---
 
-Would you like me to polish this further into a professional resume-style bullet list so it looks strong for job applications?
+👉 Kya aap chahte ho main isse aur short aur crisp banakar email format mein bhi bana dun, taaki aap directly mail kar sako?
 
