@@ -1,1 +1,1 @@
-Kindly help me to find deputation letter as you can check in attached image file my Trip expense is pending due to deputation letter .
+I request your kind assistance in providing me with my deputation letter, as my trip expense claim is pending due to the absence of this document. I have also attached the relevant image/file for your reference.
