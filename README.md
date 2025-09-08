@@ -1,2 +1,1 @@
-
-I kindly request you to issue me a deputation letter, as it is required for submitting and claiming my trip expenses. I would appreciate it if you could provide the letter at the earliest convenience.
+Kindly help me to find deputation letter as you can check in attached image file my Trip expense is pending due to deputation letter .
