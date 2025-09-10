@@ -1,1 +1,3 @@
-I request your kind assistance in providing me with my deputation letter, as my trip expense claim is pending due to the absence of this document. I have also attached the relevant image/file for your reference.
+It has been 10 days but still I did not get any response from @Bilal Khan Pathan side .
+@Dilip Maxim Pinto sir kindly help me to receive deputation letter. I have Already mentioned that it is very urgent document to claim my trip expense , I have 
+Also sent screen shot at previous replied mail that it is pending due to deputation letter if @Bilal Khan Pathan is not correct person please let me know who correct person for this concern is .
