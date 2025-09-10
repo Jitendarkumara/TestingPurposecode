@@ -1,3 +1,3 @@
-It has been 10 days but still I did not get any response from @Bilal Khan Pathan side .
-@Dilip Maxim Pinto sir kindly help me to receive deputation letter. I have Already mentioned that it is very urgent document to claim my trip expense , I have 
-Also sent screen shot at previous replied mail that it is pending due to deputation letter if @Bilal Khan Pathan is not correct person please let me know who correct person for this concern is .
+“It has been 10 days, but I have still not received any response from @Bilal Khan Pathan.
+@Dilip Maxim Pinto sir, kindly help me in receiving the deputation letter. I have already mentioned that this document is very urgent to claim my trip expenses.
+I have also shared a screenshot in my previous reply, showing that the claim is pending due to the deputation letter. If @Bilal Khan Pathan is not the correct person for this matter, please let me know who the correct person is
