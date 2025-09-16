@@ -1,3 +1,43 @@
-“It has been 10 days, but I have still not received any response from @Bilal Khan Pathan.
-@Dilip Maxim Pinto sir, kindly help me in receiving the deputation letter. I have already mentioned that this document is very urgent to claim my trip expenses.
-I have also shared a screenshot in my previous reply, showing that the claim is pending due to the deputation letter. If @Bilal Khan Pathan is not the correct person for this matter, please let me know who the correct person is
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.EventLog;
+using OPCUAClientService;
+
+   
+        IHost host = Host.CreateDefaultBuilder(args)
+            .ConfigureLogging(option =>
+            {
+                if (OperatingSystem.IsWindows())
+                {
+                    option.AddFilter<EventLogLoggerProvider>(level => level >= LogLevel.Trace);
+                }
+            })
+            .ConfigureServices(services =>
+            {
+                services.AddHostedService<OPCUAWorker>();
+                services.AddHostedService<MessageBackgroundService>();
+               
+            })
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+
+                webBuilder.ConfigureLogging((hostingContext, logging) =>
+                {
+                    if (!hostingContext.HostingEnvironment.IsProduction())
+                    {
+                        logging.ClearProviders(); // Clear any existing logger providers
+                        logging.AddFilter(level => level >= LogLevel.None);  // Add the NullLoggerProvider
+                    }
+                    else
+                    {
+                        logging.AddFilter(level => level >= LogLevel.Information);
+                    }
+                });
+                webBuilder.UseStartup<Startup>();
+            })
+            .UseWindowsService()
+            .Build();
+
+        await host.RunAsync();
+    
