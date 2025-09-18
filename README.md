@@ -1,7 +1,6 @@
-Dear @Mosamee Sonkhede mam,
+Dear @Mosamee Sonkhede Ma’am,
 
-I think we got approval from Nayan mam and need to do further process for my deputation letter so as you all know EMS claim is pending due to deputation 
-Letter so I will request you all to provide deputation letter ASAP.
+I believe we have already received approval from Nayan Ma’am. We now need to proceed with the next steps for my deputation letter.
+As you know, my EMS claim is pending because the deputation letter has not yet been issued.
 
-Regards,
-Jitendar kumar
+I kindly request you to provide the deputation letter at the earliest convenience.
