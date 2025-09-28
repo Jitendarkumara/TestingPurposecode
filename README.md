@@ -3,10 +3,14 @@ CREATE OR REPLACE PROCEDURE p_production_report (
     issucess  OUT VARCHAR2
 )
 AS
-  MESSAGE_ID     VARCHAR2(100);
+    v_message_id  VARCHAR2(100);
 BEGIN
-SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD-HH24.MI.SS') || '.' ||
-                LPAD(ABS(MOD(DBMS_RANDOM.RANDOM, 1000000)), 6, '0') into MESSAGE_ID  FROM dual;
+    -- Generate unique message id
+    SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD-HH24.MI.SS') || '.' ||
+           LPAD(ABS(MOD(DBMS_RANDOM.RANDOM, 1000000)), 6, '0')
+    INTO v_message_id
+    FROM dual;
+
     -- Insert the latest record for the given coil
     INSERT INTO DBPROD.T_RM_PKL_PDO@WCRMDEVL2 (
         CR_COIL_ID,
@@ -26,45 +30,43 @@ SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD-HH24.MI.SS') || '.' ||
         SALES_ORDER,
         SO_ITEM,
         PRODUCT_CODE,
-          FLAG_ID,
-       MESSAGE_ID
-        
+        FLAG_ID,
+        MESSAGE_ID
     )
-    (
- SELECT CR_COIL_ID,
-       START_TIME,
-       END_TIME,
-       SHIFT,
-       TIME_PROCESSED,
-       GRADE,
-       NEXT_PROCESS,
-       HR_COIL_NO,
-       INPUT_THK,
-       INPUT_WIDTH,
-       INPUT_COIL_WT,
-       LENGTH,
-       CR_TDC,
-       CR_Q_CODE,
-       SALES_ORDER,
-       SO_ITEM,
-       PRODUCT_CODE,'N',MESSAGE_ID
-       
-FROM (
-    SELECT t.*,
-           ROW_NUMBER() OVER (PARTITION BY CR_COIL_ID ORDER BY END_TIME DESC) AS rn
-    FROM   T_PL_PDO_LEVEL2 t
-    WHERE  CR_COIL_ID = 'K4B0631600'
-)
-WHERE rn = 1
-);
+    SELECT
+        CR_COIL_ID,
+        START_TIME,
+        END_TIME,
+        SHIFT,
+        TIME_PROCESSED,
+        GRADE,
+        NEXT_PROCESS,
+        HR_COIL_NO,
+        INPUT_THK,
+        INPUT_WIDTH,
+        INPUT_COIL_WT,
+        LENGTH,
+        CR_TDC,
+        CR_Q_CODE,
+        SALES_ORDER,
+        SO_ITEM,
+        PRODUCT_CODE,
+        'N',          -- constant for FLAG_ID
+        v_message_id  -- bind PL/SQL variable here
+    FROM (
+        SELECT t.*,
+               ROW_NUMBER() OVER (PARTITION BY CR_COIL_ID ORDER BY END_TIME DESC) AS rn
+        FROM   T_PL_PDO_LEVEL2 t
+        WHERE  CR_COIL_ID = p_coil_id     -- use the parameter, not a hardcoded value
+    )
+    WHERE rn = 1;
 
     issucess := 'S';
     COMMIT;
-    DBMS_OUTPUT.put_line('Record inserted into DBPROD.T_RM_PKL_PDO');
+    DBMS_OUTPUT.put_line('Record inserted into DBPROD.T_RM_PKL_PDO with Message ID: ' || v_message_id);
 
 EXCEPTION
     WHEN OTHERS THEN
-        -- If the insert fails, attempt to update the source table
         DBMS_OUTPUT.put_line('Insert failed: ' || SQLERRM);
 
         BEGIN
@@ -81,3 +83,4 @@ EXCEPTION
         issucess := 'F';
         COMMIT;
 END p_production_report;
+/
