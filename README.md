@@ -1,1 +1,2 @@
-Dear sir can you clarify me that I did not get extra income for Saturday work and for holiday what is the reason.
+ Dear Sir,
+Could you please clarify why I did not receive extra income for working on Saturday and on holidays?
