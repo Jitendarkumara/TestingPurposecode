@@ -33,20 +33,22 @@ namespace CoilApp
                 dataGridView2.AllowUserToAddRows = false;
                 dataGridView2.DataSource = dt;
 
-                // Set grid properties
+                // Grid styling
                 dataGridView2.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
                 dataGridView2.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                dataGridView2.DefaultCellStyle.Font = new Font("Segoe UI", 10);
 
-                // Columns
+                // Sequence No. (Editable)
                 DataGridViewTextBoxColumn colSeq = new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = "seq_No",
                     HeaderText = "Sequence No.",
                     Name = "Seq",
-                    ReadOnly = true
+                    ReadOnly = false // Allow editing
                 };
                 dataGridView2.Columns.Add(colSeq);
 
+                // Coil ID (Read-only)
                 DataGridViewTextBoxColumn colCoil = new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = "coil_id",
@@ -56,6 +58,7 @@ namespace CoilApp
                 };
                 dataGridView2.Columns.Add(colCoil);
 
+                // TOC (Read-only)
                 DataGridViewTextBoxColumn colTOC = new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = "TOC",
@@ -64,17 +67,6 @@ namespace CoilApp
                     ReadOnly = true
                 };
                 dataGridView2.Columns.Add(colTOC);
-
-                // 🗑 Delete button
-                DataGridViewButtonColumn btnDelete = new DataGridViewButtonColumn
-                {
-                    HeaderText = "Delete Action",
-                    Name = "Delete",
-                    FlatStyle = FlatStyle.Popup,
-                    Text = "Delete",
-                    UseColumnTextForButtonValue = true
-                };
-                dataGridView2.Columns.Add(btnDelete);
 
                 // 🔁 Update Sequence button
                 DataGridViewButtonColumn btnUpdateSeq = new DataGridViewButtonColumn
@@ -87,15 +79,16 @@ namespace CoilApp
                 };
                 dataGridView2.Columns.Add(btnUpdateSeq);
 
-                // Style delete button
-                foreach (DataGridViewRow row in dataGridView2.Rows)
+                // 🗑 Delete button
+                DataGridViewButtonColumn btnDelete = new DataGridViewButtonColumn
                 {
-                    if (!row.IsNewRow)
-                    {
-                        row.Cells["Delete"].Style.BackColor = Color.AliceBlue;
-                        row.Cells["Delete"].Style.ForeColor = Color.Red;
-                    }
-                }
+                    HeaderText = "Delete Action",
+                    Name = "Delete",
+                    FlatStyle = FlatStyle.Popup,
+                    Text = "Delete",
+                    UseColumnTextForButtonValue = true
+                };
+                dataGridView2.Columns.Add(btnDelete);
 
                 Db.ConClose();
             }
@@ -105,10 +98,10 @@ namespace CoilApp
             }
         }
 
-        // 🧭 Handle Button Clicks
+        // 🧭 Handle button clicks
         private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return; // Ignore header clicks
+            if (e.RowIndex < 0) return;
 
             if (string.IsNullOrWhiteSpace(txtmodified.Text) || string.IsNullOrWhiteSpace(txtRemark.Text))
             {
@@ -118,8 +111,44 @@ namespace CoilApp
 
             string coilId = dataGridView2.Rows[e.RowIndex].Cells["Coil_ID"].Value.ToString();
 
-            // 🗑 DELETE BUTTON
-            if (e.ColumnIndex == dataGridView2.Columns["Delete"].Index)
+            // 🔁 UPDATE SEQUENCE
+            if (e.ColumnIndex == dataGridView2.Columns["UpdateSeq"].Index)
+            {
+                try
+                {
+                    string seqText = dataGridView2.Rows[e.RowIndex].Cells["Seq"].Value.ToString();
+
+                    if (!int.TryParse(seqText, out int newSeq))
+                    {
+                        MessageBox.Show("Please enter a valid numeric sequence number.");
+                        return;
+                    }
+
+                    Db.DatabaseConnect();
+
+                    string updateQuery = "UPDATE T_COIL_LOC_TEM SET seq_no = :newSeq WHERE coil_id = :coilId";
+                    using (OracleCommand cmdUpdate = new OracleCommand(updateQuery, Db.Con))
+                    {
+                        cmdUpdate.Parameters.Add(":newSeq", OracleDbType.Int32).Value = newSeq;
+                        cmdUpdate.Parameters.Add(":coilId", OracleDbType.Varchar2).Value = coilId;
+                        cmdUpdate.ExecuteNonQuery();
+                    }
+
+                    // Log update
+                    InsertAuditLog(coilId, $"SEQ updated to {newSeq}");
+
+                    Db.ConClose();
+                    MessageBox.Show($"Sequence number for Coil ID {coilId} updated successfully!", "Updated",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error updating sequence: " + ex.Message);
+                }
+            }
+
+            // 🗑 DELETE ROW
+            else if (e.ColumnIndex == dataGridView2.Columns["Delete"].Index)
             {
                 DialogResult result = MessageBox.Show(
                     $"Are you sure you want to delete Coil ID {coilId}?",
@@ -138,65 +167,19 @@ namespace CoilApp
                             cmdDelete.ExecuteNonQuery();
                         }
 
-                        // Log delete action
+                        // Log delete
                         InsertAuditLog(coilId, "DELETE");
 
                         Db.ConClose();
 
-                        // Remove from UI
                         dataGridView2.Rows.RemoveAt(e.RowIndex);
-                        MessageBox.Show("Record deleted successfully.", "Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Record deleted successfully!", "Deleted",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Error deleting data: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Error deleting data: " + ex.Message);
                     }
-                }
-            }
-
-            // 🔁 UPDATE SEQUENCE BUTTON
-            else if (e.ColumnIndex == dataGridView2.Columns["UpdateSeq"].Index)
-            {
-                try
-                {
-                    string currentSeq = dataGridView2.Rows[e.RowIndex].Cells["Seq"].Value.ToString();
-
-                    string input = Microsoft.VisualBasic.Interaction.InputBox(
-                        $"Enter new sequence number for Coil ID {coilId} (current: {currentSeq}):",
-                        "Update Sequence", currentSeq);
-
-                    if (!string.IsNullOrWhiteSpace(input))
-                    {
-                        if (int.TryParse(input, out int newSeq))
-                        {
-                            Db.DatabaseConnect();
-
-                            string updateQuery = "UPDATE T_COIL_LOC_TEM SET seq_no = :newSeq WHERE coil_id = :coilId";
-                            using (OracleCommand cmdUpdate = new OracleCommand(updateQuery, Db.Con))
-                            {
-                                cmdUpdate.Parameters.Add(":newSeq", OracleDbType.Int32).Value = newSeq;
-                                cmdUpdate.Parameters.Add(":coilId", OracleDbType.Varchar2).Value = coilId;
-                                cmdUpdate.ExecuteNonQuery();
-                            }
-
-                            // Log update
-                            InsertAuditLog(coilId, $"SEQ updated to {newSeq}");
-
-                            Db.ConClose();
-
-                            // Reflect change in UI
-                            dataGridView2.Rows[e.RowIndex].Cells["Seq"].Value = newSeq;
-                            MessageBox.Show("Sequence number updated successfully!", "Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        else
-                        {
-                            MessageBox.Show("Invalid sequence number entered.");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error updating sequence: " + ex.Message);
                 }
             }
         }
