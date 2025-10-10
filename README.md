@@ -12,9 +12,13 @@ namespace CoilApp
         {
             InitializeComponent();
             LoadCoilTempGrid();
+
+            // Important: enable editing mode
+            dataGridView2.EditMode = DataGridViewEditMode.EditOnClick;
+            dataGridView2.CellContentClick += dataGridView2_CellContentClick;
         }
 
-        // 🟩 Load Data into DataGridView
+        // 🟩 Load data
         public void LoadCoilTempGrid()
         {
             try
@@ -31,24 +35,24 @@ namespace CoilApp
                 dataGridView2.AutoGenerateColumns = false;
                 dataGridView2.DataSource = null;
                 dataGridView2.AllowUserToAddRows = false;
+                dataGridView2.ReadOnly = false; // ✅ Allow editing
                 dataGridView2.DataSource = dt;
 
-                // Grid styling
                 dataGridView2.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
                 dataGridView2.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                 dataGridView2.DefaultCellStyle.Font = new Font("Segoe UI", 10);
 
-                // Sequence No. (Editable)
+                // ✅ Editable Sequence Column
                 DataGridViewTextBoxColumn colSeq = new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = "seq_No",
                     HeaderText = "Sequence No.",
                     Name = "Seq",
-                    ReadOnly = false // Allow editing
+                    ReadOnly = false // ensure editable
                 };
                 dataGridView2.Columns.Add(colSeq);
 
-                // Coil ID (Read-only)
+                // Coil ID
                 DataGridViewTextBoxColumn colCoil = new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = "coil_id",
@@ -58,7 +62,7 @@ namespace CoilApp
                 };
                 dataGridView2.Columns.Add(colCoil);
 
-                // TOC (Read-only)
+                // TOC
                 DataGridViewTextBoxColumn colTOC = new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = "TOC",
@@ -68,7 +72,7 @@ namespace CoilApp
                 };
                 dataGridView2.Columns.Add(colTOC);
 
-                // 🔁 Update Sequence button
+                // 🔁 Update Sequence Button
                 DataGridViewButtonColumn btnUpdateSeq = new DataGridViewButtonColumn
                 {
                     HeaderText = "Update Sequence",
@@ -79,16 +83,20 @@ namespace CoilApp
                 };
                 dataGridView2.Columns.Add(btnUpdateSeq);
 
-                // 🗑 Delete button
+                // 🗑 Delete Button
                 DataGridViewButtonColumn btnDelete = new DataGridViewButtonColumn
                 {
-                    HeaderText = "Delete Action",
+                    HeaderText = "Delete",
                     Name = "Delete",
                     FlatStyle = FlatStyle.Popup,
                     Text = "Delete",
                     UseColumnTextForButtonValue = true
                 };
                 dataGridView2.Columns.Add(btnDelete);
+
+                // Allow user to edit directly
+                dataGridView2.Columns["Seq"].ReadOnly = false;
+                dataGridView2.EditMode = DataGridViewEditMode.EditOnEnter;
 
                 Db.ConClose();
             }
@@ -98,7 +106,7 @@ namespace CoilApp
             }
         }
 
-        // 🧭 Handle button clicks
+        // 🧭 Handle Update & Delete
         private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
@@ -116,6 +124,9 @@ namespace CoilApp
             {
                 try
                 {
+                    // Commit any in-progress edits
+                    dataGridView2.EndEdit();
+
                     string seqText = dataGridView2.Rows[e.RowIndex].Cells["Seq"].Value.ToString();
 
                     if (!int.TryParse(seqText, out int newSeq))
@@ -138,6 +149,7 @@ namespace CoilApp
                     InsertAuditLog(coilId, $"SEQ updated to {newSeq}");
 
                     Db.ConClose();
+
                     MessageBox.Show($"Sequence number for Coil ID {coilId} updated successfully!", "Updated",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -184,7 +196,7 @@ namespace CoilApp
             }
         }
 
-        // 🧾 Common Audit Log Insert Function
+        // 🧾 Audit Log
         private void InsertAuditLog(string coilId, string remarkAction)
         {
             string insertQuery = @"INSERT INTO t_ccl_update_status 
