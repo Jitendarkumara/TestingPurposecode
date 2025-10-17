@@ -1,7 +1,3 @@
-Dear all,
+Dear All,
 
-Monday and Tuesday are holiday in TCE so I am going to my home location today I will be available on call and virtually .
-
-Thanks and regards
-Jitendar kumar
-8789226053
+As Monday and Tuesday are holidays at TCE, I will be traveling to my hometown today. I will remain available on call and virtually during this period.
