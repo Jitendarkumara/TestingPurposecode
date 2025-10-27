@@ -1,3 +1,1 @@
-Dear All,
-
-As Monday and Tuesday are holidays at TCE, I will be traveling to my hometown today. I will remain available on call and virtually during this period.
+Dear sir I have 2 Comp off and 6 casual leave how I can utilize this before expire .
