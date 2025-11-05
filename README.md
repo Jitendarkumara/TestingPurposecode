@@ -1,1 +1,1 @@
-Need to TAG name from electrical team for GP1 after discussion with operation team. Kindly find attached file
+Need to get the TAG name from the Electrical team for GP1 after discussion with the Operations team. Kindly find the attached file.
