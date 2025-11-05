@@ -1,2 +1,1 @@
-Dear Sir,
-I have 2 compensatory offs and 6 casual leaves. Could you please advise how I can utilize them before they expire
+Need to TAG name from electrical team for GP1 after discussion with operation team. Kindly find attached file
