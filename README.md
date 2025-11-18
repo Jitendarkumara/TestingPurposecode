@@ -1,19 +1,41 @@
-public int SenToL3(string coilId, string DCoil)
-{
-    OracleParameter[] parameters = new OracleParameter[]
-    {
-        new OracleParameter("p_coil_id", coilId),
-        new OracleParameter("p_daughter_coil", DCoil)   // <-- FIXED
-    };
+ public bool ExecuteProcedure(OracleParameter[] parameters, string ProcedureName)
+ {
+     using (OracleConnection connection = new OracleConnection(ConnectionString))
+     {
+         try
+         {
+             connection.Open();
+             OracleCommand cmd = new OracleCommand();
+             cmd.Connection = connection;
+             cmd.CommandType = CommandType.StoredProcedure;
+             cmd.CommandText = ProcedureName;
+             cmd.Parameters.AddRange(parameters);
+             OracleParameter outparam = new OracleParameter("ISSUCCESS", OracleDbType.Varchar2, 10);
+             outparam.Direction = ParameterDirection.Output;
+             cmd.Parameters.Add(outparam);
 
-    string ProcedureName = "p_production_reporting";  // must match PL/SQL name
+             cmd.ExecuteNonQuery();
+             if (outparam.Value.ToString().ToUpper() == "S")
+             {
+                 return true;
+             }
+             else
+             {
+                 return false;
+             }
+         }
+         catch (Exception ex)
+         {
+             //Console.WriteLine("Error Occured: " + ex.Message);
+             return false;
+         }
+         finally
+         {
+             if (connection.State == ConnectionState.Open)
+             {
+                 connection.Close();
+             }
+         }
 
-    if (dbContext.ExecuteProcedure(parameters, ProcedureName))
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
+     }
+ }
