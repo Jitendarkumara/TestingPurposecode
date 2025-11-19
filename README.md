@@ -1,2 +1,1 @@
-As per our last discussion on 10th Nov  regarding Midterm Performance  some task is on the pending stage from your side  , is it completed or some task is pending from my 
-Please let know if any thing pending from side .
+As per our last discussion on 10th November regarding the Midterm Performance, some tasks were pending from your side. Please let me know whether they have been completed or if anything is still pending
