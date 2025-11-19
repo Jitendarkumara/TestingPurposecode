@@ -1,47 +1,37 @@
-public void MillActualValue()
-{
-    try
-    {
-        Db.DatabaseConnect();
+ public void millStartStop()
+ {
+     if (Global.MillRunningSts)
+     {
+         SpinTimer.Tick += new EventHandler(TimerEventProcessor);
+         // Start only if not already running
+         if (!SpinTimer.Enabled)
+         {
+            // SpinTimer.Interval = 1;
+             SpinTimer.Start();
+         }
 
-        if (Db.Con.State != ConnectionState.Open)
-            Db.Con.Open();
+         //if (!timer1.Enabled)
+         //{
+         //    timer1.Start();
+         //}
 
-        string query = @"
-            SELECT Entry_speed_act 
-            FROM T_PERIODIC_VALUE_LOG 
-            ORDER BY DATE_TIME DESC 
-            FETCH FIRST 1 ROW ONLY";
+         //if (!RecoilTimer.Enabled)
+         //{
+         //    RecoilTimer.AutoReset = true;
+         //    RecoilTimer.Start();
+         //}
+     }
+     else
+     {
+         SpinTimer.Tick -= new EventHandler(TimerEventProcessor);
+         // Stop only if running
+         if (SpinTimer.Enabled)
+             SpinTimer.Stop();
 
-        DataTable dtActual = new DataTable();
+         if (timer1.Enabled)
+             timer1.Stop();
 
-        using (OracleDataAdapter oda = new OracleDataAdapter(query, Db.Con))
-        {
-            oda.Fill(dtActual);
-        }
-
-        if (dtActual.Rows.Count > 0)
-        {
-            GetProcessline();   // Only if needed
-
-            object val = dtActual.Rows[0][0];
-            txtActual.Text = val != DBNull.Value ? val.ToString() : "0";
-        }
-        else
-        {
-            txtActual.Text = "0";
-        }
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show("Error loading mill actual value: " + ex.Message,
-                        "MillActualValue Error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
-    }
-    finally
-    {
-        if (Db.Con.State == ConnectionState.Open)
-            Db.Con.Close();
-    }
-}
+         if (RecoilTimer.Enabled)
+             RecoilTimer.Stop();
+     }
+ }
