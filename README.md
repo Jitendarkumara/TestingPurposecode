@@ -1,42 +1,96 @@
-private async void TimerEventProcessor(object sender, EventArgs myEventArgs)
+private void InitializeCircleMap()
 {
-    try
+    circleMap = new Dictionary<CircleControl, bool>
     {
-        // ---- Get DB values async ----
-        var dtPORR = await PORSignalAsync();
-        if (dtPORR == null || dtPORR.Rows.Count == 0)
-            return;
+        // POR1 set
+        { circlePOR1, true },
+        { circle135, true },
+        { circle165, false },
+        { circle167, false },
+        { circle155, true },
+        { circle158, false },
+        { circle154, true },
+        { circle133, false },
+        { circle132, true },
+        { circleRecoiler2, true },
+        { circle77, true },
 
-        // ---- Update angles ----
-        lbl_Timer.Text = (Convert.ToInt32(lbl_Timer.Text) + 1).ToString();
+        // POR2 set
+        { circlePOR2, true },
+        { circle151, true },
+        { circle157, false },
+        { circle131, false },
+        { circle130, false },
 
-        rAngle = (rAngle + 5) % 360;
-        lAngle = (lAngle - 5) % 360;
-
-        string por1 = dtPORR.Rows[0][0].ToString();
-        string por2 = dtPORR.Rows[0][1].ToString();
-
-        // ---- Adjust POR logic ----
-        if (por1 == "1")
-        {
-            circleMap[circlePOR1] = true;
-            circleMap[circlePOR2] = false;
-        }
-        else if (por2 == "1")
-        {
-            circleMap[circlePOR2] = true;
-            circleMap[circlePOR1] = false;
-        }
-
-        // ---- Single loop updates EVERYTHING ----
-        foreach (var item in circleMap)
-        {
-            item.Key.angle = item.Value ? rAngle : lAngle;
-            item.Key.Invalidate();
-        }
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show(ex.Message + "666");
-    }
+        // All always-animated circles (add all remaining)
+        { circle129, false },
+        { circle128, false },
+        { circle156, false },
+        { circle153, false },
+        { circle35,  true },
+        { circle36,  false },
+        { circle150, true },
+        { circle166, false },
+        { circle148, true },
+        { circle140, false },
+        { circle117, false },
+        { circle115, true },
+        { circle113, true },
+        { circle111, true },
+        { circle109, true },
+        { circle104, false },
+        { circle108, false },
+        { circle107, false },
+        { circle106, false },
+        { circle96,  true },
+        { circle94,  true },
+        { circle99,  false },
+        { circle162, false },
+        { circle161, true },
+        { circle146, true },
+        { circle138, false },
+        { circle114, true },
+        { circle112, true },
+        { circle110, true },
+        { circle105, true },
+        { circle103, false },
+        { circle102, false },
+        { circle1,   false },
+        { circle2,   false },
+        { circle3,   true },
+        { circle4,   true },
+        { circle5,   false },
+        { circle6,   false },
+        { circle7,   true },
+        { circle8,   false },
+        { circle9,   true },
+        { circle10,  false },
+        { circle11,  true },
+        { circle87,  true },
+        { circle116, false },
+        { circle139, false },
+        { circle32,  true },
+        { circle37,  true },
+        { circle38,  true },
+        { circle39,  false },
+        { circle40,  true },
+        { circle41,  true },
+        { circle43,  true },
+        { circle44,  false },
+        { circle45,  true },
+        { circle46,  false },
+        { circle47,  true },
+        { circle15,  false },
+        { circle30,  true },
+        { circle14,  true },
+        { circle51,  false },
+        { circle52,  false },
+        { circle61,  true },
+        { circle62,  true },
+        { circle63,  true },
+        { circle64,  false },
+        { circle56,  false },
+        { circle66,  true },
+        { circle23,  false }
+    };
 }
