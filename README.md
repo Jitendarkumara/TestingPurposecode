@@ -1,1 +1,11 @@
-private Dictionary<CircleControl, bool> circleMap;
+CREATE PUBLIC DATABASE LINK WFORHRPOOL2
+CONNECT TO remote_user IDENTIFIED BY remote_password
+USING '
+  (DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 132.145.95.63)(PORT = 1521))
+    )
+    (CONNECT_DATA =
+      (SERVICE_NAME = HRMPRD)
+    )
+  )';
