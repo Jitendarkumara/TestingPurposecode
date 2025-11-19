@@ -1,37 +1,36 @@
- public void millStartStop()
- {
-     if (Global.MillRunningSts)
-     {
-         SpinTimer.Tick += new EventHandler(TimerEventProcessor);
-         // Start only if not already running
-         if (!SpinTimer.Enabled)
-         {
-            // SpinTimer.Interval = 1;
-             SpinTimer.Start();
-         }
+public void millStartStop()
+{
+    try
+    {
+        if (Global.MillRunningSts)
+        {
+            // Remove first to avoid multiple subscription
+            SpinTimer.Tick -= TimerEventProcessor; 
+            SpinTimer.Tick += TimerEventProcessor;
 
-         //if (!timer1.Enabled)
-         //{
-         //    timer1.Start();
-         //}
+            if (!SpinTimer.Enabled)
+                SpinTimer.Start();
 
-         //if (!RecoilTimer.Enabled)
-         //{
-         //    RecoilTimer.AutoReset = true;
-         //    RecoilTimer.Start();
-         //}
-     }
-     else
-     {
-         SpinTimer.Tick -= new EventHandler(TimerEventProcessor);
-         // Stop only if running
-         if (SpinTimer.Enabled)
-             SpinTimer.Stop();
+            // other timers if needed
+            // if (!timer1.Enabled) timer1.Start();
+            // if (!RecoilTimer.Enabled) RecoilTimer.Start();
+        }
+        else
+        {
+            SpinTimer.Tick -= TimerEventProcessor;
 
-         if (timer1.Enabled)
-             timer1.Stop();
+            if (SpinTimer.Enabled)
+                SpinTimer.Stop();
 
-         if (RecoilTimer.Enabled)
-             RecoilTimer.Stop();
-     }
- }
+            if (timer1.Enabled)
+                timer1.Stop();
+
+            if (RecoilTimer.Enabled)
+                RecoilTimer.Stop();
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("Error in millStartStop():\n" + ex.Message);
+    }
+}
