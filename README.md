@@ -1,1 +1,3 @@
-GRANT SELECT ON APPUSER.NSEC_SEQN_SRNO_MESG TO <YOUR_SCHEMA>;
+SELECT owner, sequence_name
+FROM all_sequences
+WHERE sequence_name = 'NSEC_SEQN_SRNO_MESG';
