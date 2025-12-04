@@ -1,5 +1,5 @@
-SELECT
-    NVL(l1_pass_number, 0) AS l1_pass_number
+SELECT 
+    NVL(NULLIF(l1_pass_number, ''), 0) AS l1_pass_number
 FROM
     t_periodic_value_log
 WHERE
