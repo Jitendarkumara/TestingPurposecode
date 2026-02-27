@@ -1,173 +1,150 @@
-create or replace PROCEDURE       P_DELAY_REGISTER IS
- 
-P_LINE_SPEED NUMBER;
+CREATE OR REPLACE PROCEDURE P_DELAY_REGISTER IS
 
-TIME_DELAY TIMESTAMP;
-
+P_LINE_SPEED NUMBER(20,4);
+TIME_DELAY   TIMESTAMP;
 DELAY_STATUS VARCHAR2(3);
+DELAY_END    TIMESTAMP;
 
-DELAY_END TIMESTAMP;
+H_STM_ID     VARCHAR2(200) := NULL;
+P_SHIFT      VARCHAR2(5) := 'ERROR';
+SPEED_ZERO_NUM NUMBER := 0;
+HSD_MESSAGE  VARCHAR2(36) := NULL;
 
-  H_STM_ID VARCHAR2(200):=NULL;
-
-  P_SHIFT VARCHAR2(5):='ERROR';
-
-  SPEED_ZERO_NUM NUMBER :=0;
-
-  HSD_MESSAGE VARCHAR2(36):=NULL;
-
-/******************************************************************************
-
-   NAME:       P_DELAY_REGISTER
-
-   PURPOSE:    
-
-   REVISIONS:
-
-   Ver        Date        Author           Description
-
-   ---------  ----------  ---------------  ------------------------------------
-
-   1.0        07/10/2024   Administrator       1. Created this procedure.
-
-   NOTES:
-
-   Automatically available Auto Replace Keywords:
-
-      Object Name:     P_DELAY_REGISTER
-
-      Sysdate:         07/10/2024
-
-      Date and Time:   07/10/2024, 16:41:25, and 07/10/2024 16:41:25
-
-      Username:        Administrator (set in TOAD Options, Procedure Editor)
-
-      Table Name:      T_DELAY_SHEET_TEM (set in the "New PL/SQL Object" dialog)
-
-
-      REMARKS R= RUNNING DELAY
-
-      REMARKS E= END OF DELAAY
-
-******************************************************************************/
-
-A_SHIFT TIMESTAMP(6):= TRUNC(SYSDATE) + 6/24;
-
-B_SHIFT TIMESTAMP(6):= TRUNC(SYSDATE) + 14/24;
-
-C_SHIFT TIMESTAMP(6):= TRUNC(SYSDATE) + 22/24;
-
-MID_NIGHT TIMESTAMP(6):=TRUNC(SYSDATE+1) + 00/24;
+/* Shift Variables */
+A_SHIFT TIMESTAMP(6);
+B_SHIFT TIMESTAMP(6);
+C_SHIFT TIMESTAMP(6);
 
 BEGIN
 
-   H_STM_ID:='select 1';
+   H_STM_ID := 'select recent mill_speed';
 
-   SELECT PROCESS_SPEED INTO P_LINE_SPEED FROM T_PERIODIC_VALUE_LOG ORDER BY RUN_ID DESC FETCH FIRST 1 ROW ONLY ;
+   BEGIN
+      SELECT NVL(MILL_SPEED,0)
+      INTO P_LINE_SPEED
+      FROM SPML2.T_PERIODIC_VALUE_LOG
+      ORDER BY DATE_TIME DESC
+      FETCH FIRST 1 ROW ONLY;
+   EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+         P_LINE_SPEED := 0;
+   END;
 
-   --SELECT COUNT(*) INTO SPEED_ZERO_NUM FROM T_PERIODIC_VALUE_LOG WHERE (date_time > sysdate - interval '5' minute) AND L1_LINE_SPEED=0;
+   ----------------------------------------------------------------
+   -- IF SPEED < 20 (DELAY START)
+   ----------------------------------------------------------------
 
    IF P_LINE_SPEED < 20 THEN
 
-   H_STM_ID:='select 2';
+      H_STM_ID := 'select delay status';
 
-     SELECT DELAY_STATUS INTO DELAY_STATUS FROM T_DELAY_SHEET_TEM WHERE LINE_STOP_TIME IS NOT NULL ORDER BY LINE_STOP_TIME DESC FETCH FIRST 1 ROW ONLY;
+      SELECT REMARKS
+      INTO DELAY_STATUS
+      FROM SPML2.T_DELAY_SHEET
+      WHERE LINE_STOP_TIME IS NOT NULL
+      ORDER BY LINE_STOP_TIME DESC
+      FETCH FIRST 1 ROW ONLY;
 
-       IF  DELAY_STATUS!= 'R'THEN
+      IF DELAY_STATUS != 'R' THEN
 
-        H_STM_ID:='SELECT 3';
+         H_STM_ID := 'get delay time';
 
-          SELECT MIN(DATE_TIME)INTO TIME_DELAY FROM T_PERIODIC_VALUE_LOG WHERE PROCESS_SPEED=0 and (date_time > sysdate - interval '5' minute) ;
+         SELECT MIN(DATE_TIME)
+         INTO TIME_DELAY
+         FROM SPML2.T_PERIODIC_VALUE_LOG
+         WHERE MILL_SPEED < 20
+         AND DATE_TIME > SYSDATE - INTERVAL '5' MINUTE;
 
-          SELECT CASE 
+         ----------------------------------------------------------
+         -- SHIFT LOGIC FIXED
+         ----------------------------------------------------------
 
-           WHEN TO_CHAR(TIME_DELAY,'HH24:MI') BETWEEN '06:00' AND '14:00' THEN 'A'
+         IF TIME_DELAY >= TRUNC(TIME_DELAY) + INTERVAL '6' HOUR
+            AND TIME_DELAY < TRUNC(TIME_DELAY) + INTERVAL '14' HOUR THEN
 
-           WHEN TO_CHAR(TIME_DELAY,'HH24:MI') BETWEEN '14:00' AND '22:00' THEN 'B'
+            P_SHIFT := 'A';
 
-          WHEN (TO_CHAR(TIME_DELAY,'HH24:MI') BETWEEN '22:00' AND '23:59') OR (TO_CHAR(TIME_DELAY,'HH24:MI') BETWEEN '00:00' AND '06:00')  THEN 'C'
+         ELSIF TIME_DELAY >= TRUNC(TIME_DELAY) + INTERVAL '14' HOUR
+            AND TIME_DELAY < TRUNC(TIME_DELAY) + INTERVAL '22' HOUR THEN
 
-          END 
+            P_SHIFT := 'B';
 
-      INTO P_SHIFT FROM DUAL;
-       H_STM_ID:='Insert 1';
+         ELSE
+            P_SHIFT := 'C';
+         END IF;
 
-       HSD_MESSAGE:=F_NANNOW_SECOND_TELGRM(TIME_DELAY);
+         ----------------------------------------------------------
+         -- SHIFT START TIMES (Midnight Fix for C Shift)
+         ----------------------------------------------------------
 
-         INSERT INTO T_DELAY_SHEET_TEM (LINE_STOP_TIME ,REMARKS,DELAY_STATUS,SHIFT,ID_MSG) VALUES (TIME_DELAY,'R','R',P_SHIFT,HSD_MESSAGE);
+         A_SHIFT := TRUNC(TIME_DELAY) + INTERVAL '6' HOUR;
+         B_SHIFT := TRUNC(TIME_DELAY) + INTERVAL '14' HOUR;
+         C_SHIFT := TRUNC(TIME_DELAY) + INTERVAL '22' HOUR;
 
-      END IF; 
+         -- If between 00:00 and 06:00 → previous day's C shift
+         IF TIME_DELAY < TRUNC(TIME_DELAY) + INTERVAL '6' HOUR THEN
+            C_SHIFT := TRUNC(TIME_DELAY - 1) + INTERVAL '22' HOUR;
+         END IF;
 
-      IF DELAY_STATUS='R' THEN
+         ----------------------------------------------------------
 
-        SELECT LINE_STOP_TIME INTO  TIME_DELAY FROM T_DELAY_SHEET_TEM WHERE LINE_STOP_TIME IS NOT NULL ORDER BY LINE_STOP_TIME DESC FETCH FIRST 1 ROW ONLY; 
+         HSD_MESSAGE := F_NANNOW_SECOND_TELGRM(TIME_DELAY);
 
-       H_STM_ID:='SELECT A SHIFT';
-
-        IF ( (TIME_DELAY<A_SHIFT )AND(A_SHIFT < SYSDATE) ) THEN
-
-          UPDATE T_DELAY_SHEET_TEM SET LINE_START_TIME=A_SHIFT,DELAY_DURATION=TIME_DIFF_MINTE(TIME_DELAY,A_SHIFT),DELAY_STATUS='E',TOM=SYSDATE WHERE DELAY_STATUS='R';
-
-           INSERT INTO T_DELAY_SHEET_TEM (LINE_STOP_TIME ,REMARKS,DELAY_STATUS,SHIFT,ID_MSG) VALUES (A_SHIFT,'R','R','A',F_NANNOW_SECOND_TELGRM(A_SHIFT));
-
-        END IF;
-
-        H_STM_ID:='SELECT B SHIFT';
-
-         IF ( (TIME_DELAY<B_SHIFT )AND(B_SHIFT < SYSDATE) )  THEN
-
-           UPDATE T_DELAY_SHEET_TEM SET LINE_START_TIME=B_SHIFT,DELAY_DURATION=TIME_DIFF_MINTE(TIME_DELAY,B_SHIFT),DELAY_STATUS='E',TOM=SYSDATE WHERE REMARKS='R';
-
-          INSERT INTO T_DELAY_SHEET_TEM (LINE_STOP_TIME ,REMARKS,DELAY_STATUS,SHIFT,ID_MSG) VALUES (B_SHIFT,'R','R','B',F_NANNOW_SECOND_TELGRM(B_SHIFT));
-
-          END IF;
-
-          H_STM_ID:='SELECT C SHIFT';
-
-         IF ((TIME_DELAY<C_shift ) and (C_shift<sysdate) )THEN
-
-          UPDATE T_DELAY_SHEET_TEM SET LINE_START_TIME=C_SHIFT,DELAY_DURATION=TIME_DIFF_MINTE(TIME_DELAY,C_shift),DELAY_STATUS='E',TOM=SYSDATE WHERE REMARKS='R';
-
-          INSERT INTO T_DELAY_SHEET_TEM (LINE_STOP_TIME ,REMARKS,DELAY_STATUS,SHIFT) VALUES (C_SHIFT,'R','R','C');
-
-        END IF;
+         INSERT INTO SPML2.T_DELAY_SHEET
+         (LINE_STOP_TIME, REMARKS, SHIFT, ID_MESSAGE)
+         VALUES
+         (TIME_DELAY, 'R', P_SHIFT, HSD_MESSAGE);
 
       END IF;
 
    END IF;
 
+   ----------------------------------------------------------------
+   -- IF SPEED >= 20 (DELAY END)
+   ----------------------------------------------------------------
+
    IF P_LINE_SPEED >= 20 THEN
 
-   H_STM_ID:='SELECT 4';
+      H_STM_ID := 'select last running delay';
 
-   --  SELECT COUNT(*) INTO SPEED_ZERO_NUM FROM T_PERIODIC_VALUE_LOG WHERE (date_time > sysdate - interval '5' minute) AND L1_LINE_SPEED=0;
+      SELECT REMARKS, LINE_STOP_TIME
+      INTO DELAY_STATUS, TIME_DELAY
+      FROM SPML2.T_DELAY_SHEET
+      WHERE LINE_STOP_TIME IS NOT NULL
+      ORDER BY LINE_STOP_TIME DESC
+      FETCH FIRST 1 ROW ONLY;
 
-     SELECT DELAY_STATUS,LINE_STOP_TIME INTO DELAY_STATUS,TIME_DELAY FROM T_DELAY_SHEET_TEM WHERE LINE_STOP_TIME IS NOT NULL ORDER BY LINE_STOP_TIME DESC FETCH FIRST 1 ROW ONLY;
+      IF DELAY_STATUS = 'R' THEN
 
-      IF DELAY_STATUS='R' THEN
+         H_STM_ID := 'get delay end time';
 
-      H_STM_ID:='SELECT 5';
+         SELECT MIN(DATE_TIME)
+         INTO DELAY_END
+         FROM SPML2.T_PERIODIC_VALUE_LOG
+         WHERE MILL_SPEED != 0
+         AND DATE_TIME > SYSDATE - INTERVAL '5' MINUTE;
 
-       SELECT MIN(DATE_TIME) INTO DELAY_END FROM T_PERIODIC_VALUE_LOG WHERE PROCESS_SPEED!=0 and (date_time > sysdate - interval '5' minute) ;
+         H_STM_ID := 'update delay end';
 
-      H_STM_ID:='UPDATE 1';
-
-       UPDATE T_DELAY_SHEET_TEM SET LINE_START_TIME=DELAY_END,DELAY_DURATION=TIME_DIFF_MINTE(TIME_DELAY,DELAY_END),REMARKS='E',DELAY_STATUS='E',TOM=SYSDATE WHERE DELAY_STATUS='R'; 
+         UPDATE SPML2.T_DELAY_SHEET
+         SET LINE_START_TIME = DELAY_END,
+             DELAY_DURATION  = TIME_DIFF_MINTE(TIME_DELAY, DELAY_END),
+             REMARKS         = 'E',
+             TOM             = SYSDATE
+         WHERE REMARKS = 'R';
 
       END IF;
 
-  END IF;
+   END IF;
 
-  dbms_output.put_line(SPEED_ZERO_NUM);
+   DBMS_OUTPUT.PUT_LINE(SPEED_ZERO_NUM);
+   DBMS_OUTPUT.PUT_LINE(DELAY_END);
 
-    dbms_output.put_line(DELAY_END);
-
-   EXCEPTION
-
-       WHEN OTHERS THEN 
-
-     LOG_ERROR_EVENT(substr(sqlerrm(sqlcode),1,100),'Error While registering Delay','Failure',SYSTIMESTAMP,2);
-
-     COMMIT;
+EXCEPTION
+   WHEN OTHERS THEN
+      HANDLE_ERROR('SPM','P_DELAY_REGISTER',H_STM_ID,SQLCODE,
+                   SUBSTR(SQLERRM(SQLCODE),1,100),
+                   NULL,'T_DELAY_SHEET');
+      COMMIT;
 
 END P_DELAY_REGISTER;
