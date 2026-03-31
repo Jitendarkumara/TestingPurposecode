@@ -1,4 +1,4 @@
-create or replace PROCEDURE P_LINE_TEN_CALC_DATA_MODIFIED (
+CREATE OR REPLACE PROCEDURE P_LINE_TEN_CALC_DATA_MODIFIED (
     p_id_coil     VARCHAR2,
     p_thickness   NUMBER,
     p_width       NUMBER,
@@ -20,11 +20,11 @@ AS
 
     l_por1_ent NUMBER := 0;
     l_por2_ent NUMBER := 0;
+    l_por2_ent NUMBER := 0;
     l_spm_entry NUMBER := 0;
     l_spm_exit NUMBER := 0;
     l_tll_ten NUMBER := 0;
 
-    -- Temperature sets
     l_nof_temp NUMBER := 0;
     l_rtf_temp NUMBER := 0;
     l_sf_temp  NUMBER := 0;
@@ -33,14 +33,10 @@ AS
     l_strip_temp NUMBER := 0;
 
     l_type VARCHAR2(10);
-BEGIN
-    DBMS_OUTPUT.PUT_LINE(
-        'PROC: THK=' || p_thickness || ' WIDTH=' || p_width ||
-        ' TDC=' || p_tdc_no
-    );
 
+BEGIN
     ----------------------------------------------------------------------
-    -- 1. GET TENSION FACTORS (SAFE)
+    -- 1. GET STRESS FACTOR
     ----------------------------------------------------------------------
     h_stm_id := 'SELECT_STRESS_FCTR';
 
@@ -68,11 +64,10 @@ BEGIN
         FROM T_GP2_STRESS_FCTR
         WHERE p_thickness BETWEEN THK_FROM AND THK_TO;
 
-    EXCEPTION WHEN NO_DATA_FOUND THEN
-        DBMS_OUTPUT.PUT_LINE('NO STRESS_FCTR FOUND: THK='||p_thickness);
-        RETURN;
+    EXCEPTION 
+        WHEN NO_DATA_FOUND THEN
+            RETURN;
     END;
-
 
     ----------------------------------------------------------------------
     -- 2. GET TDC TYPE
@@ -83,39 +78,34 @@ BEGIN
         SELECT TDC_TYPE INTO l_type
         FROM GP02KL2.T_GP2_TDC_MASTER
         WHERE TDC_NUMBER = p_tdc_no;
-    EXCEPTION
+
+    EXCEPTION 
         WHEN NO_DATA_FOUND THEN
-            DBMS_OUTPUT.PUT_LINE('NO TDC MASTER FOUND FOR: '||p_tdc_no);
             RETURN;
     END;
 
-
     ----------------------------------------------------------------------
-    -- 3. TEMPERATURE READINGS DEPENDING ON TYPE
+    -- 3. TEMPERATURE LOGIC
     ----------------------------------------------------------------------
     IF l_type = 'SOFT' THEN
-        h_stm_id := 'SOFT_TEMP';
 
         BEGIN
             SELECT 
                 RTF_EXIT_TEMP, SF_EXIT_TEMP,
-                SNOUT_TEMP, BATH_TEMP, STRIP_TEMP--, NOF_EXIT_TEMP
+                SNOUT_TEMP, BATH_TEMP, STRIP_TEMP
             INTO 
                 l_rtf_temp, l_sf_temp,
                 l_snout_temp, l_bath_temp, l_strip_temp
-               -- , l_nof_temp
             FROM T_GL_SOFT_CYCLE
             WHERE p_thickness BETWEEN THK_FROM AND THK_TO
               AND TDC_NUMBER = p_tdc_no;
 
-        EXCEPTION WHEN NO_DATA_FOUND THEN
-            DBMS_OUTPUT.PUT_LINE('NO SOFT CYCLE DATA FOUND');
-            RETURN;
+        EXCEPTION 
+            WHEN NO_DATA_FOUND THEN
+                RETURN;
         END;
 
-    ELSE 
-    
-        h_stm_id := 'HARD_TEMP';
+    ELSE
 
         BEGIN
             SELECT 
@@ -127,18 +117,16 @@ BEGIN
             FROM T_GL_HARD_CYCLE
             WHERE p_thickness BETWEEN THK_FROM AND THK_TO;
 
-        EXCEPTION WHEN NO_DATA_FOUND THEN
-            DBMS_OUTPUT.PUT_LINE('NO HARD CYCLE DATA FOUND');
-            RETURN;
+        EXCEPTION 
+            WHEN NO_DATA_FOUND THEN
+                RETURN;
         END;
+
     END IF;
 
-
     ----------------------------------------------------------------------
-    -- 4. INSERT FINAL VALUES
+    -- 4. INSERT
     ----------------------------------------------------------------------
-    h_stm_id := 'INSERT_DATA';
-
     INSERT INTO T_GP2_TENSION_VALUE_COPY (
         CGP_ID_COIL, WIDTH, THICKNESS,
         UNCOILER, POR1_ENT, POR2_ENT, ENT_ACCU,
@@ -149,16 +137,6 @@ BEGIN
         NOF_EXIT_TEMP, RTF_EXIT_TEMP, SF_EXIT_TEMP,
         SNOUT_TEMP, BATH_TEMP
     )
---    VALUES (
---        'K630910000', 904, 0.239,
---        216.056, 216.056, 216.056,
---        324.084, 324.084, 432.112, 503.41048,
---        540.14, 864.224,
---        648.168, 972.252,
---        216.056, 216.056, 1296.336,
---        0, 1583.69048, 3000,
---        200, 300
---    );
     VALUES (
         p_id_coil, p_width, p_thickness,
         l_uncoiler, l_por1_ent, l_por2_ent,
@@ -169,16 +147,10 @@ BEGIN
         l_nof_temp, l_rtf_temp, l_sf_temp,
         l_snout_temp, l_bath_temp
     );
-commit;
+
 EXCEPTION
     WHEN OTHERS THEN
-        HANDL_EERROR(
-            'GP2 L2',
-            'P_LINE_TEN_CALC_DATA_MODIFIED',
-            h_stm_id,
-            SQLCODE,
-            SUBSTR(SQLERRM,1,200),
-            NULL,
-            'T_GP2_TENSION_VALUE_COPY'
-        );
+        -- No commit / rollback here
+        DBMS_OUTPUT.PUT_LINE('ERROR: ' || SQLERRM);
 END;
+/
