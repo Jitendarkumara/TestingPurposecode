@@ -1,203 +1,62 @@
-[15/06, 12:23 pm] Mahi Singh Napasoft: return (
-  <div className="dashboard">
+Introduction
+Tata steel Meramandali has a 0.12 MT/Year capacity Colour coating line (CCL)  at CRM Complex  premise .This CCL has two POR and single recoiler configuration. CCL line consists of two furnace one prime oven and one finish oven containing 4 heating zones each. Zero spangled galvanized coil from (GP2,GP3) is the feed for this line. This line is a continuous line so the head end and tail end of coils are stitched together with a punch hole at middle for the tracking at the time of stitching entry speed is made to 0 , then the coil goes through a vertical lopper (Entry Accumulator) to account for the line stop at entry stitching process, coil passes through different process stage first through the TLL for surface flatness, then goes through a degreasing section where the surface of coil is treated with alkali and electrolytes to remove any impurities and then goes through a Hot air dryer to Dry out the cleaning agents. In the further process coil passes through chemical coater and chemical dryer to add a layer or chemical and    coil enters the coater area for application of the prime coating on both surface (Top and Bottom). After prime coater coil enters the Prime oven subsequently enters the Finish top coater and before entering to the finish oven finish back coat is applied through finish back coater. Coating rolls are disengaged at the time stitch passing to prevent the applicator roll damage. After the finish oven the coil enters the exit vertical looper (Exit Accumulator) to account for the zero speed at the coil cut at the process exit. At exit crop shear is operated there to part coil into different parts single on 
+Coil is recoiled in the recoiler and mandrel is collapsed to remove the coil from the recoiler and transferred through 
+Coil transport Car. For tracking of stitch 4 WPD(Weld point Detection) are present in line at different location ( Briddle roll 2,Briddle roll 6,Stearing roll 6,Briddle roll 9).
 
-    <div className="header">
-      <h1>RLNG Consumption Dashboard</h1>
-      <p>Monitor RLNG Usage and Consumption</p>
-    </div>
-
-    <div className="filter-card">
-
-      {xAxisType === "date" && (
-        <>
-          <div className="filter-group">
-            <label>From Date</label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-            />
-          </div>
-
-          <div className="filter-group">
-            <label>To Date</label>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-            />
-          </div>
-        </>
-      )}
-
-      {xAxisType === "coilid" && (
-        <div className="filter-group">
-          <label>Select Date</label>
-          <input
-            type="date"
-            value={coilDate}
-            onChange={(e) => setCoilDate(e.target.value)}
-          />
-        </div>
-      )}
-
-      <div className="filter-group">
-        <label>View Type</label>
-        <select
-          value={xAxisType}
-          onChange={(e) => setXAxisType(e.target.value)}
-        >
-          <option value="date">Date Wise</option>
-          <option value="coilid">Coil Wise</option>
-        </select>
-      </div>
-
-      <div className="filter-group">
-        <label>Chart Type</label>
-        <select
-          value={chartType}
-          onChange={(e) => setChartType(e.target.value)}
-        >
-          <option value="bar">Bar Chart</option>
-          <option value="line">Line Chart</option>
-        </select>
-      </div>
-
-    </div>
-
-    <div className="chart-card">
-
-      {loading ? (
-        <div className="loader">
-          Loading Data...
-        </div>
-      ) : (
-        <ResponsiveContainer width="100%" height={500}>
-
-          {chartType === "bar" ? (
-
-            <BarChart data={filteredData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={xAxisType} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar
-                dataKey="consumption"
-                fill="#1976d2"
-                radius={[8, 8, 0, 0]}
-              />
-            </BarChart>
-
-          ) : (
-
-            <LineChart data={filteredData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={xAxisType} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-
-              <Line
-                type="monotone"
-                dataKey="consumption"
-                stroke="#1976d2"
-                strokeWidth={3}
-              />
-            </LineChart>
-
-          )}
-
-        </ResponsiveContainer>
-      )}
-
-    </div>
-
-  </div>
-);
-[15/06, 12:23 pm] Mahi Singh Napasoft: body {
-  margin: 0;
-  font-family: Segoe UI, sans-serif;
-  background: #f4f6f9;
-}
-
-.dashboard {
-  padding: 25px;
-}
-
-.header {
-  background: linear-gradient(135deg, #1565c0, #42a5f5);
-  color: white;
-  padding: 25px;
-  border-radius: 15px;
-  margin-bottom: 20px;
-  box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 28px;
-}
-
-.header p {
-  margin-top: 8px;
-}
-
-.filter-card {
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  min-width: 180px;
-}
-
-.filter-group label {
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.filter-group input,
-.filter-group select {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.filter-group input:focus,
-.filter-group select:focus {
-  outline: none;
-  border-color: #1976d2;
-}
-
-.chart-card {
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
-}
-
-.loader {
-  text-align: center;
-  font-size: 20px;
-  color: #1976d2;
-  padding: 50px;
-}
-
-@media(max-width:768px) {
-  .filter-card {
-    flex-direction: column;
-  }
-
-  .filter-group {
-    width: 100%;
-  }
-}
+ 
+1 
+	
+HMI 
+	
+Human machine interface 
+2 
+PDI 
+Primary data Input 
+PDO 
+Primary data Output 
+4 
+CCL 
+Color Coating Line 
+5 
+OPC 
+Open Protocol Communication 
+CRM 
+Cold Rolling Mill 
+7 
+WPD 
+Weld Point Detector 
+8 
+	
+LEVEL-3 
+Production planning & scheduling system 
+9 
+GWT 
+Grade Width Thickness 
+ Description of the Module
+The level 2 system for colour coating line aims towards the regularity of coil scheduling, Remove manual intervention in many process different functionalities are 
+Tracking page
+PDI management
+Coil Schedule management
+Setpoint Management
+PDO management
+Delay management
+Process data acquisition
+Reports
+Impact of the Module
+The Importance of the Level 2 system is to provide optimized setpoint, gather the process data to make PDO, and send the process data to the higher Level system.
+ 
+Process description
+PDI Management
+This process download the Primary data like Coil Id, Input Weight, thickness, width, Grade etc as per required data for business from MES to Level 2 Systsem
+Setpoint Management
+This Process creates setups according to GWT for the specific coil. From refence data and the historical data 
+Coil Tracking
+This process tracks the Coil from the Loading into POR till the coil exit from the Recoiler end through WPD signals.
+PDO Management
+This Process Creates single point data from the acquired process data and send the data to the MES for the auto GRN
+Delay Management
+This module captures the Line outage by the line speed for example when the Line speed becomes 0 the delay starts and after the line speed >0 delay end and send these delay data to MES for delay booking.
+Process data acquisition
+This module use the OPC for capturing the Data from the respective level 1 PLC and capture the data against the specific tag address and stores in the CCLDB data base.
+6 months of periodic data are stored in the data base for further analysis.
+ 
